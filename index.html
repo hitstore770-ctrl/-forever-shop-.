@@ -110,6 +110,61 @@
 
     </section>
 
+    <!-- ===================== PREMIUM COLLECTION (PRODUCTS GRID) ===================== -->
+    <section id="products-section" class="bg-gray-50 py-24">
+
+        <div class="max-w-6xl mx-auto px-6">
+
+            <!-- Section Title -->
+            <h2 id="products-title" class="font-heading text-4xl font-bold text-gray-800 text-center mb-12">
+                הנבחרת המנצחת שלנו
+            </h2>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                <!-- Card 1 -->
+                <div class="product-card glass-panel rounded-2xl overflow-hidden relative p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div class="aspect-square bg-gray-200 rounded-xl mb-6 flex items-center justify-center text-gray-400">
+                        <i class="fa-solid fa-tooth text-4xl"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-xl text-green-900 mb-1">Forever Bright</h3>
+                    <p class="text-sm text-gray-500 mb-4">משחת שיניים טבעית ללא פלואוריד</p>
+                    <button class="border border-green-900 text-green-900 rounded-full px-6 py-2 hover:bg-green-900 hover:text-white transition">
+                        הוסף לעגלה
+                    </button>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="product-card glass-panel rounded-2xl overflow-hidden relative p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div class="aspect-square bg-gray-200 rounded-xl mb-6 flex items-center justify-center text-gray-400">
+                        <i class="fa-solid fa-leaf text-4xl"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-xl text-green-900 mb-1">Ever-Shield</h3>
+                    <p class="text-sm text-gray-500 mb-4">דאודורנט אלוורה, ללא אלומיניום</p>
+                    <button class="border border-green-900 text-green-900 rounded-full px-6 py-2 hover:bg-green-900 hover:text-white transition">
+                        הוסף לעגלה
+                    </button>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="product-card glass-panel rounded-2xl overflow-hidden relative p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div class="aspect-square bg-gray-200 rounded-xl mb-6 flex items-center justify-center text-gray-400">
+                        <i class="fa-solid fa-kit-medical text-4xl"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-xl text-green-900 mb-1">Aloe Vera Gelly</h3>
+                    <p class="text-sm text-gray-500 mb-4">הקסם הירוק, עזרה ראשונה לכל בית</p>
+                    <button class="border border-green-900 text-green-900 rounded-full px-6 py-2 hover:bg-green-900 hover:text-white transition">
+                        הוסף לעגלה
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
     <!-- ===================== ANIMATIONS ===================== -->
     <script>
         gsap.registerPlugin(ScrollTrigger);
@@ -127,6 +182,33 @@
             scrollTrigger: {
                 trigger: "#story-section",
                 start: "top 75%",
+                toggleActions: "play none none none"
+            },
+            y: 40,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
+            ease: "power3.out"
+        });
+
+        // Products section title: slide up into view
+        gsap.from("#products-title", {
+            scrollTrigger: {
+                trigger: "#products-section",
+                start: "top 75%",
+                toggleActions: "play none none none"
+            },
+            y: 40,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out"
+        });
+
+        // Product cards: stagger fade-in + slide-up on scroll
+        gsap.from("#products-section .product-card", {
+            scrollTrigger: {
+                trigger: "#products-section",
+                start: "top 70%",
                 toggleActions: "play none none none"
             },
             y: 40,
