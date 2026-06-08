@@ -85,6 +85,31 @@
 
     </section>
 
+    <!-- ===================== STORY (EDITORIAL) SECTION ===================== -->
+    <section id="story-section" class="bg-white py-24">
+
+        <div class="max-w-3xl mx-auto text-center px-6">
+
+            <!-- Kicker / Tagline -->
+            <span class="story-item block text-sm tracking-widest uppercase mb-4 font-semibold"
+                  style="color: #b8860b;">
+                הסטנדרט שלנו
+            </span>
+
+            <!-- Main Title -->
+            <h2 class="story-item font-heading text-4xl sm:text-5xl font-bold text-gray-800 mb-6 leading-tight">
+                לא כל אלוורה נולדה שווה.
+            </h2>
+
+            <!-- Paragraph -->
+            <p class="story-item text-lg text-gray-600 leading-relaxed">
+                אנחנו מאמינים שהטבע מספק את הפתרונות הטובים ביותר. המוצרים שלנו מבוססים על אלוורה פעילה, טהורה ומיוצבת - שגדלה בתנאים אופטימליים כדי להעניק לך את המקסימום. זה לא סתם עוד מוצר על המדף בבית, זו איכות חיים שמרגישים מהשימוש הראשון.
+            </p>
+
+        </div>
+
+    </section>
+
     <!-- ===================== ANIMATIONS ===================== -->
     <script>
         gsap.registerPlugin(ScrollTrigger);
@@ -94,6 +119,20 @@
             y: 50,
             opacity: 0,
             duration: 1.5,
+            ease: "power3.out"
+        });
+
+        // Story section: stagger fade-in + slide-up on scroll
+        gsap.from("#story-section .story-item", {
+            scrollTrigger: {
+                trigger: "#story-section",
+                start: "top 75%",
+                toggleActions: "play none none none"
+            },
+            y: 40,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
             ease: "power3.out"
         });
     </script>
