@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forever Living Premium | הכוח הטהור של הטבע</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Heebo & Assistant -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        h1, h2, h3, .font-heading {
+            font-family: 'Heebo', sans-serif;
+        }
+
+        /* Premium Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <!-- ===================== HERO SECTION ===================== -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+        <!-- Background placeholder (Spline 3D object will be embedded here later) -->
+        <div id="spline-bg"
+             class="absolute inset-0 w-full h-full z-0"
+             style="background: linear-gradient(135deg, #f3f4f6 0%, #e8efe6 50%, #d7e8d3 100%);">
+            <!-- Spline 3D scene placeholder -->
+        </div>
+
+        <!-- Foreground Content -->
+        <div id="hero-panel"
+             class="glass-panel relative z-10 rounded-3xl p-10 max-w-2xl mx-4 text-center">
+
+            <!-- Badge / Tag -->
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-white/50 border border-[#054b16]/10 text-sm font-semibold tracking-wide"
+                  style="color: #054b16;">
+                <i class="fa-solid fa-leaf" style="color: #c8a24a;"></i>
+                <span style="color: #c8a24a;">Forever Living</span> Premium
+            </span>
+
+            <!-- Main Title -->
+            <h1 class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight text-gray-900 mb-5">
+                הכוח הטהור של הטבע, <br class="hidden sm:block"> אצלך בידיים
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-lg sm:text-xl text-gray-600 leading-relaxed mb-9 max-w-xl mx-auto">
+                גלה את סדרת האלוורה היוקרתית שמשנה את חוקי המשחק. טבעי, עוצמתי ובריא יותר.
+            </p>
+
+            <!-- CTA Button -->
+            <a href="#collection"
+               class="inline-flex items-center gap-3 px-9 py-4 rounded-full text-white font-bold text-lg shadow-lg transition-transform duration-300 ease-out hover:scale-105 hover:shadow-xl"
+               style="background-color: #054b16;">
+                גלה את הקולקציה
+                <i class="fa-solid fa-arrow-left text-base"></i>
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- ===================== ANIMATIONS ===================== -->
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero glass panel: fade in from the bottom on page load
+        gsap.from("#hero-panel", {
+            y: 50,
+            opacity: 0,
+            duration: 1.5,
+            ease: "power3.out"
+        });
+    </script>
+
+</body>
+</html>
