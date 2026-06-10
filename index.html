@@ -19,14 +19,20 @@
             theme: {
                 extend: {
                     colors: {
-                        ink:    '#121214', // dark background
-                        panel:  '#1c1c22', // raised surface
+                        ink:    '#0f0f10', // deep charcoal background
+                        panel:  '#17171c', // raised surface (solid fallback under glass)
                         neon:   '#6C5CE7', // primary / neon purple
                         sweet:  '#FF7675', // secondary / sweet pink
                     },
                     fontFamily: {
                         body: ['Assistant', 'sans-serif'],
                         head: ['Heebo', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon':       '0 0 15px rgba(108, 92, 231, 0.4), 0 8px 30px rgba(108, 92, 231, 0.22)',
+                        'neon-lg':    '0 0 25px rgba(108, 92, 231, 0.55), 0 10px 40px rgba(108, 92, 231, 0.3)',
+                        'sweet-glow': '0 0 12px rgba(255, 118, 117, 0.5)',
+                        'card':       '0 16px 40px rgba(0, 0, 0, 0.45)',
                     },
                 },
             },
@@ -38,13 +44,52 @@
             font-family: 'Assistant', sans-serif;
             /* Fallback dark theme so the page is never a blank white document
                if the Tailwind Play CDN is blocked by a preview proxy. */
-            background: #121214;
+            background: #0f0f10;
             color: #f3f4f6;
         }
         h1, h2, h3, .font-head { font-family: 'Heebo', sans-serif; }
 
-        /* Subtle neon glow used on the hero + primary buttons */
-        .glow-neon { box-shadow: 0 8px 30px rgba(108, 92, 231, 0.35); }
+        /* Immersive ambient neon glow, fixed behind all content */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(45% 35% at 85% -5%, rgba(108, 92, 231, 0.22), transparent 70%),
+                radial-gradient(40% 30% at 0% 40%, rgba(255, 118, 117, 0.10), transparent 70%),
+                radial-gradient(50% 40% at 50% 110%, rgba(108, 92, 231, 0.12), transparent 70%);
+        }
+
+        /* Neon glow used on primary buttons + floating cart */
+        .glow-neon {
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.4),
+                        0 8px 30px rgba(108, 92, 231, 0.22);
+        }
+
+        /* Glassmorphism surface (header, cards, drawer).
+           Also serves as the no-CDN fallback for these panels. */
+        .glass {
+            background: rgba(23, 23, 28, 0.45);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+        }
+
+        /* Gradient headline text: neon purple → sweet pink.
+           drop-shadow (not text-shadow) keeps the shadow OUTSIDE the
+           clipped glyphs — text-shadow would bleed through the transparent
+           fill and muddy the gradient. Light purple start keeps WCAG AA
+           contrast for large text on the dark background. */
+        .text-gradient {
+            background: linear-gradient(105deg, #9d8cff 0%, #6C5CE7 45%, #FF7675 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+        }
 
         /* Hide scrollbar for the horizontal category chips on mobile */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -65,16 +110,20 @@
             gap: 1rem;
         }
 
-        /* Proper UI cards: dark surface, rounded, shadow */
+        /* Glass UI cards: translucent surface, rounded, deep shadow */
         .product-card {
-            background: #1c1c22;
-            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 0.75rem;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
             display: flex;
             flex-direction: column;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
+        .product-card:hover {
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
+                        0 0 20px rgba(108, 92, 231, 0.18);
+        }
+        .product-card:active { transform: scale(0.98); }
 
         /* Uniform image sizing */
         .card-img { width: 100%; height: 10rem; object-fit: cover; display: block; }
@@ -82,21 +131,23 @@
         /* Cap any icon so SVGs can never balloon to full screen */
         svg { width: 1.5rem; height: 1.5rem; }
 
-        /* Primary neon button fallback */
+        /* Primary neon button fallback + tactile press */
         .btn-neon {
             background: #6C5CE7;
             color: #fff;
             border: 0;
             border-radius: 0.75rem;
             cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
+        .btn-neon:active { transform: scale(0.95); }
     </style>
 
 </head>
 <body class="bg-ink text-gray-100 antialiased selection:bg-neon/40">
 
     <!-- ===================== STICKY HEADER ===================== -->
-    <header class="sticky top-0 z-50 backdrop-blur-md bg-ink/80 border-b border-white/5">
+    <header class="glass sticky top-0 z-50 backdrop-blur-lg bg-gray-900/40 border-b border-white/10">
         <!-- Top announcement bar -->
         <div id="announcement-bar"
              class="w-full text-center text-sm font-semibold py-1.5 text-white"
@@ -107,8 +158,8 @@
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <!-- Logo / Store name -->
             <div class="flex items-center gap-2">
-                <span class="grid place-items-center w-9 h-9 rounded-xl bg-neon text-white text-lg glow-neon">🍬</span>
-                <span id="logo-name" class="font-head font-extrabold text-xl tracking-tight"></span>
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-neon text-white text-lg glow-neon shadow-neon">🍬</span>
+                <span id="logo-name" class="font-head font-extrabold text-xl tracking-tight text-gradient pb-0.5"></span>
             </div>
             <!-- Decorative tagline (desktop only) -->
             <span class="hidden sm:inline text-xs text-gray-400 font-medium">משלוחים מקומיים לשבת</span>
@@ -124,13 +175,13 @@
         </div>
 
         <div class="max-w-6xl mx-auto px-4 py-14 sm:py-20 text-center">
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full bg-white/5 backdrop-blur-lg border border-white/10 text-sm text-gray-200">
                 <span class="w-2 h-2 rounded-full bg-sweet animate-pulse"></span>
                 טרי, מתוק ומגיע עד הדלת
             </span>
 
             <h1 class="font-head font-black text-4xl sm:text-6xl leading-tight mb-5">
-                כל המתוקים של <span class="text-neon">שבת</span><br class="hidden sm:block">
+                כל המתוקים של <span class="text-gradient">שבת</span><br class="hidden sm:block">
                 במקום <span class="text-sweet">אחד</span>
             </h1>
 
@@ -139,7 +190,7 @@
             </p>
 
             <a href="#catalog"
-               class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-neon hover:bg-neon/90 text-white font-bold text-lg glow-neon transition-transform hover:scale-105">
+               class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-neon hover:bg-neon/90 text-white font-bold text-lg glow-neon shadow-neon transition-all duration-200 hover:scale-105 hover:shadow-neon-lg active:scale-95">
                 לקטלוג המלא
                 <span class="text-base">↓</span>
             </a>
@@ -153,7 +204,7 @@
 
     <!-- ===================== FLOATING CART BUTTON ===================== -->
     <button id="cart-fab" type="button" onclick="openCart()" aria-label="פתח עגלה"
-            class="fixed bottom-5 left-5 z-50 grid place-items-center w-14 h-14 rounded-full bg-neon text-white glow-neon transition-transform hover:scale-110 active:scale-95">
+            class="fixed bottom-5 left-5 z-50 grid place-items-center w-14 h-14 rounded-full bg-neon text-white glow-neon shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all duration-200 hover:scale-110 hover:shadow-neon-lg active:scale-95">
         <svg width="24" height="24" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
@@ -161,7 +212,7 @@
         </svg>
         <!-- Sweet-pink count badge -->
         <span id="cart-count"
-              class="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 grid place-items-center rounded-full bg-sweet text-white text-xs font-bold border-2 border-ink hidden">0</span>
+              class="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 grid place-items-center rounded-full bg-sweet text-white text-xs font-bold border-2 border-ink shadow-sweet-glow hidden">0</span>
     </button>
 
     <!-- ===================== CART DRAWER ===================== -->
@@ -171,10 +222,10 @@
 
     <!-- Slide-in panel (from the right, since layout is RTL) -->
     <aside id="cart-drawer" role="dialog" aria-modal="true" aria-label="עגלת קניות"
-           class="fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-panel border-l border-white/10 shadow-2xl flex flex-col translate-x-full transition-transform duration-300 ease-out">
+           class="glass fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-gray-900/40 backdrop-blur-lg border-l border-white/10 shadow-2xl flex flex-col translate-x-full transition-transform duration-300 ease-out">
         <!-- Drawer header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
-            <h2 class="font-head font-extrabold text-xl">העגלה שלי</h2>
+            <h2 class="font-head font-extrabold text-xl text-gradient">העגלה שלי</h2>
             <button type="button" onclick="closeCart()" aria-label="סגור עגלה"
                     class="grid place-items-center w-9 h-9 rounded-full hover:bg-white/10 text-gray-300 text-2xl leading-none transition">×</button>
         </div>
@@ -198,7 +249,7 @@
                 <span id="cart-total" class="text-2xl font-extrabold text-sweet">₪0</span>
             </div>
             <button id="cart-send" type="button" onclick="sendOrderToWhatsapp()"
-                    class="btn-neon inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold glow-neon transition-transform hover:scale-[1.02] active:scale-95">
+                    class="btn-neon inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold glow-neon shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all duration-200 hover:scale-[1.02] hover:shadow-neon-lg active:scale-95">
                 <span id="cart-send-icon" class="inline-flex"></span>
                 שליחת הזמנה בוואטסאפ
             </button>
@@ -286,12 +337,14 @@
         // Build a single product card from a product object
         function renderProductCard(product) {
             return `
-                <article class="product-card group bg-panel rounded-xl overflow-hidden border border-white/5 transition-transform duration-300 hover:-translate-y-1 hover:border-neon/40 flex flex-col">
-                    <div class="relative h-40 overflow-hidden">
+                <article class="product-card glass group bg-white/5 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-neon/40 flex flex-col">
+                    <div class="relative h-36 sm:h-40 overflow-hidden rounded-t-xl">
                         <img src="${product.image}" alt="${product.name}" loading="lazy"
-                             class="card-img w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110">
+                             class="card-img w-full h-36 sm:h-40 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <!-- Soft fade so the glass body melts into the photo -->
+                        <div class="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
                         <!-- Sweet pink price tag -->
-                        <span class="absolute top-2 left-2 bg-sweet text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-lg">
+                        <span class="absolute top-2 left-2 bg-sweet text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-sweet-glow">
                             ₪${product.price}
                         </span>
                     </div>
@@ -299,9 +352,9 @@
                         <h3 class="font-head font-bold text-sm sm:text-base mb-1 leading-tight">${product.name}</h3>
                         <p class="text-xs sm:text-sm text-gray-400 leading-relaxed mb-3 line-clamp-2">${product.description}</p>
 
-                        <!-- Add-to-cart button (neon-purple, pinned to the bottom of the card) -->
+                        <!-- Add-to-cart button (neon glow, pinned to the bottom of the card) -->
                         <button type="button" onclick="addToCart(${product.id})"
-                           class="btn-neon mt-auto inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold text-xs sm:text-sm glow-neon transition-transform hover:scale-[1.03] active:scale-95">
+                           class="btn-neon mt-auto inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all duration-200 hover:scale-[1.03] hover:shadow-neon-lg active:scale-95">
                             <span class="text-base leading-none">＋</span>
                             הוסף לעגלה
                         </button>
@@ -318,9 +371,9 @@
             return `
                 <section>
                     <div class="flex items-center gap-3 mb-6">
-                        <span class="w-1.5 h-7 rounded-full bg-neon"></span>
-                        <h2 class="font-head font-extrabold text-2xl sm:text-3xl">${categoryName}</h2>
-                        <span class="text-sm text-gray-500">(${items.length} מוצרים)</span>
+                        <span class="w-1.5 h-7 rounded-full bg-neon shadow-neon"></span>
+                        <h2 class="text-gradient font-head font-extrabold text-2xl sm:text-3xl pb-1">${categoryName}</h2>
+                        <span class="text-sm text-gray-400">(${items.length} מוצרים)</span>
                     </div>
                     <div class="product-grid grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                         ${cards}
@@ -439,7 +492,7 @@
             const p = getProduct(line.id);
             const lineTotal = p.price * line.qty;
             return `
-                <div class="flex items-center gap-3 bg-white/5 rounded-xl p-3">
+                <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3 transition-colors hover:border-neon/30">
                     <img src="${p.image}" alt="${p.name}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">
                     <div class="flex-1 min-w-0">
                         <p class="font-head font-bold text-sm truncate">${p.name}</p>
@@ -447,10 +500,10 @@
                         <!-- Quantity stepper -->
                         <div class="flex items-center gap-2 mt-2">
                             <button type="button" onclick="changeQty(${p.id}, -1)" aria-label="הפחת"
-                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 hover:bg-sweet/80 text-lg leading-none transition">−</button>
+                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 border border-white/10 hover:bg-sweet/80 hover:shadow-sweet-glow text-lg leading-none transition-all active:scale-95">−</button>
                             <span class="w-6 text-center font-bold">${line.qty}</span>
                             <button type="button" onclick="changeQty(${p.id}, 1)" aria-label="הוסף"
-                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 hover:bg-neon text-lg leading-none transition">＋</button>
+                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 border border-white/10 hover:bg-neon hover:shadow-neon text-lg leading-none transition-all active:scale-95">＋</button>
                         </div>
                     </div>
                     <div class="text-left flex-shrink-0">
