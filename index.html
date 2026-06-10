@@ -103,6 +103,62 @@
         <!-- Categories + product cards injected here -->
     </main>
 
+    <!-- ===================== FLOATING CART BUTTON ===================== -->
+    <button id="cart-fab" type="button" onclick="openCart()" aria-label="פתח עגלה"
+            class="fixed bottom-5 left-5 z-50 grid place-items-center w-14 h-14 rounded-full bg-neon text-white glow-neon transition-transform hover:scale-110 active:scale-95">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <!-- Sweet-pink count badge -->
+        <span id="cart-count"
+              class="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 grid place-items-center rounded-full bg-sweet text-white text-xs font-bold border-2 border-ink hidden">0</span>
+    </button>
+
+    <!-- ===================== CART DRAWER ===================== -->
+    <!-- Backdrop -->
+    <div id="cart-overlay" onclick="closeCart()"
+         class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <!-- Slide-in panel (from the right, since layout is RTL) -->
+    <aside id="cart-drawer" role="dialog" aria-modal="true" aria-label="עגלת קניות"
+           class="fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-panel border-l border-white/10 shadow-2xl flex flex-col translate-x-full transition-transform duration-300 ease-out">
+        <!-- Drawer header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <h2 class="font-head font-extrabold text-xl">העגלה שלי</h2>
+            <button type="button" onclick="closeCart()" aria-label="סגור עגלה"
+                    class="grid place-items-center w-9 h-9 rounded-full hover:bg-white/10 text-gray-300 text-2xl leading-none transition">×</button>
+        </div>
+
+        <!-- Item list (scrollable) -->
+        <div id="cart-items" class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+            <!-- Cart rows injected here -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="cart-empty" class="flex-1 flex flex-col items-center justify-center text-center px-6 text-gray-400">
+            <span class="text-5xl mb-3">🛒</span>
+            <p class="font-head font-bold text-lg text-gray-200 mb-1">העגלה ריקה</p>
+            <p class="text-sm">הוסיפו מוצרים מהקטלוג כדי להתחיל הזמנה.</p>
+        </div>
+
+        <!-- Footer: total + bundled WhatsApp order -->
+        <div id="cart-footer" class="border-t border-white/10 px-5 py-4 space-y-3">
+            <div class="flex items-center justify-between font-head">
+                <span class="text-gray-300">סה"כ לתשלום</span>
+                <span id="cart-total" class="text-2xl font-extrabold text-sweet">₪0</span>
+            </div>
+            <button id="cart-send" type="button" onclick="sendOrderToWhatsapp()"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold glow-neon transition-transform hover:scale-[1.02] active:scale-95">
+                <span id="cart-send-icon" class="inline-flex"></span>
+                שליחת הזמנה בוואטסאפ
+            </button>
+            <button type="button" onclick="clearCart()"
+                    class="w-full py-2 text-sm text-gray-400 hover:text-sweet transition">רוקן עגלה</button>
+        </div>
+    </aside>
+
     <!-- ===================== FOOTER ===================== -->
     <footer class="border-t border-white/5 mt-8">
         <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-400">
@@ -176,11 +232,8 @@
 
         /* ---------- 2. RENDER HELPERS ---------- */
 
-        // Build a pre-filled wa.me link for a given product
-        function buildWhatsappLink(product) {
-            const message = `היי, אשמח להזמין: ${product.name} - ₪${product.price}`;
-            return `https://wa.me/${storeConfig.whatsappNumber}?text=${encodeURIComponent(message)}`;
-        }
+        // Reusable WhatsApp glyph
+        const WHATSAPP_ICON = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.728-.978zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>`;
 
         // Build a single product card from a product object
         function renderProductCard(product) {
@@ -198,14 +251,12 @@
                         <h3 class="font-head font-bold text-lg mb-1">${product.name}</h3>
                         <p class="text-sm text-gray-400 leading-relaxed mb-4">${product.description}</p>
 
-                        <!-- WhatsApp order button (neon-purple, pushed to the bottom of the card) -->
-                        <a href="${buildWhatsappLink(product)}" target="_blank" rel="noopener noreferrer"
+                        <!-- Add-to-cart button (neon-purple, pinned to the bottom of the card) -->
+                        <button type="button" onclick="addToCart(${product.id})"
                            class="mt-auto inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold text-sm glow-neon transition-transform hover:scale-[1.03] active:scale-95">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.728-.978zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                            </svg>
-                            הזמן בוואטסאפ
-                        </a>
+                            <span class="text-lg leading-none">＋</span>
+                            הוסף לעגלה
+                        </button>
                     </div>
                 </article>
             `;
@@ -244,8 +295,177 @@
             catalog.innerHTML = storeConfig.categories.map(renderCategory).join("");
         }
 
-        // Kick things off once the DOM is ready
-        document.addEventListener("DOMContentLoaded", renderStore);
+        /* ---------- 4. CART STATE + PERSISTENCE ---------- */
+        const CART_STORAGE_KEY = "sweetShabbatCart";
+
+        // cart = [{ id, qty }, ...]  — kept in memory, mirrored to localStorage
+        let cart = loadCart();
+
+        function loadCart() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY));
+                if (!Array.isArray(saved)) return [];
+                // Keep only lines that still map to a real product
+                return saved.filter(line => storeConfig.products.some(p => p.id === line.id));
+            } catch {
+                return [];
+            }
+        }
+
+        function persistCart() {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        }
+
+        function getProduct(id) {
+            return storeConfig.products.find(p => p.id === id);
+        }
+
+        /* ---------- 5. CART MUTATIONS ---------- */
+        function addToCart(id) {
+            const line = cart.find(l => l.id === id);
+            if (line) {
+                line.qty += 1;
+            } else {
+                cart.push({ id, qty: 1 });
+            }
+            persistCart();
+            renderCart();
+            bumpFab();
+        }
+
+        function changeQty(id, delta) {
+            const line = cart.find(l => l.id === id);
+            if (!line) return;
+            line.qty += delta;
+            if (line.qty <= 0) {
+                cart = cart.filter(l => l.id !== id);
+            }
+            persistCart();
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(l => l.id !== id);
+            persistCart();
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            persistCart();
+            renderCart();
+        }
+
+        /* ---------- 6. CART DERIVED VALUES ---------- */
+        function cartCount() {
+            return cart.reduce((sum, l) => sum + l.qty, 0);
+        }
+
+        function cartTotal() {
+            return cart.reduce((sum, l) => sum + getProduct(l.id).price * l.qty, 0);
+        }
+
+        /* ---------- 7. CART RENDERING ---------- */
+        function renderCart() {
+            const count = cartCount();
+
+            // Floating button badge
+            const badge = document.getElementById("cart-count");
+            badge.textContent = count;
+            badge.classList.toggle("hidden", count === 0);
+
+            // Toggle empty state vs item list + footer
+            const isEmpty = cart.length === 0;
+            document.getElementById("cart-empty").classList.toggle("hidden", !isEmpty);
+            document.getElementById("cart-items").classList.toggle("hidden", isEmpty);
+            document.getElementById("cart-footer").classList.toggle("hidden", isEmpty);
+
+            // Item rows
+            document.getElementById("cart-items").innerHTML = cart.map(renderCartRow).join("");
+
+            // Total
+            document.getElementById("cart-total").textContent = `₪${cartTotal()}`;
+        }
+
+        function renderCartRow(line) {
+            const p = getProduct(line.id);
+            const lineTotal = p.price * line.qty;
+            return `
+                <div class="flex items-center gap-3 bg-white/5 rounded-xl p-3">
+                    <img src="${p.image}" alt="${p.name}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-head font-bold text-sm truncate">${p.name}</p>
+                        <p class="text-xs text-gray-400">₪${p.price} ליחידה</p>
+                        <!-- Quantity stepper -->
+                        <div class="flex items-center gap-2 mt-2">
+                            <button type="button" onclick="changeQty(${p.id}, -1)" aria-label="הפחת"
+                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 hover:bg-sweet/80 text-lg leading-none transition">−</button>
+                            <span class="w-6 text-center font-bold">${line.qty}</span>
+                            <button type="button" onclick="changeQty(${p.id}, 1)" aria-label="הוסף"
+                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 hover:bg-neon text-lg leading-none transition">＋</button>
+                        </div>
+                    </div>
+                    <div class="text-left flex-shrink-0">
+                        <p class="font-bold text-sweet">₪${lineTotal}</p>
+                        <button type="button" onclick="removeFromCart(${p.id})"
+                                class="text-xs text-gray-500 hover:text-sweet transition mt-1">הסר</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ---------- 8. DRAWER OPEN / CLOSE ---------- */
+        function openCart() {
+            document.getElementById("cart-overlay").classList.remove("opacity-0", "pointer-events-none");
+            document.getElementById("cart-drawer").classList.remove("translate-x-full");
+            document.body.style.overflow = "hidden"; // lock background scroll
+        }
+
+        function closeCart() {
+            document.getElementById("cart-overlay").classList.add("opacity-0", "pointer-events-none");
+            document.getElementById("cart-drawer").classList.add("translate-x-full");
+            document.body.style.overflow = "";
+        }
+
+        // Little pulse on the floating button when an item is added
+        function bumpFab() {
+            const fab = document.getElementById("cart-fab");
+            fab.classList.remove("animate-ping-short");
+            void fab.offsetWidth; // restart animation
+            fab.animate(
+                [{ transform: "scale(1)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }],
+                { duration: 280, easing: "ease-out" }
+            );
+        }
+
+        /* ---------- 9. BUNDLED WHATSAPP ORDER ---------- */
+        function buildOrderMessage() {
+            const lines = cart.map(l => {
+                const p = getProduct(l.id);
+                return `• ${p.name} ×${l.qty} — ₪${p.price * l.qty}`;
+            });
+            return [
+                `שלום ${storeConfig.storeName}, אשמח להזמין:`,
+                ...lines,
+                `———————————`,
+                `סה"כ: ₪${cartTotal()}`,
+            ].join("\n");
+        }
+
+        function sendOrderToWhatsapp() {
+            if (cart.length === 0) return;
+            const url = `https://wa.me/${storeConfig.whatsappNumber}?text=${encodeURIComponent(buildOrderMessage())}`;
+            window.open(url, "_blank", "noopener,noreferrer");
+        }
+
+        /* ---------- 10. INIT ---------- */
+        document.addEventListener("DOMContentLoaded", () => {
+            renderStore();
+            document.getElementById("cart-send-icon").innerHTML = WHATSAPP_ICON;
+            renderCart(); // reflects any cart restored from localStorage
+            // Close drawer on Escape
+            document.addEventListener("keydown", e => { if (e.key === "Escape") closeCart(); });
+        });
     </script>
 </body>
 </html>
