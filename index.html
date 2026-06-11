@@ -42,16 +42,39 @@
     <style>
         body {
             font-family: 'Assistant', sans-serif;
-            /* Pure-light boutique base. Also the no-CDN fallback so the page
-               never flashes a dark or unstyled background. */
-            background: #F9F9FB;
+            /* Pure white luxury base. Also the no-CDN fallback so the page
+               never flashes unstyled. */
+            background: #FFFFFF;
             color: #1A1A1A;
         }
         h1, h2, h3, .font-head { font-family: 'Heebo', sans-serif; }
 
-        /* THE BRAND GRADIENT — deep violet → peach.
+        /* Soft candy-colored gradient mesh, fixed behind all content.
+           Ultra-low opacity — a sweet vibe, never competing with content. */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(45% 40% at 85% 0%,  rgba(255, 118, 117, 0.05), transparent 70%),  /* light peach */
+                radial-gradient(40% 35% at 5% 25%,  rgba(255, 182, 193, 0.05), transparent 70%),  /* pale pink */
+                radial-gradient(50% 45% at 50% 100%, rgba(112, 0, 255, 0.05), transparent 70%);   /* soft lavender */
+        }
+
+        /* Light glassmorphism: sticky header + cart drawer.
+           Solid-ish white fallback baked in for no-CDN rendering. */
+        .glass-light {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* THE BRAND GRADIENT — deep violet → sweet pink.
            Used in exactly three places: the hero title text-fill, the
-           "הוסף לעגלה" buttons, and the floating cart badge. Never as a glow. */
+           "הוסף לעגלה" buttons, and the floating cart badge. */
         .brand-gradient {
             background: linear-gradient(135deg, #7000FF 0%, #FF7675 100%);
         }
@@ -61,7 +84,17 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
             color: transparent;
+            /* drop-shadow (not text-shadow) keeps the dark edge OUTSIDE the
+               clipped glyphs — text-shadow would bleed through the transparent
+               fill. Subtle, for crispness + WCAG contrast on white. */
+            filter: drop-shadow(0 1px 1px rgba(26, 26, 26, 0.25));
         }
+
+        /* Elastic, bouncy press for every interactive control */
+        button, a {
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        button:active, a:active { transform: scale(0.95); }
 
         /* Hide scrollbar for the horizontal category chips on mobile */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -82,22 +115,21 @@
             gap: 1rem;
         }
 
-        /* Premium white cards: clean surface, soft standard shadow */
+        /* Luxury white cards: clean surface, whisper-soft shadow, smooth lift */
         .product-card {
             background: #FFFFFF;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.04);
             border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
         }
         .product-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.12);
         }
-        .product-card:active { transform: scale(0.98); }
 
         /* Uniform image sizing */
         .card-img { width: 100%; height: 10rem; object-fit: cover; display: block; }
@@ -105,36 +137,32 @@
         /* Cap any icon so SVGs can never balloon to full screen */
         svg { width: 1.5rem; height: 1.5rem; }
 
-        /* Gradient primary button (Add to Cart) + tactile press */
+        /* Gradient primary button (Add to Cart) */
         .btn-gradient {
             background: linear-gradient(135deg, #7000FF 0%, #FF7675 100%);
             color: #fff;
             border: 0;
             border-radius: 0.75rem;
             cursor: pointer;
-            transition: transform 0.15s ease, filter 0.2s ease;
         }
         .btn-gradient:hover { filter: brightness(1.05); }
-        .btn-gradient:active { transform: scale(0.95); }
 
-        /* Solid violet button (WhatsApp send / secondary primary) */
+        /* Solid violet button (hero CTA / WhatsApp send) */
         .btn-violet {
             background: #7000FF;
             color: #fff;
             border: 0;
             border-radius: 0.75rem;
             cursor: pointer;
-            transition: transform 0.15s ease, filter 0.2s ease;
         }
         .btn-violet:hover { filter: brightness(1.08); }
-        .btn-violet:active { transform: scale(0.95); }
     </style>
 
 </head>
-<body class="bg-ink text-midnight antialiased selection:bg-violet/20">
+<body class="bg-white text-midnight antialiased selection:bg-violet/20">
 
     <!-- ===================== STICKY HEADER ===================== -->
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/5 shadow-soft">
+    <header class="glass-light sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/50 shadow-soft">
         <!-- Top announcement bar -->
         <div id="announcement-bar"
              class="w-full text-center text-sm font-semibold py-1.5 text-white"
@@ -210,7 +238,7 @@
 
     <!-- Slide-in panel (from the right, since layout is RTL) -->
     <aside id="cart-drawer" role="dialog" aria-modal="true" aria-label="עגלת קניות"
-           class="fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-white border-l border-black/5 shadow-soft-lg flex flex-col translate-x-full transition-transform duration-300 ease-out">
+           class="glass-light fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-white/70 backdrop-blur-xl border-l border-white/50 shadow-soft-lg flex flex-col translate-x-full transition-transform duration-300 ease-out">
         <!-- Drawer header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-black/5">
             <h2 class="font-head font-extrabold text-xl text-midnight">העגלה שלי</h2>
@@ -325,10 +353,10 @@
         // Build a single product card from a product object
         function renderProductCard(product) {
             return `
-                <article class="product-card group bg-white rounded-2xl overflow-hidden border border-black/5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg flex flex-col">
-                    <div class="relative h-36 sm:h-40 overflow-hidden rounded-t-2xl">
+                <article class="product-card group bg-white rounded-2xl overflow-hidden border border-black/5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col">
+                    <div class="relative h-40 overflow-hidden rounded-t-2xl">
                         <img src="${product.image}" alt="${product.name}" loading="lazy"
-                             class="card-img w-full h-36 sm:h-40 object-cover transition-transform duration-500 group-hover:scale-110">
+                             class="card-img w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110">
                         <!-- Peach price tag -->
                         <span class="absolute top-2 left-2 bg-sweet text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-soft">
                             ₪${product.price}
@@ -408,6 +436,12 @@
         }
 
         /* ---------- 5. CART MUTATIONS ---------- */
+
+        // Haptic tap on supported phones (no-op elsewhere)
+        function hapticTap() {
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
         function addToCart(id) {
             const line = cart.find(l => l.id === id);
             if (line) {
@@ -418,6 +452,7 @@
             persistCart();
             renderCart();
             bumpFab();
+            hapticTap();
         }
 
         function changeQty(id, delta) {
@@ -429,6 +464,7 @@
             }
             persistCart();
             renderCart();
+            hapticTap();
         }
 
         function removeFromCart(id) {
