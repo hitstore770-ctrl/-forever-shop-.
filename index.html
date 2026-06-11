@@ -19,20 +19,20 @@
             theme: {
                 extend: {
                     colors: {
-                        ink:    '#0f0f10', // deep charcoal background
-                        panel:  '#17171c', // raised surface (solid fallback under glass)
-                        neon:   '#6C5CE7', // primary / neon purple
-                        sweet:  '#FF7675', // secondary / sweet pink
+                        ink:    '#F9F9FB', // pure-light page background
+                        panel:  '#FFFFFF', // white surfaces (cards, header, drawer)
+                        violet: '#7000FF', // brand primary (deep violet)
+                        neon:   '#7000FF', // alias kept so existing utilities map to the new violet
+                        sweet:  '#FF7675', // brand secondary (peach)
+                        midnight: '#1A1A1A', // primary text
                     },
                     fontFamily: {
                         body: ['Assistant', 'sans-serif'],
                         head: ['Heebo', 'sans-serif'],
                     },
                     boxShadow: {
-                        'neon':       '0 0 15px rgba(108, 92, 231, 0.4), 0 8px 30px rgba(108, 92, 231, 0.22)',
-                        'neon-lg':    '0 0 25px rgba(108, 92, 231, 0.55), 0 10px 40px rgba(108, 92, 231, 0.3)',
-                        'sweet-glow': '0 0 12px rgba(255, 118, 117, 0.5)',
-                        'card':       '0 16px 40px rgba(0, 0, 0, 0.45)',
+                        'soft':    '0 4px 15px rgba(0, 0, 0, 0.05)',
+                        'soft-lg': '0 10px 30px rgba(0, 0, 0, 0.08)',
                     },
                 },
             },
@@ -42,53 +42,25 @@
     <style>
         body {
             font-family: 'Assistant', sans-serif;
-            /* Fallback dark theme so the page is never a blank white document
-               if the Tailwind Play CDN is blocked by a preview proxy. */
-            background: #0f0f10;
-            color: #f3f4f6;
+            /* Pure-light boutique base. Also the no-CDN fallback so the page
+               never flashes a dark or unstyled background. */
+            background: #F9F9FB;
+            color: #1A1A1A;
         }
         h1, h2, h3, .font-head { font-family: 'Heebo', sans-serif; }
 
-        /* Immersive ambient neon glow, fixed behind all content */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            background:
-                radial-gradient(45% 35% at 85% -5%, rgba(108, 92, 231, 0.22), transparent 70%),
-                radial-gradient(40% 30% at 0% 40%, rgba(255, 118, 117, 0.10), transparent 70%),
-                radial-gradient(50% 40% at 50% 110%, rgba(108, 92, 231, 0.12), transparent 70%);
+        /* THE BRAND GRADIENT — deep violet → peach.
+           Used in exactly three places: the hero title text-fill, the
+           "הוסף לעגלה" buttons, and the floating cart badge. Never as a glow. */
+        .brand-gradient {
+            background: linear-gradient(135deg, #7000FF 0%, #FF7675 100%);
         }
-
-        /* Neon glow used on primary buttons + floating cart */
-        .glow-neon {
-            box-shadow: 0 0 15px rgba(108, 92, 231, 0.4),
-                        0 8px 30px rgba(108, 92, 231, 0.22);
-        }
-
-        /* Glassmorphism surface (header, cards, drawer).
-           Also serves as the no-CDN fallback for these panels. */
-        .glass {
-            background: rgba(23, 23, 28, 0.45);
-            backdrop-filter: blur(16px) saturate(140%);
-            -webkit-backdrop-filter: blur(16px) saturate(140%);
-            border: 1px solid rgba(255, 255, 255, 0.10);
-        }
-
-        /* Gradient headline text: neon purple → sweet pink.
-           drop-shadow (not text-shadow) keeps the shadow OUTSIDE the
-           clipped glyphs — text-shadow would bleed through the transparent
-           fill and muddy the gradient. Light purple start keeps WCAG AA
-           contrast for large text on the dark background. */
         .text-gradient {
-            background: linear-gradient(105deg, #9d8cff 0%, #6C5CE7 45%, #FF7675 100%);
+            background: linear-gradient(135deg, #7000FF 0%, #FF7675 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             color: transparent;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
         }
 
         /* Hide scrollbar for the horizontal category chips on mobile */
@@ -97,7 +69,7 @@
 
         /* ---------------------------------------------------------------
            CRITICAL-CSS SAFETY NET
-           These low-specificity rules only take effect when Tailwind isn't
+           Low-specificity rules that only take effect when Tailwind isn't
            loaded; when the CDN is present, Tailwind's utilities (injected
            later in <head>) override them, so the design is identical.
            --------------------------------------------------------------- */
@@ -110,18 +82,20 @@
             gap: 1rem;
         }
 
-        /* Glass UI cards: translucent surface, rounded, deep shadow */
+        /* Premium white cards: clean surface, soft standard shadow */
         .product-card {
-            border-radius: 0.75rem;
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .product-card:hover {
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
-                        0 0 20px rgba(108, 92, 231, 0.18);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         }
         .product-card:active { transform: scale(0.98); }
 
@@ -131,66 +105,80 @@
         /* Cap any icon so SVGs can never balloon to full screen */
         svg { width: 1.5rem; height: 1.5rem; }
 
-        /* Primary neon button fallback + tactile press */
-        .btn-neon {
-            background: #6C5CE7;
+        /* Gradient primary button (Add to Cart) + tactile press */
+        .btn-gradient {
+            background: linear-gradient(135deg, #7000FF 0%, #FF7675 100%);
             color: #fff;
             border: 0;
             border-radius: 0.75rem;
             cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            transition: transform 0.15s ease, filter 0.2s ease;
         }
-        .btn-neon:active { transform: scale(0.95); }
+        .btn-gradient:hover { filter: brightness(1.05); }
+        .btn-gradient:active { transform: scale(0.95); }
+
+        /* Solid violet button (WhatsApp send / secondary primary) */
+        .btn-violet {
+            background: #7000FF;
+            color: #fff;
+            border: 0;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.15s ease, filter 0.2s ease;
+        }
+        .btn-violet:hover { filter: brightness(1.08); }
+        .btn-violet:active { transform: scale(0.95); }
     </style>
 
 </head>
-<body class="bg-ink text-gray-100 antialiased selection:bg-neon/40">
+<body class="bg-ink text-midnight antialiased selection:bg-violet/20">
 
     <!-- ===================== STICKY HEADER ===================== -->
-    <header class="glass sticky top-0 z-50 backdrop-blur-lg bg-gray-900/40 border-b border-white/10">
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/5 shadow-soft">
         <!-- Top announcement bar -->
         <div id="announcement-bar"
              class="w-full text-center text-sm font-semibold py-1.5 text-white"
-             style="background: linear-gradient(90deg, #6C5CE7, #FF7675);">
+             style="background: #7000FF;">
             <!-- topAnnouncement injected here -->
         </div>
 
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <!-- Logo / Store name -->
             <div class="flex items-center gap-2">
-                <span class="grid place-items-center w-9 h-9 rounded-xl bg-neon text-white text-lg glow-neon shadow-neon">🍬</span>
-                <span id="logo-name" class="font-head font-extrabold text-xl tracking-tight text-gradient pb-0.5"></span>
+                <span class="bg-violet grid place-items-center w-9 h-9 rounded-xl text-white text-lg shadow-soft">🍬</span>
+                <span id="logo-name" class="font-head font-extrabold text-xl tracking-tight text-midnight"></span>
             </div>
             <!-- Decorative tagline (desktop only) -->
-            <span class="hidden sm:inline text-xs text-gray-400 font-medium">משלוחים מקומיים לשבת</span>
+            <span class="hidden sm:inline text-xs text-gray-500 font-medium">משלוחים מקומיים לשבת</span>
         </div>
     </header>
 
     <!-- ===================== HERO BANNER ===================== -->
     <section class="relative overflow-hidden">
+        <!-- Very soft light brand tints (no dark glow) -->
         <div class="absolute inset-0 -z-10"
              style="background:
-                radial-gradient(60% 80% at 80% 0%, rgba(108,92,231,0.30), transparent 60%),
-                radial-gradient(50% 70% at 10% 20%, rgba(255,118,117,0.22), transparent 60%);">
+                radial-gradient(55% 70% at 85% 0%, rgba(112,0,255,0.06), transparent 60%),
+                radial-gradient(50% 60% at 5% 15%, rgba(255,118,117,0.07), transparent 60%);">
         </div>
 
         <div class="max-w-6xl mx-auto px-4 py-14 sm:py-20 text-center">
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full bg-white/5 backdrop-blur-lg border border-white/10 text-sm text-gray-200">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full bg-white border border-black/5 shadow-soft text-sm text-gray-600">
                 <span class="w-2 h-2 rounded-full bg-sweet animate-pulse"></span>
                 טרי, מתוק ומגיע עד הדלת
             </span>
 
-            <h1 class="font-head font-black text-4xl sm:text-6xl leading-tight mb-5">
+            <h1 class="font-head font-black text-4xl sm:text-6xl leading-tight mb-5 text-midnight">
                 כל המתוקים של <span class="text-gradient">שבת</span><br class="hidden sm:block">
-                במקום <span class="text-sweet">אחד</span>
+                במקום אחד
             </h1>
 
-            <p class="text-gray-300 text-lg max-w-xl mx-auto mb-8">
+            <p class="text-gray-600 text-lg max-w-xl mx-auto mb-8">
                 מארזי פינוק, פיצוחים פריכים וממתקי גומי צבעוניים — מסודרים בקטלוג נקי ומוכנים למשלוח מהיר.
             </p>
 
             <a href="#catalog"
-               class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-neon hover:bg-neon/90 text-white font-bold text-lg glow-neon shadow-neon transition-all duration-200 hover:scale-105 hover:shadow-neon-lg active:scale-95">
+               class="btn-violet inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-bold text-lg shadow-soft transition-all duration-200 hover:scale-105 active:scale-95">
                 לקטלוג המלא
                 <span class="text-base">↓</span>
             </a>
@@ -204,7 +192,7 @@
 
     <!-- ===================== FLOATING CART BUTTON ===================== -->
     <button id="cart-fab" type="button" onclick="openCart()" aria-label="פתח עגלה"
-            class="fixed bottom-5 left-5 z-50 grid place-items-center w-14 h-14 rounded-full bg-neon text-white glow-neon shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all duration-200 hover:scale-110 hover:shadow-neon-lg active:scale-95">
+            class="bg-violet fixed bottom-5 left-5 z-50 grid place-items-center w-14 h-14 rounded-full text-white shadow-soft-lg transition-all duration-200 hover:scale-110 active:scale-95">
         <svg width="24" height="24" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
@@ -212,22 +200,22 @@
         </svg>
         <!-- Sweet-pink count badge -->
         <span id="cart-count"
-              class="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 grid place-items-center rounded-full bg-sweet text-white text-xs font-bold border-2 border-ink shadow-sweet-glow hidden">0</span>
+              class="brand-gradient absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 grid place-items-center rounded-full text-white text-xs font-bold border-2 border-white shadow-soft hidden">0</span>
     </button>
 
     <!-- ===================== CART DRAWER ===================== -->
-    <!-- Backdrop -->
+    <!-- Backdrop (soft neutral scrim for focus) -->
     <div id="cart-overlay" onclick="closeCart()"
-         class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"></div>
+         class="fixed inset-0 z-50 bg-gray-900/25 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
     <!-- Slide-in panel (from the right, since layout is RTL) -->
     <aside id="cart-drawer" role="dialog" aria-modal="true" aria-label="עגלת קניות"
-           class="glass fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-gray-900/40 backdrop-blur-lg border-l border-white/10 shadow-2xl flex flex-col translate-x-full transition-transform duration-300 ease-out">
+           class="fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-white border-l border-black/5 shadow-soft-lg flex flex-col translate-x-full transition-transform duration-300 ease-out">
         <!-- Drawer header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
-            <h2 class="font-head font-extrabold text-xl text-gradient">העגלה שלי</h2>
+        <div class="flex items-center justify-between px-5 py-4 border-b border-black/5">
+            <h2 class="font-head font-extrabold text-xl text-midnight">העגלה שלי</h2>
             <button type="button" onclick="closeCart()" aria-label="סגור עגלה"
-                    class="grid place-items-center w-9 h-9 rounded-full hover:bg-white/10 text-gray-300 text-2xl leading-none transition">×</button>
+                    class="grid place-items-center w-9 h-9 rounded-full hover:bg-black/5 text-gray-500 text-2xl leading-none transition">×</button>
         </div>
 
         <!-- Item list (scrollable) -->
@@ -236,32 +224,32 @@
         </div>
 
         <!-- Empty state -->
-        <div id="cart-empty" class="flex-1 flex flex-col items-center justify-center text-center px-6 text-gray-400">
+        <div id="cart-empty" class="flex-1 flex flex-col items-center justify-center text-center px-6 text-gray-500">
             <span class="text-5xl mb-3">🛒</span>
-            <p class="font-head font-bold text-lg text-gray-200 mb-1">העגלה ריקה</p>
+            <p class="font-head font-bold text-lg text-midnight mb-1">העגלה ריקה</p>
             <p class="text-sm">הוסיפו מוצרים מהקטלוג כדי להתחיל הזמנה.</p>
         </div>
 
         <!-- Footer: total + bundled WhatsApp order -->
-        <div id="cart-footer" class="border-t border-white/10 px-5 py-4 space-y-3">
+        <div id="cart-footer" class="border-t border-black/5 bg-gray-50/60 px-5 py-4 space-y-3">
             <div class="flex items-center justify-between font-head">
-                <span class="text-gray-300">סה"כ לתשלום</span>
-                <span id="cart-total" class="text-2xl font-extrabold text-sweet">₪0</span>
+                <span class="text-gray-600">סה"כ לתשלום</span>
+                <span id="cart-total" class="text-2xl font-extrabold text-violet">₪0</span>
             </div>
             <button id="cart-send" type="button" onclick="sendOrderToWhatsapp()"
-                    class="btn-neon inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold glow-neon shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all duration-200 hover:scale-[1.02] hover:shadow-neon-lg active:scale-95">
+                    class="btn-violet inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white font-bold shadow-soft transition-all duration-200 hover:scale-[1.02] active:scale-95">
                 <span id="cart-send-icon" class="inline-flex"></span>
                 שליחת הזמנה בוואטסאפ
             </button>
             <button type="button" onclick="clearCart()"
-                    class="w-full py-2 text-sm text-gray-400 hover:text-sweet transition">רוקן עגלה</button>
+                    class="w-full py-2 text-sm text-gray-500 hover:text-sweet transition">רוקן עגלה</button>
         </div>
     </aside>
 
     <!-- ===================== FOOTER ===================== -->
-    <footer class="border-t border-white/5 mt-8">
-        <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-400">
-            <p id="footer-name" class="font-head font-bold text-gray-200 mb-1"></p>
+    <footer class="border-t border-black/5 mt-8">
+        <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-500">
+            <p id="footer-name" class="font-head font-bold text-midnight mb-1"></p>
             <p>© <span id="year"></span> · קטלוג תצוגה · כל הזכויות שמורות</p>
         </div>
     </footer>
@@ -337,24 +325,22 @@
         // Build a single product card from a product object
         function renderProductCard(product) {
             return `
-                <article class="product-card glass group bg-white/5 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-neon/40 flex flex-col">
-                    <div class="relative h-36 sm:h-40 overflow-hidden rounded-t-xl">
+                <article class="product-card group bg-white rounded-2xl overflow-hidden border border-black/5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg flex flex-col">
+                    <div class="relative h-36 sm:h-40 overflow-hidden rounded-t-2xl">
                         <img src="${product.image}" alt="${product.name}" loading="lazy"
                              class="card-img w-full h-36 sm:h-40 object-cover transition-transform duration-500 group-hover:scale-110">
-                        <!-- Soft fade so the glass body melts into the photo -->
-                        <div class="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
-                        <!-- Sweet pink price tag -->
-                        <span class="absolute top-2 left-2 bg-sweet text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-sweet-glow">
+                        <!-- Peach price tag -->
+                        <span class="absolute top-2 left-2 bg-sweet text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-soft">
                             ₪${product.price}
                         </span>
                     </div>
                     <div class="p-3 sm:p-4 flex flex-col flex-1">
-                        <h3 class="font-head font-bold text-sm sm:text-base mb-1 leading-tight">${product.name}</h3>
-                        <p class="text-xs sm:text-sm text-gray-400 leading-relaxed mb-3 line-clamp-2">${product.description}</p>
+                        <h3 class="font-head font-bold text-sm sm:text-base mb-1 leading-tight text-midnight">${product.name}</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 leading-relaxed mb-3 line-clamp-2">${product.description}</p>
 
-                        <!-- Add-to-cart button (neon glow, pinned to the bottom of the card) -->
+                        <!-- Add-to-cart button (brand gradient, pinned to the bottom of the card) -->
                         <button type="button" onclick="addToCart(${product.id})"
-                           class="btn-neon mt-auto inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all duration-200 hover:scale-[1.03] hover:shadow-neon-lg active:scale-95">
+                           class="btn-gradient mt-auto inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-white font-bold text-xs sm:text-sm transition-all duration-200 hover:scale-[1.03] active:scale-95">
                             <span class="text-base leading-none">＋</span>
                             הוסף לעגלה
                         </button>
@@ -371,9 +357,9 @@
             return `
                 <section>
                     <div class="flex items-center gap-3 mb-6">
-                        <span class="w-1.5 h-7 rounded-full bg-neon shadow-neon"></span>
-                        <h2 class="text-gradient font-head font-extrabold text-2xl sm:text-3xl pb-1">${categoryName}</h2>
-                        <span class="text-sm text-gray-400">(${items.length} מוצרים)</span>
+                        <span class="bg-violet w-1.5 h-7 rounded-full"></span>
+                        <h2 class="font-head font-extrabold text-2xl sm:text-3xl text-midnight">${categoryName}</h2>
+                        <span class="text-sm text-gray-500">(${items.length} מוצרים)</span>
                     </div>
                     <div class="product-grid grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                         ${cards}
@@ -492,24 +478,24 @@
             const p = getProduct(line.id);
             const lineTotal = p.price * line.qty;
             return `
-                <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3 transition-colors hover:border-neon/30">
+                <div class="flex items-center gap-3 bg-white border border-black/5 rounded-xl p-3 shadow-soft transition-colors hover:border-violet/30">
                     <img src="${p.image}" alt="${p.name}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">
                     <div class="flex-1 min-w-0">
-                        <p class="font-head font-bold text-sm truncate">${p.name}</p>
-                        <p class="text-xs text-gray-400">₪${p.price} ליחידה</p>
+                        <p class="font-head font-bold text-sm truncate text-midnight">${p.name}</p>
+                        <p class="text-xs text-gray-500">₪${p.price} ליחידה</p>
                         <!-- Quantity stepper -->
                         <div class="flex items-center gap-2 mt-2">
                             <button type="button" onclick="changeQty(${p.id}, -1)" aria-label="הפחת"
-                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 border border-white/10 hover:bg-sweet/80 hover:shadow-sweet-glow text-lg leading-none transition-all active:scale-95">−</button>
-                            <span class="w-6 text-center font-bold">${line.qty}</span>
+                                    class="grid place-items-center w-7 h-7 rounded-lg bg-gray-100 border border-black/5 text-gray-700 hover:bg-sweet hover:text-white hover:border-sweet text-lg leading-none transition-all active:scale-95">−</button>
+                            <span class="w-6 text-center font-bold text-midnight">${line.qty}</span>
                             <button type="button" onclick="changeQty(${p.id}, 1)" aria-label="הוסף"
-                                    class="grid place-items-center w-7 h-7 rounded-lg bg-white/10 border border-white/10 hover:bg-neon hover:shadow-neon text-lg leading-none transition-all active:scale-95">＋</button>
+                                    class="grid place-items-center w-7 h-7 rounded-lg bg-gray-100 border border-black/5 text-gray-700 hover:bg-violet hover:text-white hover:border-violet text-lg leading-none transition-all active:scale-95">＋</button>
                         </div>
                     </div>
                     <div class="text-left flex-shrink-0">
-                        <p class="font-bold text-sweet">₪${lineTotal}</p>
+                        <p class="font-bold text-violet">₪${lineTotal}</p>
                         <button type="button" onclick="removeFromCart(${p.id})"
-                                class="text-xs text-gray-500 hover:text-sweet transition mt-1">הסר</button>
+                                class="text-xs text-gray-400 hover:text-sweet transition mt-1">הסר</button>
                     </div>
                 </div>
             `;
