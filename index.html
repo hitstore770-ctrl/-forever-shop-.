@@ -167,8 +167,12 @@
 
   <!-- ===================== SCRIPT ===================== -->
   <script>
-    /* ----------------------- DATA ----------------------- */
-    const storeConfig = {
+    /* ----------------------- DATA -----------------------
+       The live catalog is stored in data/storeConfig.json and edited via
+       the Admin Panel (admin.html). The object below is an INLINE FALLBACK
+       that renders instantly and guarantees the store never looks empty if
+       the JSON fetch fails (offline / network glitch / first paint).      */
+    const FALLBACK_CONFIG = {
       whatsapp: "972559345372", // international format, no +
       currency: "₪",
       categories: [
@@ -200,6 +204,7 @@
     };
 
     /* ----------------------- STATE ----------------------- */
+    let storeConfig = FALLBACK_CONFIG;   // replaced by data/storeConfig.json once fetched
     let cart = []; // { id, name, price, img, qty }
 
     const fmt = (n) => storeConfig.currency + n.toLocaleString("he-IL");
@@ -365,8 +370,25 @@
     });
 
     /* ----------------------- INIT ----------------------- */
+    // Paint immediately from the inline fallback so the store is never empty…
     renderCatalog();
     renderCart();
+
+    // …then try to load the live catalog and re-render if it succeeds.
+    (async function loadLiveConfig() {
+      try {
+        const res = await fetch("data/storeConfig.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (data && Array.isArray(data.categories) && data.categories.length) {
+          storeConfig = data;
+          renderCatalog();
+          renderCart(); // keep totals/currency in sync if the drawer is open
+        }
+      } catch (err) {
+        console.warn("[catalog] live config unavailable, using inline fallback:", err);
+      }
+    })();
   </script>
 </body>
 </html>

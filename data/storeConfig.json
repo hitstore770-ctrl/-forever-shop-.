@@ -1,0 +1,30 @@
+{
+  "whatsapp": "972559345372",
+  "currency": "₪",
+  "categories": [
+    {
+      "name": "עוגות שבת",
+      "tagline": "Signature Cakes",
+      "products": [
+        { "id": "c1", "name": "עוגת שמרים קלאסית", "desc": "מילוי שוקולד בלגי", "price": 89, "img": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80" },
+        { "id": "c2", "name": "עוגת גבינה אפויה", "desc": "וניל בורבון ופירות יער", "price": 119, "img": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=600&q=80" }
+      ]
+    },
+    {
+      "name": "פרלינים",
+      "tagline": "Handmade Pralines",
+      "products": [
+        { "id": "p1", "name": "מארז פרלינים זהב", "desc": "12 יחידות עבודת יד", "price": 74, "img": "https://images.unsplash.com/photo-1548741487-18d363dc4469?auto=format&fit=crop&w=600&q=80" },
+        { "id": "p2", "name": "טראפלס שוקולד מריר", "desc": "70% קקאו, ציפוי עדין", "price": 64, "img": "https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=600&q=80" }
+      ]
+    },
+    {
+      "name": "מאפים",
+      "tagline": "Fresh Pastries",
+      "products": [
+        { "id": "m1", "name": "קרואסון חמאה", "desc": "בצק עלים 24 שכבות", "price": 18, "img": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80" },
+        { "id": "m2", "name": "טארט פירות העונה", "desc": "קרם פטיסייר וניל", "price": 42, "img": "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80" }
+      ]
+    }
+  ]
+}

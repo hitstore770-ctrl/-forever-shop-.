@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ממתק לשבת — לוח ניהול</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { sans: ['Assistant', 'system-ui', 'sans-serif'] },
+        colors: { charcoal: '#1C1C1E', ash: '#8A8A8E' },
+        boxShadow: { card: '0 10px 40px -12px rgba(17,17,26,.08), 0 4px 16px -8px rgba(17,17,26,.06)' },
+      } },
+    };
+  </script>
+  <style>
+    :root { --grad: linear-gradient(120deg, #7000FF 0%, #FF7675 100%); }
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Assistant', system-ui, sans-serif; font-weight: 300; color: #1C1C1E; background: #F7F7F8; -webkit-font-smoothing: antialiased; }
+    .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .grad-bg { background: var(--grad); }
+    .fld { width: 100%; border: 1px solid #E5E5EA; border-radius: 0.9rem; padding: 0.7rem 0.9rem; font-size: 0.95rem; background: #fff; transition: border-color .15s, box-shadow .15s; }
+    .fld:focus { outline: none; border-color: #7000FF; box-shadow: 0 0 0 3px rgba(112,0,255,.10); }
+    .lbl { font-size: 0.7rem; letter-spacing: .12em; text-transform: uppercase; color: #8A8A8E; margin-bottom: .35rem; display: block; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="min-h-screen pb-40">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="px-6 pt-12 pb-6 max-w-xl mx-auto">
+    <p class="text-[11px] tracking-[0.4em] text-ash uppercase mb-2">Control Center</p>
+    <h1 class="text-4xl font-extralight">לוח ניהול <span class="grad-text font-light">החנות</span></h1>
+    <p class="mt-3 text-sm text-ash font-light">עריכת קטגוריות, מוצרים ומחירים — ושמירה ישירה לאתר החי.</p>
+  </header>
+
+  <main class="max-w-xl mx-auto px-6 space-y-6">
+
+    <!-- ===================== CONNECTION CARD ===================== -->
+    <section class="bg-white rounded-3xl shadow-card p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-light">חיבור ל-GitHub</h2>
+        <span id="connDot" class="text-[11px] px-3 py-1 rounded-full bg-gray-100 text-ash">לא מחובר</span>
+      </div>
+
+      <label class="lbl">GitHub Token (fine-grained · Contents: read/write)</label>
+      <div class="flex gap-2">
+        <input id="token" type="password" class="fld" placeholder="github_pat_…" autocomplete="off" />
+        <button id="toggleTok" class="px-3 rounded-xl border border-gray-200 text-ash text-sm shrink-0">הצג</button>
+      </div>
+      <label class="flex items-center gap-2 mt-3 text-sm text-ash">
+        <input id="remember" type="checkbox" class="accent-[#7000FF] w-4 h-4" checked />
+        זכור את הטוקן במכשיר הזה בלבד
+      </label>
+
+      <!-- Advanced repo settings -->
+      <details class="mt-4 group">
+        <summary class="text-sm text-ash cursor-pointer select-none">הגדרות מתקדמות (מאגר ונתיב)</summary>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div><label class="lbl">Owner</label><input id="owner" class="fld" /></div>
+          <div><label class="lbl">Repo</label><input id="repo" class="fld" /></div>
+          <div><label class="lbl">Branch</label><input id="branch" class="fld" /></div>
+          <div><label class="lbl">Path</label><input id="path" class="fld" /></div>
+        </div>
+      </details>
+
+      <button id="connectBtn" class="grad-bg w-full mt-5 h-13 py-3.5 rounded-2xl text-white font-semibold active:scale-[0.98] transition">
+        התחבר וטען את הקטלוג
+      </button>
+
+      <p class="mt-4 text-[12px] leading-relaxed text-ash bg-amber-50/60 border border-amber-100 rounded-xl p-3">
+        🔒 <b>אבטחה:</b> הטוקן נשמר רק ב-<code>localStorage</code> של הדפדפן שלך ולעולם לא נשלח לאתר או נכנס ל-Git.
+        השתמשי ב-Fine-grained token עם הרשאת <b>Contents: Read &amp; Write</b> למאגר הזה בלבד.
+      </p>
+    </section>
+
+    <!-- ===================== GLOBAL SETTINGS ===================== -->
+    <section id="globalCard" class="bg-white rounded-3xl shadow-card p-6 hidden">
+      <h2 class="text-xl font-light mb-4">הגדרות חנות</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="lbl">מספר וואטסאפ (בינ״ל, ללא +)</label><input id="gWhatsapp" class="fld" inputmode="numeric" /></div>
+        <div><label class="lbl">מטבע</label><input id="gCurrency" class="fld" /></div>
+      </div>
+    </section>
+
+    <!-- ===================== EDITOR ===================== -->
+    <div id="editor" class="space-y-6"></div>
+
+    <button id="addCatBtn" class="hidden w-full border-2 border-dashed border-gray-300 text-ash rounded-3xl py-5 font-light active:bg-white transition">
+      + הוסף קטגוריה
+    </button>
+  </main>
+
+  <!-- ===================== SAVE BAR ===================== -->
+  <div id="saveBar" class="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur border-t border-gray-100 px-6 py-4 hidden">
+    <div class="max-w-xl mx-auto flex items-center gap-3">
+      <a href="index.html" target="_blank" class="shrink-0 h-13 px-4 py-3.5 rounded-2xl border border-gray-200 text-charcoal text-sm font-semibold">תצוגה</a>
+      <button id="saveBtn" class="grad-bg flex-1 h-13 py-3.5 rounded-2xl text-white font-semibold active:scale-[0.98] transition">
+        💾 שמור ופרסם לאתר
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST ===================== -->
+  <div id="toast" class="fixed top-6 inset-x-0 flex justify-center px-6 pointer-events-none z-50"></div>
+
+  <script>
+    /* ============================================================
+       CONFIG — defaults for this repo
+       ============================================================ */
+    const DEFAULTS = {
+      owner: "hitstore770-ctrl",
+      repo:  "-forever-shop-.",
+      branch:"main",
+      path:  "data/storeConfig.json",
+    };
+    const LS = { token: "msl_admin_token", repo: "msl_admin_repo" };
+
+    /* ----------------------- ELEMENTS ----------------------- */
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      token: $("token"), remember: $("remember"),
+      owner: $("owner"), repo: $("repo"), branch: $("branch"), path: $("path"),
+      connDot: $("connDot"), connectBtn: $("connectBtn"),
+      globalCard: $("globalCard"), gWhatsapp: $("gWhatsapp"), gCurrency: $("gCurrency"),
+      editor: $("editor"), addCatBtn: $("addCatBtn"), saveBar: $("saveBar"), saveBtn: $("saveBtn"),
+    };
+
+    /* ----------------------- STATE ----------------------- */
+    let config = null;     // the working catalog object
+    let currentSha = null; // sha of data/storeConfig.json (needed to update it)
+
+    /* ----------------------- UTILITIES ----------------------- */
+    // UTF-8 safe base64 (handles Hebrew correctly)
+    const utf8ToB64 = (str) => {
+      const bytes = new TextEncoder().encode(str);
+      let bin = ""; bytes.forEach((b) => (bin += String.fromCharCode(b)));
+      return btoa(bin);
+    };
+    const b64ToUtf8 = (b64) => {
+      const bin = atob(b64.replace(/\s/g, ""));
+      const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    };
+    const uid = () => "x" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const apiBase = () => `https://api.github.com/repos/${els.owner.value.trim()}/${els.repo.value.trim()}/contents/${els.path.value.trim()}`;
+
+    function toast(msg, kind = "ok") {
+      const colors = { ok: "bg-charcoal", err: "bg-rose-600", info: "bg-[#7000FF]" };
+      const t = document.createElement("div");
+      t.className = `pointer-events-auto ${colors[kind]} text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-lg transition-all duration-300 translate-y-[-8px] opacity-0`;
+      t.innerHTML = msg;
+      $("toast").appendChild(t);
+      requestAnimationFrame(() => { t.style.opacity = "1"; t.style.transform = "translateY(0)"; });
+      setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(-8px)"; setTimeout(() => t.remove(), 320); }, kind === "err" ? 5000 : 3200);
+    }
+
+    /* ----------------------- TOKEN / SETTINGS PERSISTENCE ----------------------- */
+    function loadSavedSettings() {
+      const savedRepo = JSON.parse(localStorage.getItem(LS.repo) || "null") || DEFAULTS;
+      els.owner.value = savedRepo.owner; els.repo.value = savedRepo.repo;
+      els.branch.value = savedRepo.branch; els.path.value = savedRepo.path;
+      const tok = localStorage.getItem(LS.token);
+      if (tok) els.token.value = tok;
+    }
+    function persistSettings() {
+      localStorage.setItem(LS.repo, JSON.stringify({
+        owner: els.owner.value.trim(), repo: els.repo.value.trim(),
+        branch: els.branch.value.trim(), path: els.path.value.trim(),
+      }));
+      if (els.remember.checked && els.token.value.trim()) localStorage.setItem(LS.token, els.token.value.trim());
+      else localStorage.removeItem(LS.token);
+    }
+
+    /* ----------------------- CONNECT / LOAD ----------------------- */
+    async function connect() {
+      const token = els.token.value.trim();
+      if (!token) return toast("יש להזין GitHub Token", "err");
+      persistSettings();
+      setConn("loading");
+      try {
+        const res = await fetch(`${apiBase()}?ref=${encodeURIComponent(els.branch.value.trim())}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" },
+          cache: "no-store",
+        });
+        if (res.status === 404) {
+          // File doesn't exist yet — start from a blank catalog, no sha.
+          currentSha = null;
+          config = { whatsapp: "", currency: "₪", categories: [] };
+          toast("הקובץ עדיין לא קיים — ייווצר בשמירה הראשונה", "info");
+        } else if (!res.ok) {
+          throw new Error(res.status === 401 ? "טוקן לא תקין (401)" : res.status === 403 ? "אין הרשאה (403)" : "HTTP " + res.status);
+        } else {
+          const data = await res.json();
+          currentSha = data.sha;
+          config = JSON.parse(b64ToUtf8(data.content));
+          if (!Array.isArray(config.categories)) config.categories = [];
+        }
+        setConn("ok");
+        renderAll();
+        toast("מחובר! הקטלוג נטען בהצלחה ✓", "ok");
+      } catch (err) {
+        setConn("err");
+        toast("שגיאת חיבור: " + err.message, "err");
+      }
+    }
+
+    function setConn(state) {
+      const map = {
+        idle:    ["לא מחובר", "bg-gray-100 text-ash"],
+        loading: ["טוען…", "bg-purple-100 text-[#7000FF]"],
+        ok:      ["מחובר ✓", "bg-emerald-100 text-emerald-700"],
+        err:     ["שגיאה", "bg-rose-100 text-rose-700"],
+      };
+      const [txt, cls] = map[state] || map.idle;
+      els.connDot.textContent = txt;
+      els.connDot.className = "text-[11px] px-3 py-1 rounded-full " + cls;
+    }
+
+    /* ----------------------- RENDER EDITOR ----------------------- */
+    function renderAll() {
+      els.globalCard.classList.remove("hidden");
+      els.addCatBtn.classList.remove("hidden");
+      els.saveBar.classList.remove("hidden");
+      els.gWhatsapp.value = config.whatsapp || "";
+      els.gCurrency.value = config.currency || "₪";
+      renderEditor();
+    }
+
+    function renderEditor() {
+      els.editor.innerHTML = config.categories.map((cat, ci) => `
+        <section class="bg-white rounded-3xl shadow-card p-6" data-cat="${ci}">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[11px] tracking-[0.3em] text-ash uppercase">קטגוריה ${ci + 1}</span>
+            <button data-action="del-category" data-c="${ci}" class="text-rose-500 text-sm">מחק קטגוריה</button>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <div><label class="lbl">שם הקטגוריה</label><input class="fld" data-c="${ci}" data-field="name" value="${esc(cat.name)}" /></div>
+            <div><label class="lbl">כותרת משנה (EN)</label><input class="fld" data-c="${ci}" data-field="tagline" value="${esc(cat.tagline)}" /></div>
+          </div>
+
+          <div class="space-y-4">
+            ${cat.products.map((p, pi) => productRow(ci, pi, p)).join("")}
+          </div>
+
+          <button data-action="add-product" data-c="${ci}" class="w-full mt-4 border-2 border-dashed border-gray-200 text-ash rounded-2xl py-3 text-sm active:bg-gray-50 transition">
+            + הוסף מוצר
+          </button>
+        </section>
+      `).join("");
+    }
+
+    function productRow(ci, pi, p) {
+      return `
+        <div class="rounded-2xl bg-gray-50/70 p-4" data-prod="${pi}">
+          <div class="flex gap-4">
+            <div class="shrink-0">
+              <img src="${esc(p.img)}" onerror="this.style.opacity=.25;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E'"
+                   class="h-16 w-16 rounded-xl object-cover bg-gray-200" alt="" />
+            </div>
+            <div class="flex-1 grid grid-cols-2 gap-3">
+              <div class="col-span-2"><label class="lbl">שם המוצר</label><input class="fld" data-c="${ci}" data-p="${pi}" data-field="name" value="${esc(p.name)}" /></div>
+              <div class="col-span-2"><label class="lbl">תיאור</label><input class="fld" data-c="${ci}" data-p="${pi}" data-field="desc" value="${esc(p.desc)}" /></div>
+              <div><label class="lbl">מחיר</label><input class="fld" type="number" inputmode="decimal" data-c="${ci}" data-p="${pi}" data-field="price" value="${Number(p.price) || 0}" /></div>
+              <div class="flex items-end justify-end gap-1.5">
+                <button data-action="move-up"   data-c="${ci}" data-p="${pi}" class="h-9 w-9 rounded-lg border border-gray-200 text-charcoal" aria-label="הזז למעלה">▲</button>
+                <button data-action="move-down" data-c="${ci}" data-p="${pi}" class="h-9 w-9 rounded-lg border border-gray-200 text-charcoal" aria-label="הזז למטה">▼</button>
+                <button data-action="del-product" data-c="${ci}" data-p="${pi}" class="h-9 w-9 rounded-lg bg-rose-50 text-rose-500" aria-label="מחק">✕</button>
+              </div>
+              <div class="col-span-2"><label class="lbl">קישור לתמונה (URL)</label><input class="fld" data-c="${ci}" data-p="${pi}" data-field="img" value="${esc(p.img)}" placeholder="https://…" /></div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function esc(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+
+    /* ----------------------- EDITOR EVENTS (delegation) ----------------------- */
+    // Live-bind every field edit straight into the model.
+    els.editor.addEventListener("input", (e) => {
+      const t = e.target;
+      if (!t.dataset.field) return;
+      const ci = +t.dataset.c;
+      const field = t.dataset.field;
+      if (t.dataset.p !== undefined) {
+        const pi = +t.dataset.p;
+        config.categories[ci].products[pi][field] = field === "price" ? (parseFloat(t.value) || 0) : t.value;
+      } else {
+        config.categories[ci][field] = t.value;
+      }
+    });
+
+    // Live-bind image URL → preview thumbnail
+    els.editor.addEventListener("input", (e) => {
+      if (e.target.dataset.field === "img" && e.target.dataset.p !== undefined) {
+        const img = e.target.closest("[data-prod]").querySelector("img");
+        img.style.opacity = 1; img.src = e.target.value;
+      }
+    });
+
+    // Structural buttons
+    els.editor.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      const ci = +btn.dataset.c, pi = +btn.dataset.p;
+      const cat = config.categories[ci];
+      switch (btn.dataset.action) {
+        case "add-product":
+          cat.products.push({ id: uid(), name: "מוצר חדש", desc: "", price: 0, img: "" });
+          break;
+        case "del-product":
+          if (confirm("למחוק את המוצר?")) cat.products.splice(pi, 1);
+          else return;
+          break;
+        case "del-category":
+          if (confirm("למחוק את הקטגוריה וכל המוצרים בה?")) config.categories.splice(ci, 1);
+          else return;
+          break;
+        case "move-up":
+          if (pi > 0) [cat.products[pi - 1], cat.products[pi]] = [cat.products[pi], cat.products[pi - 1]];
+          break;
+        case "move-down":
+          if (pi < cat.products.length - 1) [cat.products[pi + 1], cat.products[pi]] = [cat.products[pi], cat.products[pi + 1]];
+          break;
+      }
+      renderEditor();
+    });
+
+    els.addCatBtn.addEventListener("click", () => {
+      config.categories.push({ name: "קטגוריה חדשה", tagline: "New Category", products: [] });
+      renderEditor();
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+
+    // Global fields
+    els.gWhatsapp.addEventListener("input", () => (config.whatsapp = els.gWhatsapp.value.replace(/[^\d]/g, "")));
+    els.gCurrency.addEventListener("input", () => (config.currency = els.gCurrency.value));
+
+    /* ----------------------- SAVE (commit via GitHub API) ----------------------- */
+    async function save() {
+      const token = els.token.value.trim();
+      if (!token || !config) return toast("יש להתחבר תחילה", "err");
+
+      // Light validation
+      for (const cat of config.categories) {
+        for (const p of cat.products) {
+          if (!p.id) p.id = uid();
+          p.price = parseFloat(p.price) || 0;
+        }
+      }
+
+      els.saveBtn.disabled = true;
+      els.saveBtn.textContent = "שומר…";
+      try {
+        const json = JSON.stringify(config, null, 2) + "\n";
+        const body = {
+          message: "Admin: update catalog (storeConfig)",
+          content: utf8ToB64(json),
+          branch: els.branch.value.trim(),
+        };
+        if (currentSha) body.sha = currentSha; // required to update an existing file
+
+        const res = await fetch(apiBase(), {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "HTTP " + res.status);
+
+        currentSha = data.content.sha; // keep sha fresh for the next save
+        const url = data.commit && data.commit.html_url;
+        toast(`נשמר ופורסם לאתר ✓ ${url ? `<a href="${url}" target="_blank" class="underline">צפה בקומיט</a>` : ""}`, "ok");
+      } catch (err) {
+        toast("שמירה נכשלה: " + err.message, "err");
+      } finally {
+        els.saveBtn.disabled = false;
+        els.saveBtn.textContent = "💾 שמור ופרסם לאתר";
+      }
+    }
+
+    /* ----------------------- WIRE UP ----------------------- */
+    $("toggleTok").addEventListener("click", () => {
+      const on = els.token.type === "password";
+      els.token.type = on ? "text" : "password";
+      $("toggleTok").textContent = on ? "הסתר" : "הצג";
+    });
+    els.connectBtn.addEventListener("click", connect);
+    els.saveBtn.addEventListener("click", save);
+
+    loadSavedSettings();
+    setConn("idle");
+  </script>
+</body>
+</html>
