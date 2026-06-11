@@ -1,251 +1,372 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ממתק לשבת | קטלוג מתוקים ופיצוחים</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ממתק לשבת — בוטיק</title>
 
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: Heebo & Assistant -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Assistant -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Tailwind theme config: map brand colors -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        ink:    '#121214', // dark background
-                        panel:  '#1c1c22', // raised surface
-                        neon:   '#6C5CE7', // primary / neon purple
-                        sweet:  '#FF7675', // secondary / sweet pink
-                    },
-                    fontFamily: {
-                        body: ['Assistant', 'sans-serif'],
-                        head: ['Heebo', 'sans-serif'],
-                    },
-                },
-            },
-        };
-    </script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Assistant', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            charcoal: '#1C1C1E',
+            ash: '#8A8A8E',
+          },
+          boxShadow: {
+            card: '0 10px 40px -12px rgba(17, 17, 26, 0.08), 0 4px 16px -8px rgba(17, 17, 26, 0.06)',
+            float: '0 16px 40px -8px rgba(112, 0, 255, 0.35)',
+            drawer: '-24px 0 60px -20px rgba(17, 17, 26, 0.20)',
+          },
+        },
+      },
+    };
+  </script>
 
-    <style>
-        body { font-family: 'Assistant', sans-serif; }
-        h1, h2, h3, .font-head { font-family: 'Heebo', sans-serif; }
+  <style>
+    :root {
+      --grad: linear-gradient(120deg, #7000FF 0%, #FF7675 100%);
+    }
+    * { -webkit-tap-highlight-color: transparent; }
+    html, body { background: #FFFFFF; }
+    body {
+      font-family: 'Assistant', system-ui, sans-serif;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      color: #1C1C1E;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
 
-        /* Subtle neon glow used on the hero + primary buttons */
-        .glow-neon { box-shadow: 0 8px 30px rgba(108, 92, 231, 0.35); }
+    /* Gradient text-clip for the hero word */
+    .grad-text {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+    /* Gradient fill for primary buttons */
+    .grad-bg { background: var(--grad); }
 
-        /* Hide scrollbar for the horizontal category chips on mobile */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+    /* Hide scrollbars for a clean native feel */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Drawer transitions */
+    #drawer { transition: transform .45s cubic-bezier(.32,.72,0,1); }
+    #scrim  { transition: opacity .45s ease; }
+
+    /* Gentle entrance */
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .rise { animation: rise .7s cubic-bezier(.22,1,.36,1) both; }
+
+    /* Badge pop */
+    @keyframes pop {
+      0% { transform: scale(.6); }
+      60% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+    .pop { animation: pop .35s ease; }
+  </style>
 </head>
-<body class="bg-ink text-gray-100 antialiased selection:bg-neon/40">
 
-    <!-- ===================== STICKY HEADER ===================== -->
-    <header class="sticky top-0 z-50 backdrop-blur-md bg-ink/80 border-b border-white/5">
-        <!-- Top announcement bar -->
-        <div id="announcement-bar"
-             class="w-full text-center text-sm font-semibold py-1.5 text-white"
-             style="background: linear-gradient(90deg, #6C5CE7, #FF7675);">
-            <!-- topAnnouncement injected here -->
-        </div>
+<body class="min-h-screen antialiased selection:bg-purple-100">
 
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <!-- Logo / Store name -->
-            <div class="flex items-center gap-2">
-                <span class="grid place-items-center w-9 h-9 rounded-xl bg-neon text-white text-lg glow-neon">🍬</span>
-                <span id="logo-name" class="font-head font-extrabold text-xl tracking-tight"></span>
+  <!-- ===================== HEADER ===================== -->
+  <header class="px-7 pt-12 pb-2">
+    <div class="flex items-center justify-between">
+      <span class="text-[11px] tracking-[0.45em] text-ash font-semibold uppercase">Boutique</span>
+      <span class="text-[11px] tracking-[0.35em] text-ash font-semibold uppercase">Est. 2026</span>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="px-7 pt-20 pb-24 rise">
+    <p class="text-sm tracking-[0.3em] text-ash font-normal mb-6">ממתק ל&shy;</p>
+    <h1 class="font-extralight leading-[0.92] text-charcoal" style="font-size: clamp(4rem, 22vw, 7rem);">
+      <span class="grad-text font-light">שבת</span>
+    </h1>
+    <p class="mt-10 max-w-xs text-lg font-extralight text-ash leading-relaxed">
+      אוסף נבחר של מתוקים מעוצבים בעבודת יד — לשולחן שבת מושלם.
+    </p>
+  </section>
+
+  <!-- ===================== CATALOG ===================== -->
+  <main id="catalog" class="px-7 pb-44"></main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="px-7 pb-32 pt-10 text-center">
+    <p class="text-[11px] tracking-[0.4em] text-ash uppercase">ממתק לשבת · בוטיק מתוקים</p>
+  </footer>
+
+  <!-- ===================== FLOATING CART BUTTON ===================== -->
+  <button id="cartBtn"
+    class="fixed bottom-7 left-7 z-40 grad-bg shadow-float h-16 w-16 rounded-full flex items-center justify-center active:scale-90 transition-transform duration-200"
+    aria-label="פתח עגלה">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-.534 2.3-2.236 2.3-2.236l.821-3.293a.75.75 0 0 0-.726-.93H5.106M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+    </svg>
+    <span id="cartBadge"
+      class="hidden absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-charcoal text-white text-[11px] font-semibold flex items-center justify-center ring-2 ring-white">0</span>
+  </button>
+
+  <!-- ===================== CART DRAWER ===================== -->
+  <div id="scrim" class="fixed inset-0 z-40 bg-charcoal/30 backdrop-blur-[2px] opacity-0 pointer-events-none"></div>
+
+  <aside id="drawer"
+    class="fixed top-0 right-0 z-50 h-full w-[88%] max-w-sm bg-white shadow-drawer translate-x-full flex flex-col"
+    dir="rtl">
+
+    <!-- Drawer header -->
+    <div class="px-7 pt-12 pb-6 flex items-start justify-between">
+      <div>
+        <p class="text-[11px] tracking-[0.4em] text-ash uppercase mb-2">Your Bag</p>
+        <h2 class="text-3xl font-extralight text-charcoal">העגלה שלי</h2>
+      </div>
+      <button id="closeDrawer" class="h-10 w-10 -mt-1 rounded-full flex items-center justify-center text-ash active:bg-gray-50 transition" aria-label="סגור">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Cart items -->
+    <div id="cartItems" class="flex-1 overflow-y-auto no-scrollbar px-7 space-y-6"></div>
+
+    <!-- Drawer footer -->
+    <div class="px-7 pt-6 pb-10 border-t border-gray-100">
+      <div class="flex items-baseline justify-between mb-7">
+        <span class="text-sm tracking-[0.2em] text-ash uppercase">סה״כ</span>
+        <span id="cartTotal" class="text-3xl font-light text-charcoal">₪0</span>
+      </div>
+      <button id="whatsappBtn"
+        class="grad-bg w-full h-16 rounded-2xl text-white text-lg font-semibold flex items-center justify-center gap-3 shadow-float active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.978-.997zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+        הזמנה דרך וואטסאפ
+      </button>
+      <p class="text-center text-[11px] text-ash mt-4 tracking-wider">תשלום ותיאום מסירה בהודעה אישית</p>
+    </div>
+  </aside>
+
+  <!-- ===================== SCRIPT ===================== -->
+  <script>
+    /* ----------------------- DATA ----------------------- */
+    const storeConfig = {
+      whatsapp: "972500000000", // international format, no +
+      currency: "₪",
+      categories: [
+        {
+          name: "עוגות שבת",
+          tagline: "Signature Cakes",
+          products: [
+            { id: "c1", name: "עוגת שמרים קלאסית", desc: "מילוי שוקולד בלגי", price: 89, img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80" },
+            { id: "c2", name: "עוגת גבינה אפויה", desc: "וניל בורבון ופירות יער", price: 119, img: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=600&q=80" },
+          ],
+        },
+        {
+          name: "פרלינים",
+          tagline: "Handmade Pralines",
+          products: [
+            { id: "p1", name: "מארז פרלינים זהב", desc: "12 יחידות עבודת יד", price: 74, img: "https://images.unsplash.com/photo-1548741487-18d363dc4469?auto=format&fit=crop&w=600&q=80" },
+            { id: "p2", name: "טראפלס שוקולד מריר", desc: "70% קקאו, ציפוי עדין", price: 64, img: "https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=600&q=80" },
+          ],
+        },
+        {
+          name: "מאפים",
+          tagline: "Fresh Pastries",
+          products: [
+            { id: "m1", name: "קרואסון חמאה", desc: "בצק עלים 24 שכבות", price: 18, img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80" },
+            { id: "m2", name: "טארט פירות העונה", desc: "קרם פטיסייר וניל", price: 42, img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80" },
+          ],
+        },
+      ],
+    };
+
+    /* ----------------------- STATE ----------------------- */
+    let cart = []; // { id, name, price, img, qty }
+
+    const fmt = (n) => storeConfig.currency + n.toLocaleString("he-IL");
+
+    /* ----------------------- RENDER CATALOG ----------------------- */
+    const catalog = document.getElementById("catalog");
+
+    function renderCatalog() {
+      catalog.innerHTML = storeConfig.categories.map((cat) => `
+        <section class="mb-28">
+          <div class="mb-9">
+            <p class="text-[11px] tracking-[0.4em] text-ash uppercase mb-2">${cat.tagline}</p>
+            <h2 class="text-3xl font-extralight text-charcoal">${cat.name}</h2>
+          </div>
+          <div class="grid grid-cols-2 gap-5">
+            ${cat.products.map((p) => `
+              <article class="bg-white rounded-3xl shadow-card overflow-hidden flex flex-col">
+                <img src="${p.img}" alt="${p.name}" loading="lazy"
+                     class="h-40 w-full object-cover rounded-t-3xl" />
+                <div class="p-5 flex flex-col flex-1">
+                  <h3 class="text-base font-semibold text-charcoal leading-snug">${p.name}</h3>
+                  <p class="text-xs text-ash mt-1 font-light leading-relaxed flex-1">${p.desc}</p>
+                  <div class="mt-5 flex items-center justify-between">
+                    <span class="text-lg font-light text-charcoal">${fmt(p.price)}</span>
+                    <button onclick="addToCart('${p.id}')"
+                      class="grad-bg h-10 w-10 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform shadow-float"
+                      aria-label="הוסף לעגלה">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      `).join("");
+    }
+
+    /* ----------------------- CART LOGIC ----------------------- */
+    function findProduct(id) {
+      for (const cat of storeConfig.categories) {
+        const p = cat.products.find((x) => x.id === id);
+        if (p) return p;
+      }
+      return null;
+    }
+
+    function addToCart(id) {
+      const product = findProduct(id);
+      if (!product) return;
+      const line = cart.find((x) => x.id === id);
+      if (line) line.qty += 1;
+      else cart.push({ id: product.id, name: product.name, price: product.price, img: product.img, qty: 1 });
+      updateBadge(true);
+      renderCart();
+    }
+
+    function changeQty(id, delta) {
+      const line = cart.find((x) => x.id === id);
+      if (!line) return;
+      line.qty += delta;
+      if (line.qty <= 0) cart = cart.filter((x) => x.id !== id);
+      updateBadge();
+      renderCart();
+    }
+
+    function cartCount() {
+      return cart.reduce((s, x) => s + x.qty, 0);
+    }
+    function cartTotal() {
+      return cart.reduce((s, x) => s + x.qty * x.price, 0);
+    }
+
+    /* ----------------------- RENDER BADGE ----------------------- */
+    const badge = document.getElementById("cartBadge");
+    function updateBadge(animate) {
+      const c = cartCount();
+      if (c > 0) {
+        badge.textContent = c;
+        badge.classList.remove("hidden");
+        if (animate) {
+          badge.classList.remove("pop");
+          void badge.offsetWidth; // reflow to restart animation
+          badge.classList.add("pop");
+        }
+      } else {
+        badge.classList.add("hidden");
+      }
+    }
+
+    /* ----------------------- RENDER CART DRAWER ----------------------- */
+    const cartItems = document.getElementById("cartItems");
+    const cartTotalEl = document.getElementById("cartTotal");
+    const whatsappBtn = document.getElementById("whatsappBtn");
+
+    function renderCart() {
+      if (cart.length === 0) {
+        cartItems.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center py-24">
+            <div class="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-ash" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-.534 2.3-2.236 2.3-2.236l.821-3.293a.75.75 0 0 0-.726-.93H5.106M7.5 14.25 5.106 5.272" />
+              </svg>
             </div>
-            <!-- Decorative tagline (desktop only) -->
-            <span class="hidden sm:inline text-xs text-gray-400 font-medium">משלוחים מקומיים לשבת</span>
-        </div>
-    </header>
+            <p class="text-ash font-light">העגלה ריקה כרגע</p>
+            <p class="text-ash/70 text-sm font-extralight mt-1">הוסיפו מתוקים מהאוסף</p>
+          </div>`;
+      } else {
+        cartItems.innerHTML = cart.map((x) => `
+          <div class="flex gap-4 items-center">
+            <img src="${x.img}" alt="${x.name}" class="h-16 w-16 rounded-2xl object-cover shadow-card" />
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold text-charcoal truncate">${x.name}</h4>
+              <p class="text-sm text-ash font-light mt-0.5">${fmt(x.price)}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <button onclick="changeQty('${x.id}', -1)" class="h-8 w-8 rounded-full border border-gray-200 text-charcoal flex items-center justify-center active:bg-gray-50 transition" aria-label="הפחת">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M5 12h14"/></svg>
+              </button>
+              <span class="w-5 text-center text-sm font-semibold text-charcoal">${x.qty}</span>
+              <button onclick="changeQty('${x.id}', 1)" class="h-8 w-8 rounded-full grad-bg text-white flex items-center justify-center active:scale-90 transition" aria-label="הוסף">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+          </div>
+        `).join("");
+      }
+      cartTotalEl.textContent = fmt(cartTotal());
+      whatsappBtn.disabled = cart.length === 0;
+    }
 
-    <!-- ===================== HERO BANNER ===================== -->
-    <section class="relative overflow-hidden">
-        <div class="absolute inset-0 -z-10"
-             style="background:
-                radial-gradient(60% 80% at 80% 0%, rgba(108,92,231,0.30), transparent 60%),
-                radial-gradient(50% 70% at 10% 20%, rgba(255,118,117,0.22), transparent 60%);">
-        </div>
+    /* ----------------------- DRAWER OPEN/CLOSE ----------------------- */
+    const drawer = document.getElementById("drawer");
+    const scrim = document.getElementById("scrim");
 
-        <div class="max-w-6xl mx-auto px-4 py-14 sm:py-20 text-center">
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
-                <span class="w-2 h-2 rounded-full bg-sweet animate-pulse"></span>
-                טרי, מתוק ומגיע עד הדלת
-            </span>
+    function openDrawer() {
+      renderCart();
+      drawer.classList.remove("translate-x-full");
+      scrim.classList.remove("opacity-0", "pointer-events-none");
+      document.body.style.overflow = "hidden";
+    }
+    function closeDrawer() {
+      drawer.classList.add("translate-x-full");
+      scrim.classList.add("opacity-0", "pointer-events-none");
+      document.body.style.overflow = "";
+    }
 
-            <h1 class="font-head font-black text-4xl sm:text-6xl leading-tight mb-5">
-                כל המתוקים של <span class="text-neon">שבת</span><br class="hidden sm:block">
-                במקום <span class="text-sweet">אחד</span>
-            </h1>
+    document.getElementById("cartBtn").addEventListener("click", openDrawer);
+    document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
+    scrim.addEventListener("click", closeDrawer);
 
-            <p class="text-gray-300 text-lg max-w-xl mx-auto mb-8">
-                מארזי פינוק, פיצוחים פריכים וממתקי גומי צבעוניים — מסודרים בקטלוג נקי ומוכנים למשלוח מהיר.
-            </p>
+    /* ----------------------- WHATSAPP ORDER ----------------------- */
+    whatsappBtn.addEventListener("click", () => {
+      if (cart.length === 0) return;
+      let msg = 'שלום! אשמח להזמין מ"ממתק לשבת":%0A%0A';
+      cart.forEach((x) => {
+        msg += `• ${x.name} ×${x.qty} — ${fmt(x.price * x.qty)}%0A`;
+      });
+      msg += `%0Aסה״כ לתשלום: ${fmt(cartTotal())}`;
+      window.open(`https://wa.me/${storeConfig.whatsapp}?text=${msg}`, "_blank");
+    });
 
-            <a href="#catalog"
-               class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-neon hover:bg-neon/90 text-white font-bold text-lg glow-neon transition-transform hover:scale-105">
-                לקטלוג המלא
-                <span class="text-base">↓</span>
-            </a>
-        </div>
-    </section>
-
-    <!-- ===================== CATALOG (rendered by JS) ===================== -->
-    <main id="catalog" class="max-w-6xl mx-auto px-4 py-12 space-y-16">
-        <!-- Categories + product cards injected here -->
-    </main>
-
-    <!-- ===================== FOOTER ===================== -->
-    <footer class="border-t border-white/5 mt-8">
-        <div class="max-w-6xl mx-auto px-4 py-8 text-center text-sm text-gray-400">
-            <p id="footer-name" class="font-head font-bold text-gray-200 mb-1"></p>
-            <p>© <span id="year"></span> · קטלוג תצוגה · כל הזכויות שמורות</p>
-        </div>
-    </footer>
-
-    <!-- ===================== DATA + RENDER LOGIC ===================== -->
-    <script>
-        /* ---------- 1. DATA ARCHITECTURE (our "database" for now) ---------- */
-        const storeConfig = {
-            storeName: "ממתק לשבת",
-            topAnnouncement: "משלוחים מהירים עד כניסת שבת",
-            whatsappNumber: "972559345372", // international format, no '+' or spaces (for wa.me)
-            categories: ["מארזי הבית", "הפיצוחייה", "עולם הגומי"],
-            products: [
-                // --- מארזי הבית ---
-                {
-                    id: 1,
-                    category: "מארזי הבית",
-                    name: "מארז פינוק קלאסי",
-                    description: "מבחר שוקולדים, חטיפים ועוגיות לכל המשפחה.",
-                    price: 89,
-                    image: "https://images.unsplash.com/photo-1481391319762-47dff72954d9?auto=format&fit=crop&w=600&q=80",
-                },
-                {
-                    id: 2,
-                    category: "מארזי הבית",
-                    name: "מארז שבת פרימיום",
-                    description: "קופסת מתנה יוקרתית עם מתוקים נבחרים.",
-                    price: 129,
-                    image: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80",
-                },
-                // --- הפיצוחייה ---
-                {
-                    id: 3,
-                    category: "הפיצוחייה",
-                    name: "אגוזי מלך טריים",
-                    description: "אגוזים פריכים וטבעיים, קלויים קלות.",
-                    price: 45,
-                    image: "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80",
-                },
-                {
-                    id: 4,
-                    category: "הפיצוחייה",
-                    name: "תערובת פיצוחים מלכותית",
-                    description: "פיסטוק, קשיו ושקדים במארז אחד.",
-                    price: 59,
-                    image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80",
-                },
-                // --- עולם הגומי ---
-                {
-                    id: 5,
-                    category: "עולם הגומי",
-                    name: "דובוני גומי קלאסיים",
-                    description: "ממתקי גומי צבעוניים בטעמי פירות.",
-                    price: 25,
-                    image: "https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?auto=format&fit=crop&w=600&q=80",
-                },
-                {
-                    id: 6,
-                    category: "עולם הגומי",
-                    name: "תולעי גומי חמוצות",
-                    description: "פיצוץ של חמיצות ומתיקות בכל ביס.",
-                    price: 29,
-                    image: "https://images.unsplash.com/photo-1499195333224-3ce974eecb47?auto=format&fit=crop&w=600&q=80",
-                },
-            ],
-        };
-
-        /* ---------- 2. RENDER HELPERS ---------- */
-
-        // Build a pre-filled wa.me link for a given product
-        function buildWhatsappLink(product) {
-            const message = `היי, אשמח להזמין: ${product.name} - ₪${product.price}`;
-            return `https://wa.me/${storeConfig.whatsappNumber}?text=${encodeURIComponent(message)}`;
-        }
-
-        // Build a single product card from a product object
-        function renderProductCard(product) {
-            return `
-                <article class="group bg-panel rounded-2xl overflow-hidden border border-white/5 transition-transform duration-300 hover:-translate-y-1 hover:border-neon/40 flex flex-col">
-                    <div class="relative aspect-[4/3] overflow-hidden">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        <!-- Sweet pink price tag -->
-                        <span class="absolute top-3 left-3 bg-sweet text-white font-bold text-sm px-3 py-1 rounded-full shadow-lg">
-                            ₪${product.price}
-                        </span>
-                    </div>
-                    <div class="p-5 flex flex-col flex-1">
-                        <h3 class="font-head font-bold text-lg mb-1">${product.name}</h3>
-                        <p class="text-sm text-gray-400 leading-relaxed mb-4">${product.description}</p>
-
-                        <!-- WhatsApp order button (neon-purple, pushed to the bottom of the card) -->
-                        <a href="${buildWhatsappLink(product)}" target="_blank" rel="noopener noreferrer"
-                           class="mt-auto inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-neon hover:bg-neon/90 text-white font-bold text-sm glow-neon transition-transform hover:scale-[1.03] active:scale-95">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.728-.978zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                            </svg>
-                            הזמן בוואטסאפ
-                        </a>
-                    </div>
-                </article>
-            `;
-        }
-
-        // Build a full category block (heading + grid of its products)
-        function renderCategory(categoryName) {
-            const items = storeConfig.products.filter(p => p.category === categoryName);
-            const cards = items.map(renderProductCard).join("");
-
-            return `
-                <section>
-                    <div class="flex items-center gap-3 mb-6">
-                        <span class="w-1.5 h-7 rounded-full bg-neon"></span>
-                        <h2 class="font-head font-extrabold text-2xl sm:text-3xl">${categoryName}</h2>
-                        <span class="text-sm text-gray-500">(${items.length} מוצרים)</span>
-                    </div>
-                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                        ${cards}
-                    </div>
-                </section>
-            `;
-        }
-
-        /* ---------- 3. RENDER THE UI FROM storeConfig ---------- */
-        function renderStore() {
-            // Header / announcement / footer text
-            document.getElementById("announcement-bar").textContent = storeConfig.topAnnouncement;
-            document.getElementById("logo-name").textContent = storeConfig.storeName;
-            document.getElementById("footer-name").textContent = storeConfig.storeName;
-            document.getElementById("year").textContent = new Date().getFullYear();
-            document.title = storeConfig.storeName + " | קטלוג מתוקים ופיצוחים";
-
-            // Catalog: map through categories, each renders its own products
-            const catalog = document.getElementById("catalog");
-            catalog.innerHTML = storeConfig.categories.map(renderCategory).join("");
-        }
-
-        // Kick things off once the DOM is ready
-        document.addEventListener("DOMContentLoaded", renderStore);
-    </script>
+    /* ----------------------- INIT ----------------------- */
+    renderCatalog();
+    renderCart();
+  </script>
 </body>
 </html>
