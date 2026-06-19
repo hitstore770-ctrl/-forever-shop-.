@@ -173,7 +173,7 @@
         <p class="text-sm text-mute font-medium">Total price</p>
         <p class="text-xs text-mute font-light mt-0.5">Free shipping included</p>
       </div>
-      <p id="price" class="text-4xl font-bold tracking-tight">$699</p>
+      <p id="price" class="text-4xl font-bold tracking-tight">₪3,199</p>
     </section>
 
   </div>
@@ -194,6 +194,96 @@
       </button>
     </div>
   </div>
+
+  <!-- ===================== SCRIPT (Vanilla JS logic) ===================== -->
+  <script>
+    /* ----------------------- DATA & STATE ----------------------- */
+    const config = {
+      whatsapp: "972559345372", // international format, no '+'
+      basePrice: 3199,          // 128GB base price in NIS
+      storageAddons: {          // additional cost per storage tier (NIS)
+        "128": 0,
+        "256": 400,
+        "512": 800,
+      },
+    };
+
+    const state = {
+      color: "Midnight",
+      storage: "128",
+    };
+
+    /* ----------------------- HELPERS ----------------------- */
+    const fmt = (n) => "₪" + n.toLocaleString("he-IL");
+
+    function currentPrice() {
+      return config.basePrice + (config.storageAddons[state.storage] || 0);
+    }
+
+    /* ----------------------- ELEMENTS ----------------------- */
+    const colorBtns = document.querySelectorAll("[data-color]");
+    const storageBtns = document.querySelectorAll("[data-storage]");
+    const colorLabel = document.getElementById("colorLabel");
+    const priceEl = document.getElementById("price");
+    const whatsappBtn = document.getElementById("whatsappBtn");
+
+    /* ----------------------- RENDER ----------------------- */
+    function renderPrice() {
+      priceEl.textContent = fmt(currentPrice());
+    }
+
+    function renderColor() {
+      colorLabel.textContent = state.color;
+      colorBtns.forEach((btn) => {
+        const active = btn.dataset.color === state.color;
+        btn.classList.toggle("ring-ink", active);
+        btn.classList.toggle("ring-transparent", !active);
+      });
+    }
+
+    function renderStorage() {
+      storageBtns.forEach((btn) => {
+        const active = btn.dataset.storage === state.storage;
+        btn.classList.toggle("border-ink", active);
+        btn.classList.toggle("border-gray-200", !active);
+      });
+    }
+
+    /* ----------------------- INTERACTIVITY ----------------------- */
+    colorBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.color = btn.dataset.color;
+        renderColor();
+      });
+    });
+
+    storageBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.storage = btn.dataset.storage;
+        renderStorage();
+        renderPrice();
+      });
+    });
+
+    /* ----------------------- WHATSAPP INTEGRATION ----------------------- */
+    whatsappBtn.addEventListener("click", () => {
+      const message =
+        "היי! הגעתי מהאתר ואשמח לרכוש אייפון 13.\n" +
+        "צבע: " + state.color + "\n" +
+        "נפח: " + state.storage + "GB\n" +
+        "סך הכל מחיר: " + fmt(currentPrice());
+
+      const url =
+        "https://wa.me/" + config.whatsapp + "?text=" + encodeURIComponent(message);
+
+      window.open(url, "_blank");
+    });
+
+    /* ----------------------- INIT ----------------------- */
+    renderColor();
+    renderStorage();
+    renderPrice();
+  </script>
 
 </body>
 </html>
