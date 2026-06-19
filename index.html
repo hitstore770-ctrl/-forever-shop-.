@@ -1,33 +1,53 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ממתק לשבת — בוטיק</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>iPhone 13 — קנייה מהירה בוואטסאפ</title>
 
-  <!-- Tailwind -->
+  <!-- ===================== SEO ===================== -->
+  <meta name="description" content="אייפון 13 חדש ואטום — תצוגת Super Retina XDR 6.1″, שבב A15 Bionic ומצלמה כפולה. בחרו צבע ונפח, וסיימו את הרכישה בוואטסאפ. משלוח מהיר ושנת אחריות." />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+
+  <!-- ===================== OPEN GRAPH (link previews) ===================== -->
+  <meta property="og:type" content="product" />
+  <meta property="og:title" content="iPhone 13 — קנייה מהירה בוואטסאפ" />
+  <meta property="og:description" content="תצוגת Super Retina XDR 6.1″, שבב A15 Bionic ומצלמה כפולה. בחרו צבע ונפח וסיימו רכישה בוואטסאפ. משלוח מהיר ושנת אחריות." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=1200&q=80" />
+  <meta property="og:locale" content="he_IL" />
+  <meta property="og:site_name" content="iStore" />
+
+  <!-- ===================== TWITTER CARD ===================== -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="iPhone 13 — קנייה מהירה בוואטסאפ" />
+  <meta name="twitter:description" content="תצוגת Super Retina XDR 6.1″, שבב A15 Bionic ומצלמה כפולה. משלוח מהיר ושנת אחריות." />
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=1200&q=80" />
+
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Google Fonts: Assistant -->
+  <!-- Google Font: Inter (clean, Apple-esque) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <script>
     tailwind.config = {
+      darkMode: 'media', // follows the iPhone's system Light/Dark setting
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Assistant', 'system-ui', 'sans-serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
           },
           colors: {
-            charcoal: '#1C1C1E',
-            ash: '#8A8A8E',
+            ink: '#1d1d1f',     // Apple near-black text
+            mute: '#6e6e73',    // secondary gray text
+            haze: '#f5f5f7',    // soft light background
           },
           boxShadow: {
-            card: '0 10px 40px -12px rgba(17, 17, 26, 0.08), 0 4px 16px -8px rgba(17, 17, 26, 0.06)',
-            float: '0 16px 40px -8px rgba(112, 0, 255, 0.35)',
-            drawer: '-24px 0 60px -20px rgba(17, 17, 26, 0.20)',
+            soft: '0 12px 40px -12px rgba(0,0,0,0.12)',
+            cta: '0 10px 30px -8px rgba(48, 209, 88, 0.45)',
           },
         },
       },
@@ -35,338 +55,858 @@
   </script>
 
   <style>
-    :root {
-      --grad: linear-gradient(120deg, #7000FF 0%, #FF7675 100%);
-    }
     * { -webkit-tap-highlight-color: transparent; }
-    html, body { background: #FFFFFF; }
     body {
-      font-family: 'Assistant', system-ui, sans-serif;
-      font-weight: 300;
-      letter-spacing: -0.01em;
-      color: #1C1C1E;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
+      letter-spacing: -0.015em;
     }
-
-    /* Gradient text-clip for the hero word */
-    .grad-text {
-      background: var(--grad);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: transparent;
-    }
-    /* Gradient fill for primary buttons */
-    .grad-bg { background: var(--grad); }
-
-    /* Hide scrollbars for a clean native feel */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* Drawer transitions */
-    #drawer { transition: transform .45s cubic-bezier(.32,.72,0,1); }
-    #scrim  { transition: opacity .45s ease; }
-
-    /* Gentle entrance */
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .rise { animation: rise .7s cubic-bezier(.22,1,.36,1) both; }
-
-    /* Badge pop */
-    @keyframes pop {
-      0% { transform: scale(.6); }
-      60% { transform: scale(1.25); }
-      100% { transform: scale(1); }
-    }
-    .pop { animation: pop .35s ease; }
   </style>
 </head>
 
-<body class="min-h-screen antialiased selection:bg-purple-100">
+<body class="bg-white text-ink dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors">
 
-  <!-- ===================== HEADER ===================== -->
-  <header class="px-7 pt-12 pb-2">
-    <div class="flex items-center justify-between">
-      <span class="text-[11px] tracking-[0.45em] text-ash font-semibold uppercase">Boutique</span>
-      <span class="text-[11px] tracking-[0.35em] text-ash font-semibold uppercase">Est. 2026</span>
-    </div>
-  </header>
+  <!-- ============ APP SHELL (mobile-first, centered, capped width) ============ -->
+  <div class="mx-auto w-full max-w-md px-6 pb-44">
 
-  <!-- ===================== HERO ===================== -->
-  <section class="px-7 pt-20 pb-24 rise">
-    <p class="text-sm tracking-[0.3em] text-ash font-normal mb-6">ממתק ל&shy;</p>
-    <h1 class="font-extralight leading-[0.92] text-charcoal" style="font-size: clamp(4rem, 22vw, 7rem);">
-      <span class="grad-text font-light">שבת</span>
-    </h1>
-    <p class="mt-10 max-w-xs text-lg font-extralight text-ash leading-relaxed">
-      אוסף נבחר של מתוקים מעוצבים בעבודת יד — לשולחן שבת מושלם.
-    </p>
-  </section>
+    <!-- ===================== NAV ===================== -->
+    <header class="flex items-center justify-between pt-8 pb-2">
+      <span class="text-sm font-semibold tracking-tight">iStore</span>
+      <span class="text-xs font-medium text-mute uppercase tracking-[0.2em]">iPhone 13</span>
+    </header>
 
-  <!-- ===================== CATALOG ===================== -->
-  <main id="catalog" class="px-7 pb-44"></main>
+    <!-- ===================== HERO ===================== -->
+    <section class="text-center pt-6">
+      <p class="text-sm font-medium text-green-600 mb-2">New · In Stock</p>
+      <h1 id="heroTitle" class="text-4xl font-semibold tracking-tight leading-tight">iPhone 13</h1>
+      <p class="mt-3 text-base text-mute font-light leading-relaxed">
+        Your new superpower. A beautiful display, blazing speed, and a camera that
+        captures it all.
+      </p>
 
-  <!-- ===================== FOOTER ===================== -->
-  <footer class="px-7 pb-32 pt-10 text-center">
-    <p class="text-[11px] tracking-[0.4em] text-ash uppercase">ממתק לשבת · בוטיק מתוקים</p>
-  </footer>
-
-  <!-- ===================== FLOATING CART BUTTON ===================== -->
-  <button id="cartBtn"
-    class="fixed bottom-7 left-7 z-40 grad-bg shadow-float h-16 w-16 rounded-full flex items-center justify-center active:scale-90 transition-transform duration-200"
-    aria-label="פתח עגלה">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-.534 2.3-2.236 2.3-2.236l.821-3.293a.75.75 0 0 0-.726-.93H5.106M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-    </svg>
-    <span id="cartBadge"
-      class="hidden absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-charcoal text-white text-[11px] font-semibold flex items-center justify-center ring-2 ring-white">0</span>
-  </button>
-
-  <!-- ===================== CART DRAWER ===================== -->
-  <div id="scrim" class="fixed inset-0 z-40 bg-charcoal/30 backdrop-blur-[2px] opacity-0 pointer-events-none"></div>
-
-  <aside id="drawer"
-    class="fixed top-0 right-0 z-50 h-full w-[88%] max-w-sm bg-white shadow-drawer translate-x-full flex flex-col"
-    dir="rtl">
-
-    <!-- Drawer header -->
-    <div class="px-7 pt-12 pb-6 flex items-start justify-between">
-      <div>
-        <p class="text-[11px] tracking-[0.4em] text-ash uppercase mb-2">Your Bag</p>
-        <h2 class="text-3xl font-extralight text-charcoal">העגלה שלי</h2>
+      <!-- Product image -->
+      <div class="mt-8 rounded-[2rem] bg-haze dark:bg-slate-800 p-6 shadow-soft">
+        <img
+          id="productImg"
+          src="https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=900&q=80"
+          alt="iPhone 13"
+          class="mx-auto h-72 w-full object-contain"
+        />
       </div>
-      <button id="closeDrawer" class="h-10 w-10 -mt-1 rounded-full flex items-center justify-center text-ash active:bg-gray-50 transition" aria-label="סגור">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </section>
+
+    <!-- ===================== COLOR SELECTOR ===================== -->
+    <section class="mt-12">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-lg font-semibold tracking-tight">Color</h2>
+        <span id="colorLabel" class="text-sm text-mute font-medium">Midnight</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Each swatch is a button; the data-color attribute is for the JS step later -->
+        <button
+          type="button"
+          data-color="Midnight"
+          aria-label="Midnight"
+          class="h-11 w-11 rounded-full ring-2 ring-offset-2 dark:ring-offset-slate-900 ring-ink dark:ring-white transition"
+          style="background-color:#3a3c40;"
+        ></button>
+
+        <button
+          type="button"
+          data-color="Starlight"
+          aria-label="Starlight"
+          class="h-11 w-11 rounded-full ring-2 ring-offset-2 dark:ring-offset-slate-900 ring-transparent transition"
+          style="background-color:#f0e9dd;"
+        ></button>
+
+        <button
+          type="button"
+          data-color="Blue"
+          aria-label="Blue"
+          class="h-11 w-11 rounded-full ring-2 ring-offset-2 dark:ring-offset-slate-900 ring-transparent transition"
+          style="background-color:#2e4f64;"
+        ></button>
+
+        <button
+          type="button"
+          data-color="Pink"
+          aria-label="Pink"
+          class="h-11 w-11 rounded-full ring-2 ring-offset-2 dark:ring-offset-slate-900 ring-transparent transition"
+          style="background-color:#f0d4d2;"
+        ></button>
+
+        <button
+          type="button"
+          data-color="Green"
+          aria-label="Green"
+          class="h-11 w-11 rounded-full ring-2 ring-offset-2 dark:ring-offset-slate-900 ring-transparent transition"
+          style="background-color:#5a6a55;"
+        ></button>
+
+        <button
+          type="button"
+          data-color="(PRODUCT)RED"
+          aria-label="(PRODUCT)RED"
+          class="h-11 w-11 rounded-full ring-2 ring-offset-2 dark:ring-offset-slate-900 ring-transparent transition"
+          style="background-color:#bf0013;"
+        ></button>
+      </div>
+    </section>
+
+    <!-- ===================== STORAGE SELECTOR ===================== -->
+    <section class="mt-12">
+      <h2 class="text-lg font-semibold tracking-tight mb-5">Storage</h2>
+
+      <div class="grid grid-cols-3 gap-3">
+        <button
+          type="button"
+          data-storage="128"
+          class="rounded-2xl border-2 border-ink dark:border-white bg-white dark:bg-slate-800 py-4 px-3 text-center transition active:scale-[0.97]"
+        >
+          <span class="block text-base font-semibold">128GB</span>
+          <span class="block text-xs text-mute mt-0.5 font-medium">Standard</span>
+        </button>
+
+        <button
+          type="button"
+          data-storage="256"
+          class="rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 py-4 px-3 text-center transition active:scale-[0.97]"
+        >
+          <span class="block text-base font-semibold">256GB</span>
+          <span class="block text-xs text-mute mt-0.5 font-medium">More room</span>
+        </button>
+
+        <button
+          type="button"
+          data-storage="512"
+          class="rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 py-4 px-3 text-center transition active:scale-[0.97]"
+        >
+          <span class="block text-base font-semibold">512GB</span>
+          <span class="block text-xs text-mute mt-0.5 font-medium">Pro</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================== PRICE DISPLAY ===================== -->
+    <section class="mt-12 flex items-baseline justify-between border-t border-gray-100 dark:border-slate-700 pt-8">
+      <div>
+        <p class="text-sm text-mute font-medium">Total price</p>
+        <p class="text-xs text-mute font-light mt-0.5">Free shipping included</p>
+      </div>
+      <div class="text-right">
+        <!-- Sale badge + original (strikethrough) price, shown only when a sale is active -->
+        <div id="saleRow" class="hidden mb-1 flex items-center justify-end gap-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-white bg-red-500 rounded-full px-2 py-0.5">Sale</span>
+          <span id="originalPrice" class="text-base font-medium text-mute line-through"></span>
+        </div>
+        <p id="price" class="text-4xl font-bold tracking-tight">₪3,199</p>
+      </div>
+    </section>
+
+    <!-- ===================== COUNTDOWN TIMER ===================== -->
+    <section id="countdown" class="hidden mt-8">
+      <p class="text-center text-sm font-medium text-red-500 mb-3" dir="rtl">⏳ המבצע מסתיים בעוד</p>
+      <div class="grid grid-cols-4 gap-2 text-center">
+        <div class="rounded-2xl bg-haze dark:bg-slate-800 py-3 px-1">
+          <div id="cdDays" class="text-2xl font-bold tabular-nums leading-none">00</div>
+          <div class="text-[11px] text-mute font-medium mt-1.5">ימים</div>
+        </div>
+        <div class="rounded-2xl bg-haze dark:bg-slate-800 py-3 px-1">
+          <div id="cdHours" class="text-2xl font-bold tabular-nums leading-none">00</div>
+          <div class="text-[11px] text-mute font-medium mt-1.5">שעות</div>
+        </div>
+        <div class="rounded-2xl bg-haze dark:bg-slate-800 py-3 px-1">
+          <div id="cdMins" class="text-2xl font-bold tabular-nums leading-none">00</div>
+          <div class="text-[11px] text-mute font-medium mt-1.5">דקות</div>
+        </div>
+        <div class="rounded-2xl bg-haze dark:bg-slate-800 py-3 px-1">
+          <div id="cdSecs" class="text-2xl font-bold tabular-nums leading-none">00</div>
+          <div class="text-[11px] text-mute font-medium mt-1.5">שניות</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== INFO ACCORDION ===================== -->
+    <section class="mt-12 border-t border-gray-100 dark:border-slate-700 pt-4" dir="rtl">
+      <details class="group border-b border-gray-100 dark:border-slate-700 py-4">
+        <summary class="flex items-center justify-between cursor-pointer list-none text-base font-semibold tracking-tight">
+          מפרט טכני
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-mute dark:text-slate-400 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
+        </summary>
+        <p id="specsBody" class="mt-3 text-sm font-light leading-relaxed text-mute dark:text-slate-400"></p>
+      </details>
+
+      <details class="group border-b border-gray-100 dark:border-slate-700 py-4">
+        <summary class="flex items-center justify-between cursor-pointer list-none text-base font-semibold tracking-tight">
+          משלוחים ואחריות
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-mute dark:text-slate-400 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
+        </summary>
+        <p id="shippingBody" class="mt-3 text-sm font-light leading-relaxed text-mute dark:text-slate-400"></p>
+      </details>
+    </section>
+
+    <!-- ===================== DISCREET ADMIN ACCESS ===================== -->
+    <footer class="mt-16 pb-6 flex justify-center">
+      <button id="adminGear" type="button" aria-label="Admin"
+        class="opacity-20 hover:opacity-60 transition text-mute">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.397-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
       </button>
-    </div>
+    </footer>
 
-    <!-- Cart items -->
-    <div id="cartItems" class="flex-1 overflow-y-auto no-scrollbar px-7 space-y-6"></div>
+  </div>
 
-    <!-- Drawer footer -->
-    <div class="px-7 pt-6 pb-10 border-t border-gray-100">
-      <div class="flex items-baseline justify-between mb-7">
-        <span class="text-sm tracking-[0.2em] text-ash uppercase">סה״כ</span>
-        <span id="cartTotal" class="text-3xl font-light text-charcoal">₪0</span>
-      </div>
-      <button id="whatsappBtn"
-        class="grad-bg w-full h-16 rounded-2xl text-white text-lg font-semibold flex items-center justify-center gap-3 shadow-float active:scale-[0.98] transition-transform disabled:opacity-40 disabled:active:scale-100">
+  <!-- ===================== STICKY CTA ===================== -->
+  <div id="ctaBar" class="fixed bottom-0 inset-x-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-gray-100 dark:border-slate-700">
+    <div class="mx-auto w-full max-w-md px-6 pt-4 pb-4" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom));">
+      <button
+        id="whatsappBtn"
+        type="button"
+        class="w-full h-16 rounded-2xl bg-green-500 text-white text-lg font-semibold flex items-center justify-center gap-3 shadow-cta transition active:scale-[0.98]"
+      >
+        <!-- WhatsApp glyph -->
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
           <path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.978-.997zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
         </svg>
-        הזמנה דרך וואטסאפ
+        Continue Purchase on WhatsApp
       </button>
-      <p class="text-center text-[11px] text-ash mt-4 tracking-wider">תשלום ותיאום מסירה בהודעה אישית</p>
-    </div>
-  </aside>
 
-  <!-- ===================== SCRIPT ===================== -->
+      <!-- Trust badges -->
+      <p id="trustBadges" class="mt-3 text-center text-xs font-medium text-mute dark:text-slate-400" dir="rtl">
+        🛡️ שנת אחריות | 🚚 משלוח מהיר | 🔒 קנייה מאובטחת
+      </p>
+    </div>
+  </div>
+
+  <!-- ===================== FLOATING SUPPORT CHAT ===================== -->
+  <button id="supportBtn" type="button" aria-label="Support chat"
+    class="fixed right-5 z-40 h-14 w-14 rounded-full bg-green-500 text-white shadow-cta flex items-center justify-center active:scale-90 transition-transform"
+    style="bottom: calc(9rem + env(safe-area-inset-bottom));">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.978-.997zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+    </svg>
+  </button>
+
+  <!-- ===================== ADMIN MODAL ===================== -->
+  <div id="adminModal" class="fixed inset-0 z-50 hidden">
+    <!-- Backdrop -->
+    <div id="adminBackdrop" class="absolute inset-0 bg-ink/40 backdrop-blur-sm"></div>
+
+    <!-- Sheet -->
+    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md max-h-[90vh] overflow-y-auto
+                rounded-t-[2rem] bg-white dark:bg-slate-900 text-ink dark:text-slate-100 shadow-soft">
+      <div class="px-6 pt-6 pb-10">
+
+        <!-- Modal header -->
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <p class="text-xs font-medium text-mute uppercase tracking-[0.2em]">Admin</p>
+            <h2 class="text-2xl font-semibold tracking-tight">Store Settings</h2>
+          </div>
+          <button id="adminClose" type="button" aria-label="Close"
+            class="h-10 w-10 rounded-full flex items-center justify-center text-mute active:bg-haze dark:active:bg-slate-800 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Contact -->
+        <label class="block mb-6">
+          <span class="block text-sm font-semibold mb-2">WhatsApp Number</span>
+          <span class="block text-xs text-mute font-light mb-2">International format, no “+” (e.g. 972559345372)</span>
+          <input id="adminWhatsapp" type="tel" inputmode="numeric"
+            class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+        </label>
+
+        <!-- Content -->
+        <div class="border-t border-gray-100 dark:border-slate-700 pt-6 mb-6">
+          <h3 class="text-sm font-semibold mb-4">Content</h3>
+
+          <label class="block mb-4">
+            <span class="block text-sm font-medium mb-2">Hero Title</span>
+            <input id="adminHeroTitle" type="text"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+          </label>
+
+          <label class="block mb-4">
+            <span class="block text-sm font-medium mb-2">Product Image URL</span>
+            <input id="adminProductImg" type="url" placeholder="https://…"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+          </label>
+
+          <label class="block mb-4">
+            <span class="block text-sm font-medium mb-2">Trust Badges</span>
+            <input id="adminTrust" type="text" dir="rtl"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+          </label>
+
+          <label class="block mb-4">
+            <span class="block text-sm font-medium mb-2">מפרט טכני · Tech Specs</span>
+            <textarea id="adminSpecs" rows="3" dir="rtl"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition resize-none"></textarea>
+          </label>
+
+          <label class="block">
+            <span class="block text-sm font-medium mb-2">משלוחים ואחריות · Shipping &amp; Warranty</span>
+            <textarea id="adminShipping" rows="3" dir="rtl"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition resize-none"></textarea>
+          </label>
+        </div>
+
+        <!-- Pricing -->
+        <div class="border-t border-gray-100 dark:border-slate-700 pt-6 mb-6">
+          <h3 class="text-sm font-semibold mb-4">Pricing (₪)</h3>
+
+          <label class="block mb-4">
+            <span class="block text-sm font-medium mb-2">Base Price · 128GB</span>
+            <input id="adminBase" type="number" min="0"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+          </label>
+
+          <div class="grid grid-cols-2 gap-3">
+            <label class="block">
+              <span class="block text-sm font-medium mb-2">+ 256GB</span>
+              <input id="adminAdd256" type="number" min="0"
+                class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+            </label>
+            <label class="block">
+              <span class="block text-sm font-medium mb-2">+ 512GB</span>
+              <input id="adminAdd512" type="number" min="0"
+                class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+            </label>
+          </div>
+        </div>
+
+        <!-- Sale -->
+        <div class="border-t border-gray-100 dark:border-slate-700 pt-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-semibold">Sale Price</h3>
+              <p class="text-xs text-mute font-light">Discounted 128GB price · add-ons still apply</p>
+            </div>
+            <!-- Toggle -->
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input id="adminSaleActive" type="checkbox" class="peer sr-only" />
+              <span class="w-12 h-7 rounded-full bg-gray-200 peer-checked:bg-green-500 transition-colors"></span>
+              <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+            </label>
+          </div>
+          <input id="adminSalePrice" type="number" min="0" placeholder="e.g. 2799"
+            class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+
+          <label class="block mt-4">
+            <span class="block text-sm font-medium mb-2">Sale End Date &amp; Time</span>
+            <span class="block text-xs text-mute font-light mb-2">Drives the countdown timer. Leave empty for no end date.</span>
+            <input id="adminSaleEnd" type="datetime-local"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+          </label>
+        </div>
+
+        <!-- Stock -->
+        <div class="border-t border-gray-100 dark:border-slate-700 pt-6 mb-6">
+          <h3 class="text-sm font-semibold mb-1">Stock — Colors</h3>
+          <p class="text-xs text-mute font-light mb-4">Switch off to hide an out-of-stock color from customers.</p>
+          <div id="adminStockList" class="space-y-3"><!-- generated by JS --></div>
+        </div>
+
+        <!-- Security -->
+        <div class="border-t border-gray-100 dark:border-slate-700 pt-6 mb-6">
+          <h3 class="text-sm font-semibold mb-4">Security</h3>
+          <label class="block">
+            <span class="block text-sm font-medium mb-2">Admin Password</span>
+            <input id="adminPassword" type="text" autocomplete="off"
+              class="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-haze dark:bg-slate-800 px-4 py-3 text-base focus:border-ink dark:focus:border-white focus:outline-none transition" />
+          </label>
+        </div>
+
+        <!-- Analytics -->
+        <div class="border-t border-gray-100 dark:border-slate-700 pt-6 mb-8">
+          <h3 class="text-sm font-semibold mb-1">Analytics</h3>
+          <p class="text-xs text-mute font-light mb-4">Click counts since the last reset.</p>
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="rounded-2xl bg-haze dark:bg-slate-800 py-4 px-3 text-center">
+              <div id="statCta" class="text-3xl font-bold tabular-nums leading-none">0</div>
+              <div class="text-[11px] text-mute dark:text-slate-400 font-medium mt-1.5">Purchase CTA</div>
+            </div>
+            <div class="rounded-2xl bg-haze dark:bg-slate-800 py-4 px-3 text-center">
+              <div id="statSupport" class="text-3xl font-bold tabular-nums leading-none">0</div>
+              <div class="text-[11px] text-mute dark:text-slate-400 font-medium mt-1.5">Support Chat</div>
+            </div>
+          </div>
+          <button id="adminResetStats" type="button"
+            class="w-full h-12 rounded-2xl border-2 border-gray-200 dark:border-slate-600 text-sm font-semibold transition active:scale-[0.98]">
+            Reset Counter
+          </button>
+        </div>
+
+        <!-- Save -->
+        <button id="adminSave" type="button"
+          class="w-full h-14 rounded-2xl bg-ink dark:bg-white text-white dark:text-ink text-base font-semibold transition active:scale-[0.98]">
+          Save Settings
+        </button>
+        <p id="adminSavedMsg" class="hidden text-center text-sm font-medium text-green-600 mt-3">Settings saved ✓</p>
+
+        <!-- Reset to defaults -->
+        <button id="adminReset" type="button"
+          class="w-full h-12 mt-3 rounded-2xl text-sm font-semibold text-red-500 transition active:scale-[0.98]">
+          Reset to Defaults
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCRIPT (Vanilla JS logic) ===================== -->
   <script>
-    /* ----------------------- DATA ----------------------- */
-    const storeConfig = {
-      whatsapp: "972559345372", // international format, no +
-      currency: "₪",
-      categories: [
-        {
-          name: "עוגות שבת",
-          tagline: "Signature Cakes",
-          products: [
-            { id: "c1", name: "עוגת שמרים קלאסית", desc: "מילוי שוקולד בלגי", price: 89, img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80" },
-            { id: "c2", name: "עוגת גבינה אפויה", desc: "וניל בורבון ופירות יער", price: 119, img: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=600&q=80" },
-          ],
-        },
-        {
-          name: "פרלינים",
-          tagline: "Handmade Pralines",
-          products: [
-            { id: "p1", name: "מארז פרלינים זהב", desc: "12 יחידות עבודת יד", price: 74, img: "https://images.unsplash.com/photo-1548741487-18d363dc4469?auto=format&fit=crop&w=600&q=80" },
-            { id: "p2", name: "טראפלס שוקולד מריר", desc: "70% קקאו, ציפוי עדין", price: 64, img: "https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=600&q=80" },
-          ],
-        },
-        {
-          name: "מאפים",
-          tagline: "Fresh Pastries",
-          products: [
-            { id: "m1", name: "קרואסון חמאה", desc: "בצק עלים 24 שכבות", price: 18, img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80" },
-            { id: "m2", name: "טארט פירות העונה", desc: "קרם פטיסייר וניל", price: 42, img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80" },
-          ],
-        },
-      ],
+    /* ----------------------- CONSTANTS ----------------------- */
+    const STORAGE_KEY = "iphone13_store_config";
+
+    // English (data-color) -> Hebrew names for the WhatsApp message
+    const COLOR_NAMES_HE = {
+      "Midnight": "חצות",
+      "Starlight": "אור כוכבים",
+      "Blue": "כחול",
+      "Pink": "ורוד",
+      "Green": "ירוק",
+      "(PRODUCT)RED": "אדום",
     };
 
+    /* ----------------------- DEFAULT CONFIG ----------------------- */
+    const DEFAULT_CONFIG = {
+      whatsapp: "972559345372",   // international format, no '+'
+      adminPassword: "admin123",  // editable admin password
+      heroTitle: "iPhone 13",     // main hero title text
+      productImage: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=900&q=80",
+      trustBadges: "🛡️ שנת אחריות | 🚚 משלוח מהיר | 🔒 קנייה מאובטחת",
+      specs: "מסך Super Retina XDR בגודל 6.1″, שבב A15 Bionic, מצלמה כפולה 12MP, עמידות במים IP68, חיבור 5G ו-Face ID.",
+      shipping: "משלוח מהיר עד הבית תוך 1–3 ימי עסקים, ושנת אחריות יצרן מלאה על כל מכשיר.",
+      basePrice: 3199,            // 128GB base price in NIS
+      storageAddons: {            // additional cost per storage tier (NIS)
+        "128": 0,
+        "256": 400,
+        "512": 800,
+      },
+      sale: {
+        active: false,
+        price: null,              // discounted 128GB price; add-ons still apply
+        endDate: null,            // datetime-local string; drives the countdown
+      },
+      hiddenColors: [],           // color names hidden from customers (out of stock)
+    };
+
+    /* ----------------------- PERSISTENCE ----------------------- */
+    // Load config from localStorage, deep-merging onto defaults so new
+    // fields always have a sensible value even for older saved data.
+    function loadConfig() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_CONFIG);
+        const saved = JSON.parse(raw);
+        return {
+          ...structuredClone(DEFAULT_CONFIG),
+          ...saved,
+          storageAddons: { ...DEFAULT_CONFIG.storageAddons, ...(saved.storageAddons || {}) },
+          sale: { ...DEFAULT_CONFIG.sale, ...(saved.sale || {}) },
+          hiddenColors: Array.isArray(saved.hiddenColors) ? saved.hiddenColors : [],
+        };
+      } catch (e) {
+        console.warn("Could not read saved settings, using defaults.", e);
+        return structuredClone(DEFAULT_CONFIG);
+      }
+    }
+
+    function saveConfig() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+
+    let config = loadConfig();
+
+    /* ----------------------- ANALYTICS ----------------------- */
+    // Stored under a separate key so "Reset to Defaults" never wipes stats,
+    // and the stats reset never touches settings.
+    const ANALYTICS_KEY = "iphone13_analytics";
+    const DEFAULT_ANALYTICS = { ctaClicks: 0, supportClicks: 0 };
+
+    function loadAnalytics() {
+      try {
+        const raw = localStorage.getItem(ANALYTICS_KEY);
+        return raw ? { ...DEFAULT_ANALYTICS, ...JSON.parse(raw) } : { ...DEFAULT_ANALYTICS };
+      } catch (e) {
+        return { ...DEFAULT_ANALYTICS };
+      }
+    }
+    function saveAnalytics() {
+      localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+    }
+
+    let analytics = loadAnalytics();
+
     /* ----------------------- STATE ----------------------- */
-    let cart = []; // { id, name, price, img, qty }
+    const state = {
+      color: "Midnight",
+      storage: "128",
+    };
 
-    const fmt = (n) => storeConfig.currency + n.toLocaleString("he-IL");
+    /* ----------------------- HELPERS ----------------------- */
+    const fmt = (n) => "₪" + Number(n).toLocaleString("he-IL");
 
-    /* ----------------------- RENDER CATALOG ----------------------- */
-    const catalog = document.getElementById("catalog");
-
-    function renderCatalog() {
-      catalog.innerHTML = storeConfig.categories.map((cat) => `
-        <section class="mb-28">
-          <div class="mb-9">
-            <p class="text-[11px] tracking-[0.4em] text-ash uppercase mb-2">${cat.tagline}</p>
-            <h2 class="text-3xl font-extralight text-charcoal">${cat.name}</h2>
-          </div>
-          <div class="grid grid-cols-2 gap-5">
-            ${cat.products.map((p) => `
-              <article class="bg-white rounded-3xl shadow-card overflow-hidden flex flex-col">
-                <img src="${p.img}" alt="${p.name}" loading="lazy"
-                     class="h-40 w-full object-cover rounded-t-3xl" />
-                <div class="p-5 flex flex-col flex-1">
-                  <h3 class="text-base font-semibold text-charcoal leading-snug">${p.name}</h3>
-                  <p class="text-xs text-ash mt-1 font-light leading-relaxed flex-1">${p.desc}</p>
-                  <div class="mt-5 flex items-center justify-between">
-                    <span class="text-lg font-light text-charcoal">${fmt(p.price)}</span>
-                    <button onclick="addToCart('${p.id}')"
-                      class="grad-bg h-10 w-10 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform shadow-float"
-                      aria-label="הוסף לעגלה">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            `).join("")}
-          </div>
-        </section>
-      `).join("");
+    function addon() {
+      return config.storageAddons[state.storage] || 0;
+    }
+    // Regular (pre-sale) total for the current selection.
+    function regularPrice() {
+      return config.basePrice + addon();
+    }
+    // Sale end timestamp (ms), or null if no/invalid date.
+    function saleEndTime() {
+      if (!config.sale.endDate) return null;
+      const t = new Date(config.sale.endDate).getTime();
+      return isNaN(t) ? null : t;
+    }
+    // A sale with an end date is only valid while that date is in the future.
+    function saleNotExpired() {
+      const end = saleEndTime();
+      return end === null || end > Date.now();
+    }
+    // Whether a valid sale is currently active.
+    function saleActive() {
+      return config.sale.active &&
+             config.sale.price != null &&
+             Number(config.sale.price) > 0 &&
+             Number(config.sale.price) < config.basePrice &&
+             saleNotExpired();
+    }
+    // Final total the customer pays (sale base + add-on, or regular).
+    function finalPrice() {
+      return saleActive()
+        ? Number(config.sale.price) + addon()
+        : regularPrice();
     }
 
-    /* ----------------------- CART LOGIC ----------------------- */
-    function findProduct(id) {
-      for (const cat of storeConfig.categories) {
-        const p = cat.products.find((x) => x.id === id);
-        if (p) return p;
-      }
-      return null;
-    }
-
-    function addToCart(id) {
-      const product = findProduct(id);
-      if (!product) return;
-      const line = cart.find((x) => x.id === id);
-      if (line) line.qty += 1;
-      else cart.push({ id: product.id, name: product.name, price: product.price, img: product.img, qty: 1 });
-      updateBadge(true);
-      renderCart();
-    }
-
-    function changeQty(id, delta) {
-      const line = cart.find((x) => x.id === id);
-      if (!line) return;
-      line.qty += delta;
-      if (line.qty <= 0) cart = cart.filter((x) => x.id !== id);
-      updateBadge();
-      renderCart();
-    }
-
-    function cartCount() {
-      return cart.reduce((s, x) => s + x.qty, 0);
-    }
-    function cartTotal() {
-      return cart.reduce((s, x) => s + x.qty * x.price, 0);
-    }
-
-    /* ----------------------- RENDER BADGE ----------------------- */
-    const badge = document.getElementById("cartBadge");
-    function updateBadge(animate) {
-      const c = cartCount();
-      if (c > 0) {
-        badge.textContent = c;
-        badge.classList.remove("hidden");
-        if (animate) {
-          badge.classList.remove("pop");
-          void badge.offsetWidth; // reflow to restart animation
-          badge.classList.add("pop");
-        }
-      } else {
-        badge.classList.add("hidden");
-      }
-    }
-
-    /* ----------------------- RENDER CART DRAWER ----------------------- */
-    const cartItems = document.getElementById("cartItems");
-    const cartTotalEl = document.getElementById("cartTotal");
+    /* ----------------------- ELEMENTS ----------------------- */
+    const colorBtns = Array.from(document.querySelectorAll("[data-color]"));
+    const storageBtns = Array.from(document.querySelectorAll("[data-storage]"));
+    const colorLabel = document.getElementById("colorLabel");
+    const priceEl = document.getElementById("price");
+    const saleRow = document.getElementById("saleRow");
+    const originalPriceEl = document.getElementById("originalPrice");
     const whatsappBtn = document.getElementById("whatsappBtn");
+    const heroTitleEl = document.getElementById("heroTitle");
+    const productImgEl = document.getElementById("productImg");
+    const trustBadgesEl = document.getElementById("trustBadges");
+    const specsBodyEl = document.getElementById("specsBody");
+    const shippingBodyEl = document.getElementById("shippingBody");
+    const supportBtn = document.getElementById("supportBtn");
 
-    function renderCart() {
-      if (cart.length === 0) {
-        cartItems.innerHTML = `
-          <div class="h-full flex flex-col items-center justify-center text-center py-24">
-            <div class="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-ash" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-.534 2.3-2.236 2.3-2.236l.821-3.293a.75.75 0 0 0-.726-.93H5.106M7.5 14.25 5.106 5.272" />
-              </svg>
-            </div>
-            <p class="text-ash font-light">העגלה ריקה כרגע</p>
-            <p class="text-ash/70 text-sm font-extralight mt-1">הוסיפו מתוקים מהאוסף</p>
-          </div>`;
-      } else {
-        cartItems.innerHTML = cart.map((x) => `
-          <div class="flex gap-4 items-center">
-            <img src="${x.img}" alt="${x.name}" class="h-16 w-16 rounded-2xl object-cover shadow-card" />
-            <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-semibold text-charcoal truncate">${x.name}</h4>
-              <p class="text-sm text-ash font-light mt-0.5">${fmt(x.price)}</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <button onclick="changeQty('${x.id}', -1)" class="h-8 w-8 rounded-full border border-gray-200 text-charcoal flex items-center justify-center active:bg-gray-50 transition" aria-label="הפחת">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M5 12h14"/></svg>
-              </button>
-              <span class="w-5 text-center text-sm font-semibold text-charcoal">${x.qty}</span>
-              <button onclick="changeQty('${x.id}', 1)" class="h-8 w-8 rounded-full grad-bg text-white flex items-center justify-center active:scale-90 transition" aria-label="הוסף">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
-              </button>
-            </div>
-          </div>
-        `).join("");
-      }
-      cartTotalEl.textContent = fmt(cartTotal());
-      whatsappBtn.disabled = cart.length === 0;
+    // Countdown elements
+    const countdownEl = document.getElementById("countdown");
+    const cdDays = document.getElementById("cdDays");
+    const cdHours = document.getElementById("cdHours");
+    const cdMins = document.getElementById("cdMins");
+    const cdSecs = document.getElementById("cdSecs");
+
+    /* ----------------------- RENDER: STOREFRONT ----------------------- */
+    // Editable content: hero title, image, trust badges, accordion texts.
+    function renderContent() {
+      heroTitleEl.textContent = config.heroTitle || DEFAULT_CONFIG.heroTitle;
+      productImgEl.src = config.productImage || DEFAULT_CONFIG.productImage;
+      trustBadgesEl.textContent = config.trustBadges || DEFAULT_CONFIG.trustBadges;
+      specsBodyEl.textContent = config.specs || DEFAULT_CONFIG.specs;
+      shippingBodyEl.textContent = config.shipping || DEFAULT_CONFIG.shipping;
     }
 
-    /* ----------------------- DRAWER OPEN/CLOSE ----------------------- */
-    const drawer = document.getElementById("drawer");
-    const scrim = document.getElementById("scrim");
+    function renderPrice() {
+      priceEl.textContent = fmt(finalPrice());
+      if (saleActive()) {
+        originalPriceEl.textContent = fmt(regularPrice());
+        saleRow.classList.remove("hidden");
+      } else {
+        saleRow.classList.add("hidden");
+      }
+    }
 
-    function openDrawer() {
-      renderCart();
-      drawer.classList.remove("translate-x-full");
-      scrim.classList.remove("opacity-0", "pointer-events-none");
+    function renderColor() {
+      colorLabel.textContent = state.color;
+      colorBtns.forEach((btn) => {
+        const active = btn.dataset.color === state.color;
+        btn.classList.toggle("ring-ink", active);
+        btn.classList.toggle("dark:ring-white", active);
+        btn.classList.toggle("ring-transparent", !active);
+      });
+    }
+
+    function renderStorage() {
+      storageBtns.forEach((btn) => {
+        const active = btn.dataset.storage === state.storage;
+        btn.classList.toggle("border-ink", active);
+        btn.classList.toggle("dark:border-white", active);
+        btn.classList.toggle("border-gray-200", !active);
+        btn.classList.toggle("dark:border-slate-600", !active);
+      });
+    }
+
+    // Hide out-of-stock colors; keep the selection valid.
+    function renderStock() {
+      colorBtns.forEach((btn) => {
+        const hidden = config.hiddenColors.includes(btn.dataset.color);
+        btn.classList.toggle("hidden", hidden);
+      });
+      // If the selected color was just hidden, fall back to the first visible one.
+      if (config.hiddenColors.includes(state.color)) {
+        const firstVisible = colorBtns.find(
+          (b) => !config.hiddenColors.includes(b.dataset.color)
+        );
+        state.color = firstVisible ? firstVisible.dataset.color : state.color;
+      }
+    }
+
+    function renderAll() {
+      renderContent();
+      renderStock();
+      renderColor();
+      renderStorage();
+      renderPrice();
+      renderCountdown();
+    }
+
+    /* ----------------------- COUNTDOWN TIMER ----------------------- */
+    const pad2 = (n) => String(n).padStart(2, "0");
+
+    function renderCountdown() {
+      const end = saleEndTime();
+      // Only show when a sale is genuinely active and time remains.
+      if (!saleActive() || end === null) {
+        countdownEl.classList.add("hidden");
+        return;
+      }
+      const diff = end - Date.now();
+      if (diff <= 0) {
+        // Sale just expired: hide timer and revert pricing to regular.
+        countdownEl.classList.add("hidden");
+        renderPrice();
+        return;
+      }
+      const totalSecs = Math.floor(diff / 1000);
+      cdDays.textContent = pad2(Math.floor(totalSecs / 86400));
+      cdHours.textContent = pad2(Math.floor((totalSecs % 86400) / 3600));
+      cdMins.textContent = pad2(Math.floor((totalSecs % 3600) / 60));
+      cdSecs.textContent = pad2(totalSecs % 60);
+      countdownEl.classList.remove("hidden");
+    }
+
+    // Tick every second; refresh price when the sale flips to expired.
+    setInterval(() => {
+      const wasActive = saleActive();
+      renderCountdown();
+      if (wasActive && !saleActive()) renderPrice();
+    }, 1000);
+
+    /* ----------------------- STOREFRONT INTERACTIVITY ----------------------- */
+    colorBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.color = btn.dataset.color;
+        renderColor();
+      });
+    });
+
+    storageBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.storage = btn.dataset.storage;
+        renderStorage();
+        renderPrice();
+      });
+    });
+
+    /* ----------------------- WHATSAPP INTEGRATION ----------------------- */
+    whatsappBtn.addEventListener("click", () => {
+      const colorHe = COLOR_NAMES_HE[state.color] || state.color;
+      const message =
+        "היי! הגעתי מהאתר ואשמח לרכוש אייפון 13.\n" +
+        "צבע: " + colorHe + "\n" +
+        "נפח: " + state.storage + "GB\n" +
+        "סך הכל מחיר: " + fmt(finalPrice());
+
+      const url =
+        "https://wa.me/" + config.whatsapp + "?text=" + encodeURIComponent(message);
+
+      analytics.ctaClicks += 1;
+      saveAnalytics();
+      renderStats();
+
+      window.open(url, "_blank");
+    });
+
+    /* ----------------------- FLOATING SUPPORT CHAT ----------------------- */
+    supportBtn.addEventListener("click", () => {
+      const message = "היי, יש לי שאלה כללית לגבי האייפון 13.";
+      const url =
+        "https://wa.me/" + config.whatsapp + "?text=" + encodeURIComponent(message);
+
+      analytics.supportClicks += 1;
+      saveAnalytics();
+      renderStats();
+
+      window.open(url, "_blank");
+    });
+
+    /* ======================================================================
+       ADMIN PANEL
+       ====================================================================== */
+    const adminGear = document.getElementById("adminGear");
+    const adminModal = document.getElementById("adminModal");
+    const adminBackdrop = document.getElementById("adminBackdrop");
+    const adminClose = document.getElementById("adminClose");
+    const adminSave = document.getElementById("adminSave");
+    const adminSavedMsg = document.getElementById("adminSavedMsg");
+
+    const adminWhatsapp = document.getElementById("adminWhatsapp");
+    const adminHeroTitle = document.getElementById("adminHeroTitle");
+    const adminProductImg = document.getElementById("adminProductImg");
+    const adminTrust = document.getElementById("adminTrust");
+    const adminSpecs = document.getElementById("adminSpecs");
+    const adminShipping = document.getElementById("adminShipping");
+    const adminBase = document.getElementById("adminBase");
+    const adminAdd256 = document.getElementById("adminAdd256");
+    const adminAdd512 = document.getElementById("adminAdd512");
+    const adminSaleActive = document.getElementById("adminSaleActive");
+    const adminSalePrice = document.getElementById("adminSalePrice");
+    const adminSaleEnd = document.getElementById("adminSaleEnd");
+    const adminPassword = document.getElementById("adminPassword");
+    const adminStockList = document.getElementById("adminStockList");
+    const adminReset = document.getElementById("adminReset");
+    const adminResetStats = document.getElementById("adminResetStats");
+    const statCta = document.getElementById("statCta");
+    const statSupport = document.getElementById("statSupport");
+
+    // Reflect analytics counters in the admin panel.
+    function renderStats() {
+      statCta.textContent = analytics.ctaClicks;
+      statSupport.textContent = analytics.supportClicks;
+    }
+
+    // Build the per-color stock toggles from the actual swatches on the page.
+    function buildStockToggles() {
+      adminStockList.innerHTML = colorBtns.map((btn) => {
+        const name = btn.dataset.color;
+        const visible = !config.hiddenColors.includes(name);
+        return `
+          <label class="flex items-center justify-between">
+            <span class="flex items-center gap-3">
+              <span class="h-6 w-6 rounded-full ring-1 ring-black/10" style="background-color:${btn.style.backgroundColor};"></span>
+              <span class="text-sm font-medium">${name}</span>
+            </span>
+            <span class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" data-stock="${name}" class="peer sr-only" ${visible ? "checked" : ""} />
+              <span class="w-12 h-7 rounded-full bg-gray-200 peer-checked:bg-green-500 transition-colors"></span>
+              <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+            </span>
+          </label>`;
+      }).join("");
+    }
+
+    // Populate the form with the current config values.
+    function fillAdminForm() {
+      adminWhatsapp.value = config.whatsapp;
+      adminHeroTitle.value = config.heroTitle || "";
+      adminProductImg.value = config.productImage || "";
+      adminTrust.value = config.trustBadges || "";
+      adminSpecs.value = config.specs || "";
+      adminShipping.value = config.shipping || "";
+      adminBase.value = config.basePrice;
+      adminAdd256.value = config.storageAddons["256"];
+      adminAdd512.value = config.storageAddons["512"];
+      adminSaleActive.checked = !!config.sale.active;
+      adminSalePrice.value = config.sale.price != null ? config.sale.price : "";
+      adminSaleEnd.value = config.sale.endDate || "";
+      adminPassword.value = config.adminPassword || "";
+      buildStockToggles();
+      renderStats();
+    }
+
+    function openAdmin() {
+      fillAdminForm();
+      adminSavedMsg.classList.add("hidden");
+      adminModal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
     }
-    function closeDrawer() {
-      drawer.classList.add("translate-x-full");
-      scrim.classList.add("opacity-0", "pointer-events-none");
+    function closeAdmin() {
+      adminModal.classList.add("hidden");
       document.body.style.overflow = "";
     }
 
-    document.getElementById("cartBtn").addEventListener("click", openDrawer);
-    document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
-    scrim.addEventListener("click", closeDrawer);
+    adminGear.addEventListener("click", () => {
+      const pw = prompt("Enter admin password:");
+      if (pw === null) return;            // cancelled
+      if (pw === config.adminPassword) openAdmin();
+      else alert("Incorrect password.");
+    });
 
-    /* ----------------------- WHATSAPP ORDER ----------------------- */
-    whatsappBtn.addEventListener("click", () => {
-      if (cart.length === 0) return;
-      let msg = 'שלום! אשמח להזמין מ"ממתק לשבת":%0A%0A';
-      cart.forEach((x) => {
-        msg += `• ${x.name} ×${x.qty} — ${fmt(x.price * x.qty)}%0A`;
+    adminClose.addEventListener("click", closeAdmin);
+    adminBackdrop.addEventListener("click", closeAdmin);
+
+    // Read the form, update config, persist, re-render the storefront.
+    adminSave.addEventListener("click", () => {
+      config.whatsapp = (adminWhatsapp.value || "").replace(/\D/g, "");
+      config.heroTitle = adminHeroTitle.value.trim() || DEFAULT_CONFIG.heroTitle;
+      config.productImage = adminProductImg.value.trim() || DEFAULT_CONFIG.productImage;
+      config.trustBadges = adminTrust.value.trim() || DEFAULT_CONFIG.trustBadges;
+      config.specs = adminSpecs.value.trim() || DEFAULT_CONFIG.specs;
+      config.shipping = adminShipping.value.trim() || DEFAULT_CONFIG.shipping;
+      config.basePrice = Math.max(0, Number(adminBase.value) || 0);
+      config.storageAddons["256"] = Math.max(0, Number(adminAdd256.value) || 0);
+      config.storageAddons["512"] = Math.max(0, Number(adminAdd512.value) || 0);
+
+      config.sale.active = adminSaleActive.checked;
+      config.sale.price = adminSalePrice.value === "" ? null : Math.max(0, Number(adminSalePrice.value) || 0);
+      config.sale.endDate = adminSaleEnd.value || null;
+
+      // Never let the password become empty (would lock out the panel).
+      config.adminPassword = adminPassword.value.trim() || config.adminPassword;
+
+      const hidden = [];
+      adminStockList.querySelectorAll("[data-stock]").forEach((cb) => {
+        if (!cb.checked) hidden.push(cb.dataset.stock);
       });
-      msg += `%0Aסה״כ לתשלום: ${fmt(cartTotal())}`;
-      window.open(`https://wa.me/${storeConfig.whatsapp}?text=${msg}`, "_blank");
+      config.hiddenColors = hidden;
+
+      saveConfig();
+      renderAll();
+
+      adminSavedMsg.classList.remove("hidden");
+      setTimeout(closeAdmin, 700);
+    });
+
+    // Reset all store settings to defaults (analytics are preserved).
+    adminReset.addEventListener("click", () => {
+      const ok = confirm("Reset ALL store settings to their defaults? This cannot be undone. (Your analytics counters are kept.)");
+      if (!ok) return;
+      localStorage.removeItem(STORAGE_KEY);
+      config = structuredClone(DEFAULT_CONFIG);
+      saveConfig();
+      fillAdminForm();
+      renderAll();
+      alert("Settings have been reset to defaults.");
+    });
+
+    // Reset only the analytics counters.
+    adminResetStats.addEventListener("click", () => {
+      const ok = confirm("Reset the click counter to zero?");
+      if (!ok) return;
+      analytics = { ...DEFAULT_ANALYTICS };
+      saveAnalytics();
+      renderStats();
     });
 
     /* ----------------------- INIT ----------------------- */
-    renderCatalog();
-    renderCart();
+    renderAll();
   </script>
+
 </body>
 </html>
