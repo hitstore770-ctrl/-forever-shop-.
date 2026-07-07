@@ -1,8 +1,7 @@
-import { KUNTRES_ITEMS } from "@/lib/learning-data";
+import type { Kuntres } from "@/lib/learning-data";
 
-// Reuses the same data source as the public /learning page, so this table
-// will automatically reflect real content once that's backed by Firebase.
-export default function LearningMaterialsTable() {
+// Reuses the same getKuntresim() data source as the public /learning page.
+export default function LearningMaterialsTable({ items }: { items: Kuntres[] }) {
   return (
     <div className="overflow-x-auto border-4 border-black shadow-brutal-lg">
       <table className="w-full min-w-[640px] border-collapse text-right">
@@ -15,7 +14,7 @@ export default function LearningMaterialsTable() {
           </tr>
         </thead>
         <tbody>
-          {KUNTRES_ITEMS.map((item, index) => (
+          {items.map((item, index) => (
             <tr
               key={item.id}
               className={`border-b-2 border-black last:border-b-0 ${index % 2 === 0 ? "bg-cream" : "bg-cream-dark"}`}

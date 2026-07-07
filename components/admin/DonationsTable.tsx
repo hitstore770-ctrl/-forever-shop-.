@@ -1,4 +1,4 @@
-import { DONATIONS_TABLE, type PaymentStatus } from "@/lib/admin-data";
+import type { DonationRecord, PaymentStatus } from "@/lib/admin-data";
 
 const STATUS_STYLE: Record<PaymentStatus, string> = {
   שולם: "bg-copper-400 text-navy-950",
@@ -6,7 +6,7 @@ const STATUS_STYLE: Record<PaymentStatus, string> = {
   נכשל: "bg-red-600 text-cream",
 };
 
-export default function DonationsTable() {
+export default function DonationsTable({ donations }: { donations: DonationRecord[] }) {
   return (
     <div className="overflow-x-auto border-4 border-black shadow-brutal-lg">
       <table className="w-full min-w-[720px] border-collapse text-right">
@@ -20,7 +20,7 @@ export default function DonationsTable() {
           </tr>
         </thead>
         <tbody>
-          {DONATIONS_TABLE.map((donation, index) => (
+          {donations.map((donation, index) => (
             <tr
               key={donation.id}
               className={`border-b-2 border-black last:border-b-0 ${index % 2 === 0 ? "bg-cream" : "bg-cream-dark"}`}

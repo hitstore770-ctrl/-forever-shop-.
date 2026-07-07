@@ -4,6 +4,7 @@ import DonationTierCard from "@/components/donate/DonationTierCard";
 import RecentDedications from "@/components/donate/RecentDedications";
 import CartButton from "@/components/donate/CartButton";
 import CartSidebar from "@/components/donate/CartSidebar";
+import CheckoutStatusBanner from "@/components/donate/CheckoutStatusBanner";
 import { SquigglyUnderline, DoodleStar, DoodleScribble, DoodleDots, DoodleZigzag } from "@/components/doodles";
 import { DONATION_TIERS } from "@/lib/donate-data";
 
@@ -12,15 +13,23 @@ export const metadata: Metadata = {
 };
 
 // Donations & Dedications storefront.
-// TODO for a later phase: back the tiers/recent-dedications with Firebase,
-// and wire the cart's checkout up to a real payment provider (e.g.
-// Tranzila/Cardcom/Stripe — common for Israeli nonprofits).
-export default function DonatePage() {
+// TODO for a later phase: back the tiers/recent-dedications list with
+// Firebase too (donations themselves already flow through Firestore via the
+// checkout API — see lib/admin-data.ts).
+export default async function DonatePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ paid?: string }>;
+}) {
+  const { paid } = await searchParams;
+
   return (
     <CartProvider>
       <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
         <DoodleStar className="pointer-events-none absolute top-8 left-6 hidden h-8 w-8 text-copper-500 xl:block" />
         <DoodleZigzag className="pointer-events-none absolute top-40 left-2 hidden h-5 w-14 text-navy-900/25 xl:block" />
+
+        {(paid === "success" || paid === "cancelled") && <CheckoutStatusBanner status={paid} />}
 
         <h1 className="relative max-w-3xl text-4xl leading-[0.95] font-semibold text-navy-950 uppercase sm:text-6xl">
           תרומות

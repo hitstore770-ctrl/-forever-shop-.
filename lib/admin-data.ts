@@ -1,7 +1,9 @@
-// Placeholder content for the admin dashboard.
-// TODO: replace with real data from Firebase once the dashboard is wired up
-// to Firestore (donations/contact-form collections) and a payment gateway's
-// webhook/reporting API.
+import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { db, isFirebaseConfigured } from "@/lib/firebase";
+
+// Placeholder content for the admin dashboard — used as a fallback when
+// Firebase isn't configured yet, and as the shape Firestore documents in the
+// "donations" / "contactSubmissions" collections are expected to match.
 
 export type PaymentStatus = "שולם" | "ממתין" | "נכשל";
 
@@ -25,6 +27,40 @@ export const DONATIONS_TABLE: DonationRecord[] = [
   { id: "8", date: "25/06/2026", donorName: "רחל כץ", tier: "ממתקים וכיבוד להתוועדות", amount: 250, status: "שולם" },
 ];
 
+// Reads the "donations" collection from Firestore, newest first.
+// Falls back to the local placeholder list if Firebase isn't configured, or
+// if the read fails for any reason (e.g. security rules not set up yet).
+export async function getDonations(): Promise<DonationRecord[]> {
+  if (!isFirebaseConfigured || !db) {
+    return DONATIONS_TABLE;
+  }
+
+  try {
+    const snapshot = await getDocs(query(collection(db, "donations"), orderBy("createdAt", "desc")));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as DonationRecord);
+  } catch (error) {
+    console.warn("Failed to load donations from Firestore, using mock data.", error);
+    return DONATIONS_TABLE;
+  }
+}
+
+// Writes a new dedication to Firestore once a mock payment is confirmed.
+// No-ops (just logs) when Firebase isn't configured, so the checkout flow
+// still completes end-to-end in local/demo environments.
+export async function addDonation(donation: Omit<DonationRecord, "id">): Promise<void> {
+  if (!isFirebaseConfigured || !db) {
+    console.log("[Firestore placeholder] Would save donation:", donation);
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "donations"), { ...donation, createdAt: serverTimestamp() });
+  } catch (error) {
+    console.error("Failed to save donation to Firestore.", error);
+    throw error;
+  }
+}
+
 export type ContactSubmission = {
   id: string;
   date: string;
@@ -39,3 +75,18 @@ export const CONTACT_SUBMISSIONS: ContactSubmission[] = [
   { id: "2", date: "03/07/2026", name: "משה פרידמן", phone: "052-7654321", preferredDate: "12/07/2026" },
   { id: "3", date: "01/07/2026", name: "נועם ביטון", phone: "054-9876543", preferredDate: "08/07/2026" },
 ];
+
+// Reads the "contactSubmissions" collection from Firestore, newest first.
+export async function getContactSubmissions(): Promise<ContactSubmission[]> {
+  if (!isFirebaseConfigured || !db) {
+    return CONTACT_SUBMISSIONS;
+  }
+
+  try {
+    const snapshot = await getDocs(query(collection(db, "contactSubmissions"), orderBy("date", "desc")));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as ContactSubmission);
+  } catch (error) {
+    console.warn("Failed to load contact submissions from Firestore, using mock data.", error);
+    return CONTACT_SUBMISSIONS;
+  }
+}

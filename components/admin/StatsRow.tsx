@@ -1,9 +1,9 @@
-import { DONATIONS_TABLE } from "@/lib/admin-data";
+import type { DonationRecord } from "@/lib/admin-data";
 
 // TODO: once real data is wired up, filter by the actual current month
-// instead of treating every placeholder row as "this month".
-export default function StatsRow() {
-  const paidDonations = DONATIONS_TABLE.filter((donation) => donation.status === "שולם");
+// instead of treating every row as "this month".
+export default function StatsRow({ donations }: { donations: DonationRecord[] }) {
+  const paidDonations = donations.filter((donation) => donation.status === "שולם");
   const totalAmount = paidDonations.reduce((sum, donation) => sum + donation.amount, 0);
   const averageAmount = paidDonations.length > 0 ? Math.round(totalAmount / paidDonations.length) : 0;
 

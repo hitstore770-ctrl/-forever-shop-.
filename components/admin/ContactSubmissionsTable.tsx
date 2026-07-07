@@ -1,8 +1,9 @@
-import { CONTACT_SUBMISSIONS } from "@/lib/admin-data";
+import type { ContactSubmission } from "@/lib/admin-data";
 
-// Placeholder table for visit-request submissions from the "Join Us" form.
-// TODO: back this with the real form submissions once VisitForm posts to Firebase.
-export default function ContactSubmissionsTable() {
+// Table for visit-request submissions from the "Join Us" form.
+// TODO: back this with real submissions once VisitForm posts to Firestore
+// instead of just being local UI state.
+export default function ContactSubmissionsTable({ submissions }: { submissions: ContactSubmission[] }) {
   return (
     <div className="overflow-x-auto border-4 border-black shadow-brutal-lg">
       <table className="w-full min-w-[560px] border-collapse text-right">
@@ -15,7 +16,7 @@ export default function ContactSubmissionsTable() {
           </tr>
         </thead>
         <tbody>
-          {CONTACT_SUBMISSIONS.map((submission, index) => (
+          {submissions.map((submission, index) => (
             <tr
               key={submission.id}
               className={`border-b-2 border-black last:border-b-0 ${index % 2 === 0 ? "bg-cream" : "bg-cream-dark"}`}

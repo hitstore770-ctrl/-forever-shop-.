@@ -2,16 +2,26 @@ import type { Metadata } from "next";
 import LearningExplorer from "@/components/learning/LearningExplorer";
 import AudioPlayerBar from "@/components/learning/AudioPlayerBar";
 import { SquigglyUnderline, DoodleStar, DoodleScribble, DoodleDots, DoodleZigzag } from "@/components/doodles";
+import { getKuntresim } from "@/lib/learning-data";
 
 export const metadata: Metadata = {
   title: "לימוד",
 };
 
+// Revalidate periodically rather than caching the Firestore read forever —
+// otherwise a Kuntres added/edited in Firestore wouldn't show up here until
+// the next full deploy.
+export const revalidate = 60;
+
 // Learning area — Kuntresim (booklets) and shiurim.
-// TODO for a later phase: back LearningExplorer's data with Firebase
-// (Firestore for metadata, Storage for the actual PDF/audio files), and
+// Fetched server-side from Firestore (falls back to mock data if Firebase
+// isn't configured — see lib/learning-data.ts) and handed to the client
+// explorer as initial data.
+// TODO for a later phase: wire Storage for the actual PDF/audio files, and
 // wire the "Read" buttons to an in-browser PDF viewer (e.g. react-pdf).
-export default function LearningPage() {
+export default async function LearningPage() {
+  const items = await getKuntresim();
+
   return (
     <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-32 sm:px-6 sm:pt-16">
       <DoodleStar className="pointer-events-none absolute top-8 left-6 hidden h-8 w-8 text-copper-500 xl:block" />
@@ -29,7 +39,7 @@ export default function LearningPage() {
 
       <div className="relative mt-16">
         <DoodleZigzag className="pointer-events-none absolute -top-8 right-1/3 hidden h-5 w-14 text-navy-900/25 xl:block" />
-        <LearningExplorer />
+        <LearningExplorer items={items} />
       </div>
 
       <AudioPlayerBar />
