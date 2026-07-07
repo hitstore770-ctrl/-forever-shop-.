@@ -1,20 +1,29 @@
 import type { Metadata } from "next";
-import PagePlaceholder from "@/components/PagePlaceholder";
+import LearningExplorer from "@/components/learning/LearningExplorer";
+import AudioPlayerBar from "@/components/learning/AudioPlayerBar";
 
 export const metadata: Metadata = {
   title: "לימוד",
 };
 
-// Learning area — will host Kuntresim (booklets) and other study files.
-// Planned integrations for a later phase:
-// - Firebase (Firestore/Storage) to list and serve the actual files/Kuntresim
-// - An in-browser PDF viewer (e.g. react-pdf) to preview documents without downloading
-// - Category/search filtering once the file list grows
+// Learning area — Kuntresim (booklets) and shiurim.
+// TODO for a later phase: back LearningExplorer's data with Firebase
+// (Firestore for metadata, Storage for the actual PDF/audio files), and
+// wire the "Read" buttons to an in-browser PDF viewer (e.g. react-pdf).
 export default function LearningPage() {
   return (
-    <PagePlaceholder
-      title="לימוד"
-      description="כאן יוצג אזור הלימוד עם קונטרסים וקבצים להורדה ולעיון."
-    />
+    <div className="mx-auto max-w-6xl px-4 pt-12 pb-32 sm:px-6 sm:pt-16">
+      <h1 className="max-w-3xl text-4xl leading-[0.95] font-black text-navy-950 uppercase sm:text-6xl">
+        אזור למידה
+        <br />
+        <span className="-rotate-1 inline-block bg-copper-500 px-3 text-cream">קונטרסים ושיעורים</span>
+      </h1>
+
+      <div className="mt-12">
+        <LearningExplorer />
+      </div>
+
+      <AudioPlayerBar />
+    </div>
   );
 }
