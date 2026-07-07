@@ -1,4 +1,4 @@
-import { DoodleCircle } from "@/components/doodles";
+import { DoodleCircle, DoodleStar, DoodleDots } from "@/components/doodles";
 
 // Elegant "Torah dedication" banner, styled like a pinned note in the collage.
 // Static for now — will be driven by Firebase later so staff can update the
@@ -10,6 +10,8 @@ export default function DailyDedication() {
     <div className="relative mx-auto max-w-xl">
       {/* "washi tape" accent pinning the note down */}
       <div className="absolute -top-3 left-1/2 h-7 w-24 -translate-x-1/2 border-2 border-black/70 bg-copper-300/80" />
+      <DoodleStar className="pointer-events-none absolute -top-8 -right-4 hidden h-8 w-8 text-copper-500 sm:block" />
+      <DoodleDots className="pointer-events-none absolute -bottom-6 -left-6 hidden h-6 w-14 text-navy-900/30 sm:block" />
 
       <div className="border-4 border-black bg-cream px-6 py-6 text-center shadow-brutal">
         <p className="relative inline-block text-xs font-semibold tracking-[0.25em] text-copper-600 uppercase">

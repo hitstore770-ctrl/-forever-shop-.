@@ -17,6 +17,10 @@ import {
   X,
   ShoppingCart,
   Trash2,
+  Lock,
+  LogOut,
+  MessageSquare,
+  LayoutGrid,
   type LucideProps,
 } from "lucide-react";
 
@@ -42,3 +46,7 @@ export const MenuIcon = withThickStroke(Menu);
 export const XIcon = withThickStroke(X);
 export const CartIcon = withThickStroke(ShoppingCart);
 export const TrashIcon = withThickStroke(Trash2);
+export const LockIcon = withThickStroke(Lock);
+export const LogOutIcon = withThickStroke(LogOut);
+export const MessageIcon = withThickStroke(MessageSquare);
+export const GridIcon = withThickStroke(LayoutGrid);

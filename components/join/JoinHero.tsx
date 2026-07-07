@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { SquigglyUnderline, DoodleStar } from "@/components/doodles";
+import { SquigglyUnderline, DoodleStar, DoodleDots, MarkerHighlight } from "@/components/doodles";
 
 const container: Variants = {
   hidden: {},
@@ -43,12 +43,13 @@ export default function JoinHero() {
             variants={fadeUp}
             className="mt-8 max-w-xl border-r-4 border-navy-900 pr-4 text-lg font-normal text-navy-800 sm:text-xl"
           >
-            בלי לחץ, בלי שיפוטיות - רק מקום חם ללמוד, לשאול, ולמצוא את הקצב שלכם.
-            תלמידים חדשים ותיקים, כולם בבית.
+            <MarkerHighlight colorClassName="text-copper-400/50">בלי לחץ, בלי שיפוטיות</MarkerHighlight> - רק מקום חם
+            ללמוד, לשאול, ולמצוא את הקצב שלכם. תלמידים חדשים ותיקים, כולם בבית.
           </motion.p>
         </motion.div>
 
         <DoodleStar className="pointer-events-none absolute bottom-2 left-10 hidden h-10 w-10 text-copper-500 xl:block" />
+        <DoodleDots className="pointer-events-none absolute top-1/2 left-2 hidden h-6 w-12 text-navy-900/20 xl:block" />
       </div>
     </section>
   );

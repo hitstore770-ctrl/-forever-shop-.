@@ -4,6 +4,9 @@ import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { QUICK_NAV_CARDS, type QuickNavCard } from "@/lib/site-config";
 import { BookIcon, UsersIcon, HeartHandIcon, CalendarIcon } from "@/components/icons";
+import { DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag } from "@/components/doodles";
+
+const CORNER_DOODLES = [DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag];
 
 const ICONS: Record<QuickNavCard["icon"], typeof BookIcon> = {
   learning: BookIcon,
@@ -56,15 +59,18 @@ export default function QuickNavCards() {
       viewport={{ once: true, amount: 0.3 }}
       className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
     >
-      {QUICK_NAV_CARDS.map((card) => {
+      {QUICK_NAV_CARDS.map((card, index) => {
         const Icon = ICONS[card.icon];
         const style = CARD_STYLE[card.icon];
+        const CornerDoodle = CORNER_DOODLES[index % CORNER_DOODLES.length];
         return (
           <motion.div key={card.href} variants={fadeUp}>
             <Link
               href={card.href}
-              className={`group flex h-full flex-col justify-between gap-6 border-4 border-black p-7 shadow-brutal-lg transition-all duration-200 hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none ${style.card}`}
+              className={`group relative flex h-full flex-col justify-between gap-6 border-4 border-black p-7 shadow-brutal-lg transition-all duration-200 hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none ${style.card}`}
             >
+              <CornerDoodle className="pointer-events-none absolute -top-3 -left-3 h-7 w-7 text-black/25" />
+
               <span
                 className={`flex h-14 w-14 items-center justify-center rounded-xl border-2 ${style.sticker}`}
               >

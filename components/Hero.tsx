@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-import { SquigglyUnderline, DoodleStar } from "@/components/doodles";
+import { SquigglyUnderline, DoodleStar, DoodleDots, DoodleZigzag, MarkerHighlight } from "@/components/doodles";
 
 const container: Variants = {
   hidden: {},
@@ -34,9 +34,10 @@ export default function Hero() {
           >
             <motion.span
               variants={fadeUp}
-              className="mb-5 inline-block border-2 border-black bg-copper-400 px-3 py-1 text-xs font-semibold tracking-widest text-navy-950 uppercase shadow-brutal"
+              className="relative mb-5 inline-block border-2 border-black bg-copper-400 px-3 py-1 text-xs font-semibold tracking-widest text-navy-950 uppercase shadow-brutal"
             >
               בס&quot;ד · ישיבת ...
+              <DoodleDots className="pointer-events-none absolute -top-6 -right-4 hidden h-6 w-12 text-copper-600 sm:block" />
             </motion.span>
 
             <motion.h1
@@ -56,7 +57,8 @@ export default function Hero() {
               variants={fadeUp}
               className="mt-8 max-w-md border-r-4 border-navy-900 pr-4 text-lg font-normal text-navy-800 sm:text-xl"
             >
-              ישיבה שמטפחת תלמידים בלימוד, בערכים ובאהבת ישראל — לתמימים ולמקרבים כאחד.
+              ישיבה שמטפחת תלמידים בלימוד, בערכים ובאהבת ישראל —{" "}
+              <MarkerHighlight colorClassName="text-copper-400/60">לתמימים ולמקרבים</MarkerHighlight> כאחד.
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
@@ -118,6 +120,8 @@ export default function Hero() {
             >
               תמימים ומקרבים ★
             </motion.div>
+
+            <DoodleZigzag className="pointer-events-none absolute -bottom-2 right-2 hidden h-5 w-16 text-navy-900/40 sm:block" />
           </div>
         </div>
       </div>

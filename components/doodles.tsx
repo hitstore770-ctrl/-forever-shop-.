@@ -1,6 +1,9 @@
 // Hand-drawn brutalist "doodle" accents scattered across empty space on the
-// site — stars, squiggly underlines, scribbled circles. Pure decoration
-// (aria-hidden), sized/positioned/colored by the caller via className.
+// site — stars, squiggly underlines, scribbled circles, marker highlights.
+// Pure decoration (aria-hidden), sized/positioned/colored by the caller via
+// className.
+import type { ReactNode } from "react";
+
 type DoodleProps = {
   className?: string;
 };
@@ -72,5 +75,78 @@ export function DoodleArrow({ className }: DoodleProps) {
       />
       <path d="M10 42 18 48 22 38" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+// A messy hand-scribbled loop — circling emphasis, scrappier than DoodleCircle.
+export function DoodleScribble({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 100 50" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M8 30c-2-12 15-22 40-22s44 8 44 20-20 20-44 19S9 40 12 28s28-16 46-14 34 10 32 18"
+        stroke="currentColor"
+        strokeWidth={3}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+// A short decorative zigzag/energy line.
+export function DoodleZigzag({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 60 20" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M2 18 12 4 22 16 32 2 42 16 52 4 58 18"
+        stroke="currentColor"
+        strokeWidth={3}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+// A small scattered cluster of dots/sparkles.
+export function DoodleDots({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 60 30" fill="currentColor" className={className} aria-hidden="true">
+      <circle cx="6" cy="8" r="3" />
+      <circle cx="24" cy="20" r="4" />
+      <circle cx="42" cy="6" r="2.5" />
+      <circle cx="54" cy="22" r="3" />
+    </svg>
+  );
+}
+
+// A rough highlighter-marker swash — meant to sit behind a word/phrase.
+// Prefer the <MarkerHighlight> wrapper below over using this directly.
+function DoodleHighlight({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 200 40" preserveAspectRatio="none" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M3 22C40 6 90 4 130 10c30 4 55 2 67 8l-1 16c-46-4-106 0-156-4-20-2-32 0-37 4Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+// Wraps a word/phrase with a rough highlighter-marker stroke behind it, e.g.
+// <MarkerHighlight colorClassName="text-copper-400/70">חם</MarkerHighlight>
+export function MarkerHighlight({
+  children,
+  colorClassName = "text-copper-400/70",
+}: {
+  children: ReactNode;
+  colorClassName?: string;
+}) {
+  return (
+    <span className="relative isolate inline-block px-1">
+      {/* Rendered first in DOM order (default stacking), so it paints
+          behind the text below without needing z-index tricks. */}
+      <DoodleHighlight className={`pointer-events-none absolute -inset-x-1 inset-y-1 ${colorClassName}`} />
+      <span className="relative">{children}</span>
+    </span>
   );
 }
