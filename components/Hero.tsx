@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
+import { SquigglyUnderline, DoodleStar } from "@/components/doodles";
 
 const container: Variants = {
   hidden: {},
@@ -45,7 +46,10 @@ export default function Hero() {
               מקום של
               <br />
               <span className="relative inline-block bg-copper-500 px-3 text-cream">תורה</span>{" "}
-              <span className="inline-block lg:-ml-3">וחום</span>
+              <span className="relative inline-block lg:-ml-3">
+                וחום
+                <SquigglyUnderline className="absolute -bottom-2 right-0 h-2 w-full text-copper-500" />
+              </span>
             </motion.h1>
 
             <motion.p
@@ -68,6 +72,7 @@ export default function Hero() {
               >
                 תמכו בנו
               </Link>
+              <DoodleStar className="hidden h-9 w-9 shrink-0 text-copper-500 sm:block" />
             </motion.div>
           </motion.div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
+import { SquigglyUnderline, DoodleStar } from "@/components/doodles";
 
 const container: Variants = {
   hidden: {},
@@ -34,6 +35,7 @@ export default function JoinHero() {
             <br />
             <span className="relative -mt-2 inline-block bg-copper-500 px-3 text-cream sm:-mt-4">
               אצלנו
+              <SquigglyUnderline className="absolute -bottom-3 right-0 h-2 w-full text-navy-900" />
             </span>
           </motion.h1>
 
@@ -45,6 +47,8 @@ export default function JoinHero() {
             תלמידים חדשים ותיקים, כולם בבית.
           </motion.p>
         </motion.div>
+
+        <DoodleStar className="pointer-events-none absolute bottom-2 left-10 hidden h-10 w-10 text-copper-500 xl:block" />
       </div>
     </section>
   );

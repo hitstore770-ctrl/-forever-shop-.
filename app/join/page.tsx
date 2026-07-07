@@ -4,6 +4,7 @@ import ScheduleTimeline from "@/components/join/ScheduleTimeline";
 import FaqAccordion from "@/components/join/FaqAccordion";
 import VisitForm from "@/components/join/VisitForm";
 import VibeGallery from "@/components/join/VibeGallery";
+import { DoodleStar } from "@/components/doodles";
 
 export const metadata: Metadata = {
   title: "הצטרפות",
@@ -19,9 +20,12 @@ export default function JoinPage() {
 
       <section className="border-b-4 border-black bg-cream-dark py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <h2 className="mb-12 inline-block border-2 border-black bg-navy-900 px-4 py-2 text-2xl font-semibold text-cream uppercase shadow-brutal sm:text-3xl">
-            סדר היום
-          </h2>
+          <div className="mb-12 flex items-center gap-3">
+            <h2 className="inline-block border-2 border-black bg-navy-900 px-4 py-2 text-2xl font-semibold text-cream uppercase shadow-brutal sm:text-3xl">
+              סדר היום
+            </h2>
+            <DoodleStar className="hidden h-8 w-8 text-copper-500 sm:block" />
+          </div>
           <ScheduleTimeline />
         </div>
       </section>
