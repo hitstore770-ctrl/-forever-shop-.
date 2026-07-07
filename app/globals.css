@@ -1,24 +1,43 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  "Neo-Chassidic" design system.
+  - navy   -> primary brand color (headers, dark sections, footer)
+  - copper -> accent color (CTAs, icons, highlights)
+  - cream  -> base background (soft off-white, easier on the eyes than pure white)
+  Exposed as Tailwind utilities via @theme, e.g. bg-navy-900, text-copper-500, bg-cream.
+*/
+@theme {
+  --color-navy-950: #060f1d;
+  --color-navy-900: #0b1e36;
+  --color-navy-800: #142c4c;
+  --color-navy-700: #1e3d64;
+  --color-navy-600: #2c5280;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-copper-300: #e3b983;
+  --color-copper-400: #d3a15e;
+  --color-copper-500: #bd8443;
+  --color-copper-600: #9c6830;
+  --color-copper-700: #7a4f22;
+
+  --color-cream: #fbf6ec;
+  --color-cream-dark: #f1e7d4;
+
   --font-sans: var(--font-heebo);
+
+  --animate-marquee: marquee 32s linear infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-cream);
+  color: var(--color-navy-900);
 }

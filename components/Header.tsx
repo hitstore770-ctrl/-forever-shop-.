@@ -12,10 +12,10 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-black/10 bg-white/90 backdrop-blur-md dark:border-white/10 dark:bg-neutral-950/90">
+    <header className="sticky top-0 z-40 border-b border-navy-900/10 bg-cream/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* TODO: replace with the yeshiva's logo image (next/image) once assets are ready */}
-        <Link href="/" className="text-lg font-bold tracking-tight">
+        <Link href="/" className="text-lg font-bold tracking-tight text-navy-900">
           {SITE_NAME}
         </Link>
 
@@ -27,8 +27,8 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-amber-600 ${
-                  isActive ? "text-amber-600" : "text-neutral-700 dark:text-neutral-300"
+                className={`text-sm font-medium transition-colors hover:text-copper-600 ${
+                  isActive ? "text-copper-600" : "text-navy-800/80"
                 }`}
               >
                 {link.label}
@@ -43,7 +43,7 @@ export default function Header() {
           aria-label="פתיחת/סגירת תפריט"
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((open) => !open)}
-          className="flex h-10 w-10 items-center justify-center rounded-md md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-md text-navy-900 md:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +64,7 @@ export default function Header() {
 
       {/* Mobile navigation panel */}
       {isMenuOpen && (
-        <nav className="border-t border-black/10 px-4 pb-4 md:hidden dark:border-white/10">
+        <nav className="border-t border-navy-900/10 px-4 pb-4 md:hidden">
           <ul className="flex flex-col gap-1 pt-2">
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
@@ -75,8 +75,8 @@ export default function Header() {
                     onClick={() => setIsMenuOpen(false)}
                     className={`block rounded-md px-3 py-2 text-sm font-medium ${
                       isActive
-                        ? "bg-amber-50 text-amber-600 dark:bg-amber-900/20"
-                        : "text-neutral-700 dark:text-neutral-300"
+                        ? "bg-copper-500/10 text-copper-600"
+                        : "text-navy-800/80"
                     }`}
                   >
                     {link.label}
