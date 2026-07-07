@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { NAV_LINKS, SITE_NAME } from "@/lib/site-config";
@@ -15,12 +16,20 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b-4 border-black bg-cream">
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6">
-        {/* TODO: replace with the yeshiva's logo image (next/image) once assets are ready */}
+        {/* Logo sticker — white plate (matches the logo's own background)
+            taped down at a slight angle, name alongside. The name drops to
+            a smaller size on narrow screens so logo + hamburger never
+            collide. */}
         <Link
           href="/"
-          className="-rotate-1 border-2 border-black bg-copper-400 px-3 py-1 text-lg font-semibold tracking-tight text-navy-950 shadow-brutal"
+          className="flex -rotate-1 items-center gap-2 border-2 border-black bg-white py-1 pr-1.5 pl-3 shadow-brutal sm:gap-2.5"
         >
-          {SITE_NAME}
+          <span className="relative block h-9 w-9 shrink-0 sm:h-11 sm:w-11">
+            <Image src="/logo.jpeg" alt={`הלוגו של ${SITE_NAME}`} fill sizes="44px" className="object-contain" />
+          </span>
+          <span className="text-sm leading-tight font-semibold tracking-tight text-navy-950 sm:text-lg">
+            {SITE_NAME}
+          </span>
         </Link>
 
         {/* Desktop navigation */}

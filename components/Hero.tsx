@@ -12,6 +12,7 @@ import {
   DoodleNotebookPage,
   MarkerHighlight,
 } from "@/components/doodles";
+import { SITE_NAME } from "@/lib/site-config";
 
 const container: Variants = {
   hidden: {},
@@ -45,7 +46,7 @@ export default function Hero() {
               variants={fadeUp}
               className="relative mb-5 inline-block border-2 border-black bg-copper-400 px-3 py-1 text-xs font-semibold tracking-widest text-navy-950 uppercase shadow-brutal"
             >
-              בס&quot;ד · ישיבת ...
+              בס&quot;ד · {SITE_NAME}
               <DoodleDots className="pointer-events-none absolute -top-6 -right-4 hidden h-6 w-12 text-copper-600 sm:block" />
             </motion.span>
 
