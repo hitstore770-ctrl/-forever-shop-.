@@ -19,13 +19,13 @@ export default function KuntresCard({ item, index }: { item: Kuntres; index: num
           <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-black ${variant.accent}`}>
             <BookIcon className="h-6 w-6" />
           </span>
-          <span className="border-2 border-black bg-copper-300 px-2 py-0.5 text-xs font-black text-navy-950 uppercase">
+          <span className="border-2 border-black bg-copper-300 px-2 py-0.5 text-xs font-semibold text-navy-950 uppercase">
             {item.category}
           </span>
         </div>
 
-        <h3 className="mt-4 text-xl leading-tight font-black text-navy-950">{item.title}</h3>
-        <p className="mt-2 text-sm font-bold text-navy-700/70">
+        <h3 className="mt-4 text-xl leading-tight font-semibold text-navy-950">{item.title}</h3>
+        <p className="mt-2 text-sm font-normal text-navy-700/70">
           {item.author} · {item.date}
         </p>
       </div>
@@ -34,14 +34,14 @@ export default function KuntresCard({ item, index }: { item: Kuntres; index: num
         {/* TODO: wire up to a real PDF viewer (e.g. react-pdf) once files are in Firebase Storage */}
         <a
           href="#"
-          className="border-2 border-black bg-navy-900 px-4 py-2 text-sm font-black text-cream uppercase shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none"
+          className="border-2 border-black bg-navy-900 px-4 py-2 text-sm font-semibold text-cream uppercase shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none"
         >
           קרא
         </a>
         {/* TODO: point at the real file URL from Firebase Storage */}
         <a
           href="#"
-          className="flex items-center gap-1.5 border-2 border-black bg-cream px-4 py-2 text-sm font-black text-navy-900 uppercase shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none"
+          className="flex items-center gap-1.5 border-2 border-black bg-cream px-4 py-2 text-sm font-semibold text-navy-900 uppercase shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none"
         >
           <DownloadIcon className="h-4 w-4" />
           הורדה

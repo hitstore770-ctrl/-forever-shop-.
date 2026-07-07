@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function LearningPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 pt-12 pb-32 sm:px-6 sm:pt-16">
-      <h1 className="max-w-3xl text-4xl leading-[0.95] font-black text-navy-950 uppercase sm:text-6xl">
+      <h1 className="max-w-3xl text-4xl leading-[0.95] font-semibold text-navy-950 uppercase sm:text-6xl">
         אזור למידה
         <br />
         <span className="inline-block bg-copper-500 px-3 text-cream">קונטרסים ושיעורים</span>

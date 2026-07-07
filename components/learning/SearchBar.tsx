@@ -15,7 +15,7 @@ export default function SearchBar({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder="חיפוש קונטרס, שיעור או מרצה..."
-        className="w-full border-4 border-black bg-cream py-4 pr-12 pl-4 text-lg font-bold text-navy-950 shadow-brutal placeholder:font-medium placeholder:text-navy-900/40 focus:outline-none"
+        className="w-full border-4 border-black bg-cream py-4 pr-12 pl-4 text-lg font-normal text-navy-950 shadow-brutal placeholder:font-normal placeholder:text-navy-900/40 focus:outline-none"
       />
     </div>
   );

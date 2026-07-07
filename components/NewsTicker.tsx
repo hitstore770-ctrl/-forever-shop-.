@@ -13,7 +13,7 @@ export default function NewsTicker() {
         {items.map((item, index) => (
           <span
             key={index}
-            className="flex items-center gap-4 text-xl font-black tracking-tight uppercase sm:text-3xl"
+            className="flex items-center gap-4 text-xl font-semibold tracking-tight uppercase sm:text-3xl"
           >
             <span className="text-copper-400">✦</span>
             {item}

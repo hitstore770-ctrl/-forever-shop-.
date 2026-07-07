@@ -71,8 +71,8 @@ export default function QuickNavCards() {
                 <Icon className="h-7 w-7" />
               </span>
               <span>
-                <span className="block text-2xl font-black uppercase">{card.title}</span>
-                <span className="mt-1 block text-sm font-medium opacity-70">{card.description}</span>
+                <span className="block text-2xl font-semibold uppercase">{card.title}</span>
+                <span className="mt-1 block text-sm font-normal opacity-70">{card.description}</span>
               </span>
             </Link>
           </motion.div>

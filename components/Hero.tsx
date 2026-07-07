@@ -33,14 +33,14 @@ export default function Hero() {
           >
             <motion.span
               variants={fadeUp}
-              className="mb-5 inline-block border-2 border-black bg-copper-400 px-3 py-1 text-xs font-black tracking-widest text-navy-950 uppercase shadow-brutal"
+              className="mb-5 inline-block border-2 border-black bg-copper-400 px-3 py-1 text-xs font-semibold tracking-widest text-navy-950 uppercase shadow-brutal"
             >
               בס&quot;ד · ישיבת ...
             </motion.span>
 
             <motion.h1
               variants={fadeUp}
-              className="text-6xl leading-[0.92] font-black tracking-tight text-navy-950 uppercase sm:text-7xl lg:text-8xl"
+              className="text-6xl leading-[0.92] font-semibold tracking-tight text-navy-950 uppercase sm:text-7xl lg:text-8xl"
             >
               מקום של
               <br />
@@ -50,7 +50,7 @@ export default function Hero() {
 
             <motion.p
               variants={fadeUp}
-              className="mt-8 max-w-md border-r-4 border-navy-900 pr-4 text-lg font-medium text-navy-800 sm:text-xl"
+              className="mt-8 max-w-md border-r-4 border-navy-900 pr-4 text-lg font-normal text-navy-800 sm:text-xl"
             >
               ישיבה שמטפחת תלמידים בלימוד, בערכים ובאהבת ישראל — לתמימים ולמקרבים כאחד.
             </motion.p>
@@ -58,13 +58,13 @@ export default function Hero() {
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <Link
                 href="/learning"
-                className="border-4 border-black bg-copper-500 px-8 py-4 text-lg font-black text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
+                className="border-4 border-black bg-copper-500 px-8 py-4 text-lg font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
               >
                 בואו ללמוד
               </Link>
               <Link
                 href="/donate"
-                className="border-4 border-black bg-navy-900 px-8 py-4 text-lg font-black text-cream uppercase shadow-brutal-copper transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
+                className="border-4 border-black bg-navy-900 px-8 py-4 text-lg font-semibold text-cream uppercase shadow-brutal-copper transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
               >
                 תמכו בנו
               </Link>
@@ -109,7 +109,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="absolute -top-5 right-4 border-2 border-black bg-cream px-3 py-1 text-xs font-black uppercase shadow-brutal sm:right-8"
+              className="absolute -top-5 right-4 border-2 border-black bg-cream px-3 py-1 text-xs font-semibold uppercase shadow-brutal sm:right-8"
             >
               תמימים ומקרבים ★
             </motion.div>

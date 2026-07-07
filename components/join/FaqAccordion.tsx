@@ -14,17 +14,14 @@ export default function FaqAccordion() {
       {FAQ_ITEMS.map((item, index) => {
         const isOpen = openIndex === index;
         return (
-          <div
-            key={item.question}
-            className={`border-4 border-black bg-cream shadow-brutal ${index % 2 === 0 ? "sm:-rotate-1" : "sm:rotate-1"}`}
-          >
+          <div key={item.question} className="border-4 border-black bg-cream shadow-brutal">
             <button
               type="button"
               onClick={() => setOpenIndex(isOpen ? null : index)}
               aria-expanded={isOpen}
               className="flex w-full items-center justify-between gap-4 px-5 py-4 text-right"
             >
-              <span className="text-lg font-black text-navy-950">{item.question}</span>
+              <span className="text-lg font-semibold text-navy-950">{item.question}</span>
               <span
                 className={`flex h-8 w-8 shrink-0 items-center justify-center border-2 border-black bg-copper-400 text-navy-950 transition-transform duration-200 ${
                   isOpen ? "rotate-180" : ""
@@ -39,7 +36,7 @@ export default function FaqAccordion() {
               }`}
             >
               <div className="overflow-hidden">
-                <p className="border-t-4 border-black px-5 py-4 font-medium text-navy-800">{item.answer}</p>
+                <p className="border-t-4 border-black px-5 py-4 font-normal text-navy-800">{item.answer}</p>
               </div>
             </div>
           </div>

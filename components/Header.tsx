@@ -17,7 +17,7 @@ export default function Header() {
         {/* TODO: replace with the yeshiva's logo image (next/image) once assets are ready */}
         <Link
           href="/"
-          className="-rotate-1 border-2 border-black bg-copper-400 px-3 py-1 text-lg font-black tracking-tight text-navy-950 shadow-brutal"
+          className="-rotate-1 border-2 border-black bg-copper-400 px-3 py-1 text-lg font-semibold tracking-tight text-navy-950 shadow-brutal"
         >
           {SITE_NAME}
         </Link>
@@ -30,7 +30,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-1.5 text-sm font-black uppercase transition-all ${
+                className={`px-3 py-1.5 text-sm font-semibold uppercase transition-all ${
                   isActive
                     ? "-rotate-1 border-2 border-black bg-navy-900 text-cream shadow-brutal"
                     : "text-navy-900 hover:-rotate-1 hover:border-2 hover:border-black hover:bg-cream-dark hover:shadow-brutal"
@@ -78,7 +78,7 @@ export default function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`block border-2 border-black px-3 py-2 text-sm font-black uppercase ${
+                    className={`block border-2 border-black px-3 py-2 text-sm font-semibold uppercase ${
                       isActive ? "bg-navy-900 text-cream shadow-brutal" : "bg-cream text-navy-900"
                     }`}
                   >

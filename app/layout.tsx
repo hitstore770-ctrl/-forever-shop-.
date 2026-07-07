@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Frank_Ruhl_Libre } from "next/font/google";
+import { Assistant } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { SITE_NAME } from "@/lib/site-config";
 
-// Frank Ruhl Libre gives the site a traditional, authentic Hebrew-book feel.
-const frankRuhlLibre = Frank_Ruhl_Libre({
-  variable: "--font-frank-ruhl",
+// Assistant is a clean, modern Hebrew/Latin sans-serif — lighter and more
+// legible than a traditional serif, aimed at a younger audience.
+const assistant = Assistant({
+  variable: "--font-assistant",
   subsets: ["hebrew", "latin"],
 });
 
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${frankRuhlLibre.variable} h-full antialiased`}>
+    <html lang="he" dir="rtl" className={`${assistant.variable} h-full antialiased`}>
       {/*
         Phase 1 skeleton only. Future additions to this layout will likely include:
         - A FirebaseProvider / auth context wrapper (once Firebase is wired up)

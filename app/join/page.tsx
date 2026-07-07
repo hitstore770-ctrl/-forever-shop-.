@@ -19,7 +19,7 @@ export default function JoinPage() {
 
       <section className="border-b-4 border-black bg-cream-dark py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <h2 className="mb-12 -rotate-1 inline-block border-2 border-black bg-navy-900 px-4 py-2 text-2xl font-black text-cream uppercase shadow-brutal sm:text-3xl">
+          <h2 className="mb-12 inline-block border-2 border-black bg-navy-900 px-4 py-2 text-2xl font-semibold text-cream uppercase shadow-brutal sm:text-3xl">
             סדר היום
           </h2>
           <ScheduleTimeline />
@@ -28,7 +28,7 @@ export default function JoinPage() {
 
       <section className="border-b-4 border-black bg-cream py-16 sm:py-24">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <h2 className="mb-12 inline-block rotate-1 border-2 border-black bg-copper-400 px-4 py-2 text-2xl font-black text-navy-950 uppercase shadow-brutal sm:text-3xl">
+          <h2 className="mb-12 inline-block border-2 border-black bg-copper-400 px-4 py-2 text-2xl font-semibold text-navy-950 uppercase shadow-brutal sm:text-3xl">
             שאלות נפוצות
           </h2>
           <FaqAccordion />
@@ -37,7 +37,7 @@ export default function JoinPage() {
 
       <section className="bg-cream-dark py-16 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="mb-12 -rotate-1 inline-block border-2 border-black bg-navy-900 px-4 py-2 text-2xl font-black text-cream uppercase shadow-brutal sm:text-3xl">
+          <h2 className="mb-12 inline-block border-2 border-black bg-navy-900 px-4 py-2 text-2xl font-semibold text-cream uppercase shadow-brutal sm:text-3xl">
             קבעו ביקור
           </h2>
 

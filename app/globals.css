@@ -24,7 +24,7 @@
   --color-cream: #fbf6ec;
   --color-cream-dark: #f1e7d4;
 
-  --font-sans: var(--font-frank-ruhl);
+  --font-sans: var(--font-assistant);
 
   --animate-marquee: marquee 22s linear infinite;
 }

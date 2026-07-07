@@ -23,13 +23,13 @@ export default function AudioPlayerBar() {
         </button>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-black uppercase">בחרו שיעור להאזנה</p>
+          <p className="truncate text-sm font-semibold uppercase">בחרו שיעור להאזנה</p>
           <div className="mt-2 h-1.5 w-full bg-cream/20">
             <div className="h-full w-1/3 bg-copper-400" />
           </div>
         </div>
 
-        <span className="hidden shrink-0 text-xs font-bold text-cream/50 sm:block">🎧 שיעורים</span>
+        <span className="hidden shrink-0 text-xs font-normal text-cream/50 sm:block">🎧 שיעורים</span>
       </div>
     </div>
   );
