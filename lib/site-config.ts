@@ -7,6 +7,9 @@ export type NavLink = {
 };
 
 export const SITE_NAME = "ישיבת ...";
+export const SITE_TITLE = "ישיבה לצעירים | מקום של תורה וחום";
+export const SITE_DESCRIPTION =
+  "ישיבה שמטפחת תלמידים בלימוד, בערכים ובאהבת ישראל — לתמימים ולמקרבים כאחד. קונטרסים, שיעורים, פעילויות ותרומות.";
 
 // Sticky header + footer navigation share this list.
 export const NAV_LINKS: NavLink[] = [
