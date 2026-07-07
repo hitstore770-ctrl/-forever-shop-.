@@ -7,7 +7,7 @@ type IconProps = {
 
 export function BookIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className={className}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -19,7 +19,7 @@ export function BookIcon({ className }: IconProps) {
 
 export function UsersIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className={className}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -31,7 +31,7 @@ export function UsersIcon({ className }: IconProps) {
 
 export function HeartHandIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className={className}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -43,7 +43,7 @@ export function HeartHandIcon({ className }: IconProps) {
 
 export function CalendarIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className={className}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

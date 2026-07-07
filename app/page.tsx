@@ -12,10 +12,12 @@ export default function HomePage() {
     <>
       <NewsTicker />
       <Hero />
-      <section className="bg-cream py-16 sm:py-24">
-        <div className="mx-auto max-w-6xl space-y-16 px-4 sm:px-6">
+      <section className="relative z-10 -mt-6 bg-cream py-16 sm:-mt-10 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mb-16 sm:mb-20">
+            <DailyDedication />
+          </div>
           <QuickNavCards />
-          <DailyDedication />
         </div>
       </section>
     </>
