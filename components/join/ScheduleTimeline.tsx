@@ -1,27 +1,21 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { ClockIcon } from "@/components/icons";
 import { SCHEDULE_ITEMS } from "@/lib/join-data";
+import { fadeInUp, staggerContainer, hoverTilt } from "@/lib/motion-variants";
 
 const ACCENTS = ["bg-copper-400 text-navy-950", "bg-navy-900 text-cream", "bg-cream-dark text-navy-900"];
 
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-};
-
-const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
-};
-
 // Straight, evenly aligned grid for the daily schedule — same brutalist
-// borders/shadows as the rest of the site, no rotation or staggered offsets.
+// borders/shadows as the rest of the site, no persistent rotation, just a
+// tilt on hover (via whileHover, not a CSS hover class — Framer Motion
+// already owns this element's transform once it's animating y, so a plain
+// CSS hover:translate class would silently never apply).
 export default function ScheduleTimeline() {
   return (
     <motion.div
-      variants={container}
+      variants={staggerContainer(0.08)}
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.2 }}
@@ -33,8 +27,9 @@ export default function ScheduleTimeline() {
         return (
           <motion.div
             key={item.time}
-            variants={fadeIn}
-            className={`border-4 border-black p-6 shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none ${accent}`}
+            variants={fadeInUp()}
+            whileHover={hoverTilt}
+            className={`border-4 border-black p-6 shadow-brutal transition-shadow ${accent}`}
           >
             <p className="flex items-center gap-2 text-2xl font-semibold">
               <ClockIcon className="h-5 w-5" />

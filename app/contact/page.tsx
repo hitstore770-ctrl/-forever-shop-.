@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import StaffCard from "@/components/contact/StaffCard";
+import StaffTeamGrid from "@/components/contact/StaffTeamGrid";
 import ContactForm from "@/components/contact/ContactForm";
 import WhatsAppUrgentNote from "@/components/contact/WhatsAppUrgentNote";
 import {
@@ -12,7 +12,6 @@ import {
   DoodleFlyingDocument,
   DoodleNotebookPage,
 } from "@/components/doodles";
-import { STAFF_MEMBERS } from "@/lib/contact-data";
 
 export const metadata: Metadata = {
   title: "צור קשר",
@@ -57,11 +56,7 @@ export default function ContactPage() {
           <DoodleZigzag className="hidden h-6 w-12 text-copper-500/70 sm:block" />
         </div>
 
-        <div className="grid grid-cols-2 gap-x-6 gap-y-14 pt-4 sm:grid-cols-4">
-          {STAFF_MEMBERS.map((staff, index) => (
-            <StaffCard key={staff.id} staff={staff} index={index} />
-          ))}
-        </div>
+        <StaffTeamGrid />
       </div>
 
       {/* Contact form */}

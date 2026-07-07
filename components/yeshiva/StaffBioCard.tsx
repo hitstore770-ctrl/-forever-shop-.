@@ -1,28 +1,23 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { UserIcon } from "@/components/icons";
 import { DoodleTape } from "@/components/doodles";
 import type { StaffMember } from "@/lib/contact-data";
+import { fadeInUp, hoverTilt } from "@/lib/motion-variants";
 
 const ACCENTS = ["bg-navy-900 text-cream", "bg-copper-400 text-navy-950", "bg-cream-dark text-navy-900", "bg-navy-800 text-cream"];
 const TAPE_ROTATIONS = ["-rotate-6", "rotate-3", "-rotate-3", "rotate-6"];
 
-const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
-};
-
 // Leadership bio card for the "Yeshiva" (About) page — a wider layout than
 // the compact Contact-page StaffCard, with room for a full bio paragraph
-// alongside the photo placeholder.
+// alongside the photo placeholder. Entrance is orchestrated by the parent
+// grid's stagger container.
 export default function StaffBioCard({ staff, index }: { staff: StaffMember; index: number }) {
   return (
     <motion.div
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.4 }}
-      variants={fadeIn}
+      variants={fadeInUp()}
+      whileHover={hoverTilt}
       className="relative flex flex-col gap-5 border-4 border-black bg-cream p-5 shadow-brutal-lg sm:flex-row sm:items-start"
     >
       <div className="relative shrink-0 self-center sm:self-start">

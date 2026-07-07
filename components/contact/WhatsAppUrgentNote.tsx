@@ -18,6 +18,7 @@ export default function WhatsAppUrgentNote() {
     <motion.div
       initial={{ opacity: 0, y: 20, rotate: -1.5 }}
       whileInView={{ opacity: 1, y: 0, rotate: -1.5 }}
+      whileHover={{ scale: 1.015 }}
       viewport={{ once: true, amount: 0.4 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="relative mx-auto max-w-3xl"
@@ -43,15 +44,18 @@ export default function WhatsAppUrgentNote() {
           {WHATSAPP_DISPLAY}
         </p>
 
-        <a
-          href={buildWhatsAppLink("שלום, אשמח לקבל פרטים נוספים")}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center gap-3 border-4 border-black bg-navy-900 px-8 py-4 text-lg font-semibold text-cream uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
-        >
-          <MessageIcon className="h-6 w-6" />
-          פתחו שיחה
-        </a>
+        <div className="relative mt-8 inline-block">
+          <DoodleBoldArrow className="pointer-events-none absolute -top-10 -right-10 hidden h-10 w-14 rotate-[130deg] text-navy-950/50 sm:block" />
+          <a
+            href={buildWhatsAppLink("שלום, אשמח לקבל פרטים נוספים")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 border-4 border-black bg-navy-900 px-8 py-4 text-lg font-semibold text-cream uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
+          >
+            <MessageIcon className="h-6 w-6" />
+            פתחו שיחה
+          </a>
+        </div>
       </div>
     </motion.div>
   );

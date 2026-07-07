@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import StaffBioCard from "@/components/yeshiva/StaffBioCard";
+import LeadershipGrid from "@/components/yeshiva/LeadershipGrid";
 import HistoryTimeline from "@/components/yeshiva/HistoryTimeline";
 import {
   SquigglyUnderline,
@@ -12,7 +12,6 @@ import {
   DoodleNotebookPage,
   DoodleMarkerScribble,
 } from "@/components/doodles";
-import { STAFF_MEMBERS } from "@/lib/contact-data";
 import { SITE_DESCRIPTION } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -97,11 +96,7 @@ export default function YeshivaPage() {
           <DoodleStar className="hidden h-6 w-6 text-copper-500/70 sm:block" />
         </div>
 
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-          {STAFF_MEMBERS.map((staff, index) => (
-            <StaffBioCard key={staff.id} staff={staff} index={index} />
-          ))}
-        </div>
+        <LeadershipGrid />
       </div>
     </div>
   );

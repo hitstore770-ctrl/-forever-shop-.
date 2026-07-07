@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { CameraIcon } from "@/components/icons";
 import { DoodleTape, DoodleStamp } from "@/components/doodles";
 import { GALLERY_PHOTOS } from "@/lib/gallery-data";
+import { fadeInScale } from "@/lib/motion-variants";
 
 const HEIGHT_BY_SIZE: Record<(typeof GALLERY_PHOTOS)[number]["size"], string> = {
   sm: "h-48",
@@ -20,11 +21,6 @@ const ACCENTS = [
 
 const ROTATIONS = ["sm:-rotate-2", "sm:rotate-2", "sm:-rotate-1", "sm:rotate-1", ""];
 
-const fadeIn: Variants = {
-  hidden: { opacity: 0, scale: 0.92 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: "easeOut" } },
-};
-
 // Asymmetrical masonry gallery — CSS multi-column layout so photo heights
 // vary naturally without any JS layout calculation. Deliberately loose and
 // a little chaotic (unlike the straightened card grids elsewhere on the
@@ -40,9 +36,9 @@ export default function PhotoGallery() {
       className="columns-1 gap-6 sm:columns-2 lg:columns-3"
     >
       {GALLERY_PHOTOS.map((photo, index) => (
-        <motion.div key={photo.id} variants={fadeIn} className="mb-6 break-inside-avoid">
+        <motion.div key={photo.id} variants={fadeInScale()} className="mb-6 break-inside-avoid">
           <div
-            className={`relative overflow-hidden border-4 border-black shadow-brutal-lg transition-transform hover:z-10 hover:scale-[1.02] ${ROTATIONS[index % ROTATIONS.length]}`}
+            className={`relative overflow-hidden border-4 border-black shadow-brutal-lg transition-transform duration-200 hover:z-10 hover:-rotate-1 hover:scale-[1.04] ${ROTATIONS[index % ROTATIONS.length]}`}
           >
             {/* TODO: swap for a real photo via next/image (object-cover) once assets exist */}
             <div

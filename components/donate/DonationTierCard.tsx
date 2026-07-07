@@ -13,7 +13,7 @@ export default function DonationTierCard({ tier, index }: { tier: DonationTier; 
   const CornerDoodle = CORNER_DOODLES[index % CORNER_DOODLES.length];
 
   return (
-    <div className="relative flex h-full flex-col justify-between gap-6 border-4 border-black bg-cream p-7 shadow-brutal-lg transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none">
+    <div className="relative flex h-full flex-col justify-between gap-6 border-4 border-black bg-cream p-7 shadow-brutal-lg transition-all duration-200 hover:-translate-y-1 hover:-rotate-1 hover:shadow-brutal-none">
       <CornerDoodle className="pointer-events-none absolute -top-3 -left-3 h-7 w-7 text-black/20" />
 
       <div>

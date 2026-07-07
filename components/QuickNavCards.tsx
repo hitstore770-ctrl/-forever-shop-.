@@ -1,12 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { QUICK_NAV_CARDS, type QuickNavCard } from "@/lib/site-config";
 import { BookIcon, UsersIcon, HeartHandIcon, CalendarIcon } from "@/components/icons";
-import { DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag, DoodleTape, DoodleStamp } from "@/components/doodles";
+import {
+  DoodleStar,
+  DoodleDots,
+  DoodleScribble,
+  DoodleZigzag,
+  DoodleTape,
+  DoodleStamp,
+  DoodleBoldArrow,
+} from "@/components/doodles";
+import { fadeInUp, staggerContainer, hoverTilt } from "@/lib/motion-variants";
 
 const CORNER_DOODLES = [DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag];
+// Subtle off-grid tilt per card — small enough to keep the cards highly
+// usable, just enough to break the once-perfectly-straight grid.
+const ROTATION_DEG = [-1, 1, -0.75, 0.75];
 
 const ICONS: Record<QuickNavCard["icon"], typeof BookIcon> = {
   learning: BookIcon,
@@ -37,23 +49,13 @@ const CARD_STYLE: Record<QuickNavCard["icon"], { card: string; sticker: string }
   },
 };
 
-const container: Variants = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-};
-
-// Straight, evenly aligned grid of cards routing to the site's four main sections.
+// A gently off-grid grid of cards routing to the site's four main sections
+// — a slight persistent tilt per card (instead of dead-straight), plus a
+// hover tilt on top.
 export default function QuickNavCards() {
   return (
     <motion.div
-      variants={container}
+      variants={staggerContainer(0.1)}
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.3 }}
@@ -64,7 +66,11 @@ export default function QuickNavCards() {
         const style = CARD_STYLE[card.icon];
         const CornerDoodle = CORNER_DOODLES[index % CORNER_DOODLES.length];
         return (
-          <motion.div key={card.href} variants={fadeUp}>
+          <motion.div
+            key={card.href}
+            variants={fadeInUp(ROTATION_DEG[index % ROTATION_DEG.length])}
+            whileHover={hoverTilt}
+          >
             <Link
               href={card.href}
               className={`group relative flex h-full flex-col justify-between gap-6 border-4 border-black p-7 shadow-brutal-lg transition-all duration-200 hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none ${style.card}`}
@@ -72,6 +78,9 @@ export default function QuickNavCards() {
               <CornerDoodle className="pointer-events-none absolute -top-3 -left-3 h-7 w-7 text-black/25" />
               {index === 0 && (
                 <DoodleTape className="pointer-events-none absolute -top-3 right-6 h-6 w-16 -rotate-3 text-copper-300" />
+              )}
+              {index === 1 && (
+                <DoodleBoldArrow className="pointer-events-none absolute -top-8 -right-6 hidden h-12 w-12 rotate-[100deg] text-black/30 sm:block" />
               )}
               {index === 2 && (
                 <DoodleStamp className="pointer-events-none absolute -right-4 -bottom-4 h-10 w-10 rotate-12 text-black/20" />

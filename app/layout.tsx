@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import GlobalDoodleField from "@/components/GlobalDoodleField";
 import { SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site-config";
 
 // Assistant is a clean, modern Hebrew/Latin sans-serif — lighter and more
@@ -67,6 +68,7 @@ export default function RootLayout({
         - Analytics scripts (e.g. Google Analytics, Meta Pixel)
       */}
       <body className="flex min-h-full flex-col font-sans">
+        <GlobalDoodleField />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
