@@ -24,8 +24,8 @@ export const NAV_LINKS: NavLink[] = [
 ];
 
 // WhatsApp contact number, international format (no "+") for wa.me links.
-export const WHATSAPP_NUMBER = "972559345372";
-export const WHATSAPP_DISPLAY = "055-934-5372";
+export const WHATSAPP_NUMBER = "972556883418";
+export const WHATSAPP_DISPLAY = "055-688-3418";
 
 export function buildWhatsAppLink(message?: string) {
   const base = `https://wa.me/${WHATSAPP_NUMBER}`;

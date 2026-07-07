@@ -1,7 +1,8 @@
 import { WHATSAPP_DISPLAY, WHATSAPP_NUMBER } from "@/lib/site-config";
 import type { DonationRecord } from "@/lib/admin-data";
 
-// Server-only. Notifies the admin's WhatsApp (055-934-5372) the moment a
+// Server-only. Notifies the admin's WhatsApp (WHATSAPP_NUMBER from
+// site-config, currently 055-688-3418) the moment a
 // dedication is paid for, so staff don't have to keep refreshing the admin
 // panel to catch new donations.
 //
