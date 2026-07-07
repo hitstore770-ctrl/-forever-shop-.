@@ -88,3 +88,20 @@ export function PauseIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function ChevronDownIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+    </svg>
+  );
+}
+
+export function ClockIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+      <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
