@@ -16,7 +16,7 @@ export default function LearningPage() {
       <h1 className="max-w-3xl text-4xl leading-[0.95] font-black text-navy-950 uppercase sm:text-6xl">
         אזור למידה
         <br />
-        <span className="-rotate-1 inline-block bg-copper-500 px-3 text-cream">קונטרסים ושיעורים</span>
+        <span className="inline-block bg-copper-500 px-3 text-cream">קונטרסים ושיעורים</span>
       </h1>
 
       <div className="mt-12">

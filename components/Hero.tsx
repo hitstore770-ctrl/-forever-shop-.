@@ -15,10 +15,10 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-// Tall, asymmetrical "collage" hero: an oversized headline on one side,
-// two overlapping media placeholders (rotated, hard-edged) on the other.
-// Grid columns are physical (col-start-1 = the start edge), which under
-// dir="rtl" lands the headline on the right and the media stack on the left.
+// Tall hero: an oversized headline on one side, two overlapping media
+// placeholders (straight, hard-edged) on the other. Grid columns are
+// physical (col-start-1 = the start edge), which under dir="rtl" lands the
+// headline on the right and the media stack on the left.
 export default function Hero() {
   return (
     <section className="relative border-b-4 border-black bg-cream pt-14 pb-20 sm:pt-20 sm:pb-28">
@@ -33,7 +33,7 @@ export default function Hero() {
           >
             <motion.span
               variants={fadeUp}
-              className="mb-5 inline-block -rotate-2 border-2 border-black bg-copper-400 px-3 py-1 text-xs font-black tracking-widest text-navy-950 uppercase shadow-brutal"
+              className="mb-5 inline-block border-2 border-black bg-copper-400 px-3 py-1 text-xs font-black tracking-widest text-navy-950 uppercase shadow-brutal"
             >
               בס&quot;ד · ישיבת ...
             </motion.span>
@@ -44,7 +44,7 @@ export default function Hero() {
             >
               מקום של
               <br />
-              <span className="relative inline-block -rotate-1 bg-copper-500 px-3 text-cream">תורה</span>{" "}
+              <span className="relative inline-block bg-copper-500 px-3 text-cream">תורה</span>{" "}
               <span className="inline-block lg:-ml-3">וחום</span>
             </motion.h1>
 
@@ -79,22 +79,22 @@ export default function Hero() {
               or a next/image with `fill` + object-cover.
             */}
             <motion.div
-              initial={{ opacity: 0, rotate: 8, scale: 0.92 }}
-              animate={{ opacity: 1, rotate: 3, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.2 }}
               className="absolute inset-0 translate-x-4 overflow-hidden border-4 border-black bg-navy-900 shadow-brutal-lg"
             >
               <div className="relative flex h-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,var(--color-navy-600),var(--color-navy-950))]">
                 <div className="absolute inset-0 bg-grain mix-blend-overlay" />
-                <span className="rotate-2 font-mono text-xs tracking-[0.3em] text-cream/40 uppercase">
+                <span className="font-mono text-xs tracking-[0.3em] text-cream/40 uppercase">
                   🎥 B-ROLL PLACEHOLDER
                 </span>
               </div>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, rotate: -16, scale: 0.85 }}
-              animate={{ opacity: 1, rotate: -6, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.4 }}
               className="absolute -bottom-6 -left-6 h-40 w-40 overflow-hidden rounded-2xl border-4 border-black bg-copper-400 shadow-brutal sm:h-52 sm:w-52"
             >
@@ -106,8 +106,8 @@ export default function Hero() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: -10, rotate: 4 }}
-              animate={{ opacity: 1, y: 0, rotate: 12 }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
               className="absolute -top-5 right-4 border-2 border-black bg-cream px-3 py-1 text-xs font-black uppercase shadow-brutal sm:right-8"
             >

@@ -12,34 +12,23 @@ const ICONS: Record<QuickNavCard["icon"], typeof BookIcon> = {
   activities: CalendarIcon,
 };
 
-// Per-card look: mismatched sizes/rotation (bento grid) + one exaggerated
-// rounded corner each, everything else left sharp. Grid spans are only
-// applied at lg+ — below that the cards just stack in reading order.
-const CARD_STYLE: Record<
-  QuickNavCard["icon"],
-  { span: string; rotate: string; card: string; sticker: string }
-> = {
+// Per-card look: alternating color + one exaggerated rounded corner each,
+// everything else left sharp. All cards are the same size — a straight,
+// evenly aligned grid rather than a mismatched bento layout.
+const CARD_STYLE: Record<QuickNavCard["icon"], { card: string; sticker: string }> = {
   learning: {
-    span: "lg:col-span-2 lg:row-span-2",
-    rotate: "sm:-rotate-1",
     card: "bg-copper-400 text-navy-950 rounded-tr-[2.5rem]",
     sticker: "border-black bg-navy-900 text-cream",
   },
   join: {
-    span: "lg:col-span-2 lg:row-span-1",
-    rotate: "sm:rotate-1",
     card: "bg-navy-900 text-cream rounded-bl-[2.5rem]",
     sticker: "border-black bg-copper-400 text-navy-950",
   },
   donate: {
-    span: "lg:col-span-1 lg:row-span-1",
-    rotate: "sm:-rotate-2",
     card: "bg-cream-dark text-navy-900 rounded-tl-[2.5rem]",
     sticker: "border-black bg-navy-900 text-cream",
   },
   activities: {
-    span: "lg:col-span-1 lg:row-span-1",
-    rotate: "sm:rotate-2",
     card: "bg-navy-900 text-cream rounded-br-[2.5rem]",
     sticker: "border-black bg-copper-400 text-navy-950",
   },
@@ -57,7 +46,7 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-// Asymmetrical "bento" grid of cards routing to the site's four main sections.
+// Straight, evenly aligned grid of cards routing to the site's four main sections.
 export default function QuickNavCards() {
   return (
     <motion.div
@@ -65,16 +54,16 @@ export default function QuickNavCards() {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.3 }}
-      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[170px] lg:gap-5"
+      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
     >
       {QUICK_NAV_CARDS.map((card) => {
         const Icon = ICONS[card.icon];
         const style = CARD_STYLE[card.icon];
         return (
-          <motion.div key={card.href} variants={fadeUp} className={style.span}>
+          <motion.div key={card.href} variants={fadeUp}>
             <Link
               href={card.href}
-              className={`group flex h-full flex-col justify-between gap-6 border-4 border-black p-7 shadow-brutal-lg transition-all duration-200 hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none ${style.rotate} ${style.card}`}
+              className={`group flex h-full flex-col justify-between gap-6 border-4 border-black p-7 shadow-brutal-lg transition-all duration-200 hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none ${style.card}`}
             >
               <span
                 className={`flex h-14 w-14 items-center justify-center rounded-xl border-2 ${style.sticker}`}
