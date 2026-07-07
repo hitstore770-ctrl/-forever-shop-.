@@ -1,7 +1,7 @@
 "use client";
 
 import { useCart } from "@/components/donate/CartContext";
-import { DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag } from "@/components/doodles";
+import { DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag, DoodleBoldArrow } from "@/components/doodles";
 import type { DonationTier } from "@/lib/donate-data";
 
 const ACCENTS = ["bg-copper-400 text-navy-950", "bg-navy-900 text-cream", "bg-cream-dark text-navy-900"];
@@ -24,13 +24,18 @@ export default function DonationTierCard({ tier, index }: { tier: DonationTier; 
         <p className="mt-2 text-sm font-normal text-navy-700/70">{tier.description}</p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => addItem(tier)}
-        className="w-full border-4 border-black bg-copper-500 py-3 text-base font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
-      >
-        הוסף לעגלה
-      </button>
+      <div className="relative">
+        {index === 0 && (
+          <DoodleBoldArrow className="pointer-events-none absolute -top-10 left-1/2 hidden h-12 w-12 -translate-x-1/2 rotate-90 text-copper-600 sm:block" />
+        )}
+        <button
+          type="button"
+          onClick={() => addItem(tier)}
+          className="w-full border-4 border-black bg-copper-500 py-3 text-base font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
+        >
+          הוסף לעגלה
+        </button>
+      </div>
     </div>
   );
 }

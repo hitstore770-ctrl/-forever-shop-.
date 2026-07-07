@@ -119,6 +119,105 @@ export function DoodleDots({ className }: DoodleProps) {
   );
 }
 
+// A hand-sketched A5 notebook page: wobbly rectangle, ruled lines, and a
+// spiral binding down one edge.
+export function DoodleNotebookPage({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 80 100" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M12 4c20-1 40-1 60 1 2 30 2 60 0 90-20 2-40 2-60 0-2-30-2-60 0-91Z"
+        stroke="currentColor"
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+      />
+      <path d="M22 25h48M22 42h48M22 59h48M22 76h34" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" />
+      <circle cx="10" cy="15" r="3" stroke="currentColor" strokeWidth={1.5} />
+      <circle cx="9" cy="35" r="3" stroke="currentColor" strokeWidth={1.5} />
+      <circle cx="10" cy="55" r="3" stroke="currentColor" strokeWidth={1.5} />
+      <circle cx="9" cy="75" r="3" stroke="currentColor" strokeWidth={1.5} />
+      <circle cx="10" cy="90" r="3" stroke="currentColor" strokeWidth={1.5} />
+    </svg>
+  );
+}
+
+// A sketch of a page caught mid-flight — dog-eared corner, a couple of text
+// lines, and motion streaks trailing behind it.
+export function DoodleFlyingDocument({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 100 90" fill="none" className={className} aria-hidden="true">
+      <path d="M6 50c2-2 6-4 10-6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" opacity={0.5} />
+      <path d="M2 62c3-2 8-5 13-7" stroke="currentColor" strokeWidth={2} strokeLinecap="round" opacity={0.35} />
+      <path
+        d="M28 12 72 6c3 20 4 42 2 64l-46 8c-4-24-4-48-2-70Z"
+        stroke="currentColor"
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+      />
+      <path d="M58 8 72 6 70 20 58 8Z" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" />
+      <path d="M36 32 62 28M36 44 62 41M36 56 54 54" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// A heavy, chaotic marker scribble — thicker and messier than DoodleScribble.
+export function DoodleMarkerScribble({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 100 60" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M6 40C4 20 24 8 46 10c24 2 20 22 4 24-18 2-14-16 6-18 20-2 40 6 42 22"
+        stroke="currentColor"
+        strokeWidth={7}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+// A bold, confident hand-drawn arrow with a solid arrowhead — meant to point
+// straight at a nearby CTA. Rotate/flip via className to aim it.
+export function DoodleBoldArrow({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 100 60" fill="none" className={className} aria-hidden="true">
+      <path d="M4 10c30 4 60 16 78 34" stroke="currentColor" strokeWidth={5} strokeLinecap="round" />
+      <path d="M56 34c8 3 18 8 26 10-4 8-8 17-10 26" stroke="currentColor" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// A strip of "washi tape" with torn notches at each end — a corner accent
+// for pinning photos/cards down. Give it a fixed width/height + rotation
+// via className.
+export function DoodleTape({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 100 32" preserveAspectRatio="none" className={className} aria-hidden="true">
+      <path
+        d="M0 6 8 0l6 6-6 6 6 6-6 6 6 6-6 6-8-6V6Z"
+        fill="currentColor"
+        fillOpacity={0.85}
+      />
+      <path
+        d="M8 0h84l8 6-8 6 8 6-8 6 8 6-8 6H8l-6-6 6-6-6-6 6-6-6-6Z"
+        fill="currentColor"
+        fillOpacity={0.55}
+      />
+      <path d="M20 6v20M40 6v20M60 6v20M80 6v20" stroke="currentColor" strokeOpacity={0.25} strokeWidth={1} />
+    </svg>
+  );
+}
+
+// A round hand-drawn "stamp" sticker with a star inside — corner accent.
+export function DoodleStamp({ className }: DoodleProps) {
+  return (
+    <svg viewBox="0 0 60 60" fill="none" className={className} aria-hidden="true">
+      <circle cx="30" cy="30" r="26" stroke="currentColor" strokeWidth={3} strokeDasharray="4 5" />
+      <path
+        d="M30 16c1 5 2 7 3 8 1 1 6 2 9 4-5 1-8 2-9 3s-2 6-3 9c-1-5-2-7-3-8-1-1-6-2-9-3 5-1 8-2 9-4s2-3 3-9Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 // A rough highlighter-marker swash — meant to sit behind a word/phrase.
 // Prefer the <MarkerHighlight> wrapper below over using this directly.
 function DoodleHighlight({ className }: DoodleProps) {

@@ -5,7 +5,15 @@ import RecentDedications from "@/components/donate/RecentDedications";
 import CartButton from "@/components/donate/CartButton";
 import CartSidebar from "@/components/donate/CartSidebar";
 import CheckoutStatusBanner from "@/components/donate/CheckoutStatusBanner";
-import { SquigglyUnderline, DoodleStar, DoodleScribble, DoodleDots, DoodleZigzag } from "@/components/doodles";
+import {
+  SquigglyUnderline,
+  DoodleStar,
+  DoodleScribble,
+  DoodleDots,
+  DoodleZigzag,
+  DoodleFlyingDocument,
+  DoodleMarkerScribble,
+} from "@/components/doodles";
 import { DONATION_TIERS } from "@/lib/donate-data";
 
 export const metadata: Metadata = {
@@ -28,6 +36,8 @@ export default async function DonatePage({
       <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
         <DoodleStar className="pointer-events-none absolute top-8 left-6 hidden h-8 w-8 text-copper-500 xl:block" />
         <DoodleZigzag className="pointer-events-none absolute top-40 left-2 hidden h-5 w-14 text-navy-900/25 xl:block" />
+        <DoodleFlyingDocument className="pointer-events-none absolute top-4 right-16 hidden h-16 w-20 rotate-12 text-copper-600/40 xl:block" />
+        <DoodleMarkerScribble className="pointer-events-none absolute bottom-16 left-20 hidden h-8 w-20 text-navy-900/15 xl:block" />
 
         {(paid === "success" || paid === "cancelled") && <CheckoutStatusBanner status={paid} />}
 

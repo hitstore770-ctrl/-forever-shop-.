@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { DoodleBoldArrow } from "@/components/doodles";
 
 const inputClass =
   "w-full border-4 border-black bg-cream px-4 py-3 text-lg font-normal text-navy-950 shadow-brutal placeholder:font-normal placeholder:text-navy-900/40 focus:outline-none";
@@ -55,12 +56,15 @@ export default function VisitForm() {
         <input id="visit-date" name="date" type="date" required className={inputClass} />
       </div>
 
-      <button
-        type="submit"
-        className="w-full border-4 border-black bg-copper-500 py-5 text-xl font-semibold text-navy-950 uppercase shadow-brutal-lg transition-all hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-brutal-none"
-      >
-        קבעו לי ביקור
-      </button>
+      <div className="relative">
+        <DoodleBoldArrow className="pointer-events-none absolute -top-12 -right-6 hidden h-14 w-14 rotate-[70deg] text-copper-600 sm:block" />
+        <button
+          type="submit"
+          className="w-full border-4 border-black bg-copper-500 py-5 text-xl font-semibold text-navy-950 uppercase shadow-brutal-lg transition-all hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-brutal-none"
+        >
+          קבעו לי ביקור
+        </button>
+      </div>
     </form>
   );
 }

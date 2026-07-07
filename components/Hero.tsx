@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-import { SquigglyUnderline, DoodleStar, DoodleDots, DoodleZigzag, MarkerHighlight } from "@/components/doodles";
+import {
+  SquigglyUnderline,
+  DoodleStar,
+  DoodleDots,
+  DoodleZigzag,
+  DoodleBoldArrow,
+  DoodleFlyingDocument,
+  DoodleNotebookPage,
+  MarkerHighlight,
+} from "@/components/doodles";
 
 const container: Variants = {
   hidden: {},
@@ -61,7 +70,8 @@ export default function Hero() {
               <MarkerHighlight colorClassName="text-copper-400/60">לתמימים ולמקרבים</MarkerHighlight> כאחד.
             </motion.p>
 
-            <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
+            <motion.div variants={fadeUp} className="relative mt-10 flex flex-wrap items-center gap-4">
+              <DoodleBoldArrow className="pointer-events-none absolute -top-9 right-4 hidden h-8 w-14 -rotate-6 text-copper-600 sm:block" />
               <Link
                 href="/learning"
                 className="border-4 border-black bg-copper-500 px-8 py-4 text-lg font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
@@ -122,6 +132,8 @@ export default function Hero() {
             </motion.div>
 
             <DoodleZigzag className="pointer-events-none absolute -bottom-2 right-2 hidden h-5 w-16 text-navy-900/40 sm:block" />
+            <DoodleFlyingDocument className="pointer-events-none absolute -top-10 left-8 hidden h-16 w-20 rotate-6 text-navy-900/50 lg:block" />
+            <DoodleNotebookPage className="pointer-events-none absolute top-1/2 -left-3 hidden h-16 w-12 -translate-y-1/2 -rotate-6 text-navy-900/20 xl:block" />
           </div>
         </div>
       </div>

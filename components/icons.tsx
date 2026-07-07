@@ -21,6 +21,8 @@ import {
   LogOut,
   MessageSquare,
   LayoutGrid,
+  Pin,
+  Camera,
   type LucideProps,
 } from "lucide-react";
 
@@ -50,3 +52,5 @@ export const LockIcon = withThickStroke(Lock);
 export const LogOutIcon = withThickStroke(LogOut);
 export const MessageIcon = withThickStroke(MessageSquare);
 export const GridIcon = withThickStroke(LayoutGrid);
+export const PinIcon = withThickStroke(Pin);
+export const CameraIcon = withThickStroke(Camera);

@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import LearningExplorer from "@/components/learning/LearningExplorer";
 import AudioPlayerBar from "@/components/learning/AudioPlayerBar";
-import { SquigglyUnderline, DoodleStar, DoodleScribble, DoodleDots, DoodleZigzag } from "@/components/doodles";
+import {
+  SquigglyUnderline,
+  DoodleStar,
+  DoodleScribble,
+  DoodleDots,
+  DoodleZigzag,
+  DoodleFlyingDocument,
+  DoodleNotebookPage,
+} from "@/components/doodles";
 import { getKuntresim } from "@/lib/learning-data";
 
 export const metadata: Metadata = {
@@ -26,6 +34,8 @@ export default async function LearningPage() {
     <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-32 sm:px-6 sm:pt-16">
       <DoodleStar className="pointer-events-none absolute top-8 left-6 hidden h-8 w-8 text-copper-500 xl:block" />
       <DoodleScribble className="pointer-events-none absolute top-32 left-2 hidden h-8 w-16 text-navy-900/25 xl:block" />
+      <DoodleFlyingDocument className="pointer-events-none absolute top-2 right-10 hidden h-16 w-20 rotate-12 text-copper-600/50 xl:block" />
+      <DoodleNotebookPage className="pointer-events-none absolute bottom-8 left-6 hidden h-20 w-16 rotate-6 text-navy-900/15 xl:block" />
 
       <h1 className="relative max-w-3xl text-4xl leading-[0.95] font-semibold text-navy-950 uppercase sm:text-6xl">
         אזור למידה

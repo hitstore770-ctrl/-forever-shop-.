@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { QUICK_NAV_CARDS, type QuickNavCard } from "@/lib/site-config";
 import { BookIcon, UsersIcon, HeartHandIcon, CalendarIcon } from "@/components/icons";
-import { DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag } from "@/components/doodles";
+import { DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag, DoodleTape, DoodleStamp } from "@/components/doodles";
 
 const CORNER_DOODLES = [DoodleStar, DoodleDots, DoodleScribble, DoodleZigzag];
 
@@ -70,6 +70,12 @@ export default function QuickNavCards() {
               className={`group relative flex h-full flex-col justify-between gap-6 border-4 border-black p-7 shadow-brutal-lg transition-all duration-200 hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none ${style.card}`}
             >
               <CornerDoodle className="pointer-events-none absolute -top-3 -left-3 h-7 w-7 text-black/25" />
+              {index === 0 && (
+                <DoodleTape className="pointer-events-none absolute -top-3 right-6 h-6 w-16 -rotate-3 text-copper-300" />
+              )}
+              {index === 2 && (
+                <DoodleStamp className="pointer-events-none absolute -right-4 -bottom-4 h-10 w-10 rotate-12 text-black/20" />
+              )}
 
               <span
                 className={`flex h-14 w-14 items-center justify-center rounded-xl border-2 ${style.sticker}`}
