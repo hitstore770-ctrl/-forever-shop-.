@@ -24,7 +24,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop navigation */}
-        <nav className="hidden items-center gap-2 md:flex">
+        <nav className="hidden items-center gap-2 lg:flex">
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -49,7 +49,7 @@ export default function Header() {
           aria-label="פתיחת/סגירת תפריט"
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((open) => !open)}
-          className="flex h-11 w-11 items-center justify-center border-2 border-black bg-cream text-navy-950 shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none md:hidden"
+          className="flex h-11 w-11 items-center justify-center border-2 border-black bg-cream text-navy-950 shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none lg:hidden"
         >
           {isMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
         </button>
@@ -57,7 +57,7 @@ export default function Header() {
 
       {/* Mobile navigation panel */}
       {isMenuOpen && (
-        <nav className="border-t-4 border-black bg-cream px-4 pb-4 md:hidden">
+        <nav className="border-t-4 border-black bg-cream px-4 pb-4 lg:hidden">
           <ul className="flex flex-col gap-2 pt-3">
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;

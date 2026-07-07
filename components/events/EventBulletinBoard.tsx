@@ -2,7 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import { PinIcon } from "@/components/icons";
-import { UPCOMING_EVENTS } from "@/lib/activities-data";
+import { UPCOMING_EVENTS } from "@/lib/events-data";
 
 const ROTATIONS = ["sm:-rotate-2", "sm:rotate-2", "sm:-rotate-1", "sm:rotate-1"];
 const ACCENTS = ["bg-cream", "bg-copper-300", "bg-cream-dark", "bg-cream"];

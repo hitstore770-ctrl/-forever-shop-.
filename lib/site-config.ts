@@ -14,10 +14,12 @@ export const SITE_DESCRIPTION =
 // Sticky header + footer navigation share this list.
 export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "בית" },
+  { href: "/yeshiva", label: "הישיבה" },
   { href: "/learning", label: "לימוד" },
   { href: "/join", label: "הצטרפות" },
   { href: "/donate", label: "תרומות" },
-  { href: "/activities", label: "פעילויות" },
+  { href: "/gallery", label: "גלריה" },
+  { href: "/events", label: "אירועים" },
   { href: "/contact", label: "צור קשר" },
 ];
 
@@ -43,7 +45,7 @@ export type QuickNavCard = {
   href: string;
   title: string;
   description: string;
-  icon: "learning" | "join" | "donate" | "activities";
+  icon: "learning" | "join" | "donate" | "events";
 };
 
 // Cards on the homepage that route to the four main sections of the site.
@@ -67,9 +69,9 @@ export const QUICK_NAV_CARDS: QuickNavCard[] = [
     icon: "donate",
   },
   {
-    href: "/activities",
-    title: "פעילויות",
-    description: "גלריה ואירועים מהישיבה",
-    icon: "activities",
+    href: "/events",
+    title: "אירועים",
+    description: "שיעורים, התוועדויות ואירועים קרובים",
+    icon: "events",
   },
 ];

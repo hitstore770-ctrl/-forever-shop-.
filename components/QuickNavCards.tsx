@@ -12,7 +12,7 @@ const ICONS: Record<QuickNavCard["icon"], typeof BookIcon> = {
   learning: BookIcon,
   join: UsersIcon,
   donate: HeartHandIcon,
-  activities: CalendarIcon,
+  events: CalendarIcon,
 };
 
 // Per-card look: alternating color + one exaggerated rounded corner each,
@@ -31,7 +31,7 @@ const CARD_STYLE: Record<QuickNavCard["icon"], { card: string; sticker: string }
     card: "bg-cream-dark text-navy-900 rounded-tl-[2.5rem]",
     sticker: "border-black bg-navy-900 text-cream",
   },
-  activities: {
+  events: {
     card: "bg-navy-900 text-cream rounded-br-[2.5rem]",
     sticker: "border-black bg-copper-400 text-navy-950",
   },

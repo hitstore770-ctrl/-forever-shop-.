@@ -3,7 +3,7 @@
 import { motion, type Variants } from "framer-motion";
 import { CameraIcon } from "@/components/icons";
 import { DoodleTape, DoodleStamp } from "@/components/doodles";
-import { GALLERY_PHOTOS } from "@/lib/activities-data";
+import { GALLERY_PHOTOS } from "@/lib/gallery-data";
 
 const HEIGHT_BY_SIZE: Record<(typeof GALLERY_PHOTOS)[number]["size"], string> = {
   sm: "h-48",

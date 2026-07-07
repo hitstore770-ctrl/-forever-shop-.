@@ -1,27 +1,22 @@
 import type { Metadata } from "next";
-import PhotoGallery from "@/components/activities/PhotoGallery";
-import EventBulletinBoard from "@/components/activities/EventBulletinBoard";
+import PhotoGallery from "@/components/gallery/PhotoGallery";
 import {
   SquigglyUnderline,
   DoodleStar,
   DoodleDots,
   DoodleZigzag,
-  DoodleScribble,
   DoodleMarkerScribble,
-  DoodleBoldArrow,
   DoodleFlyingDocument,
   DoodleNotebookPage,
-  DoodleTape,
 } from "@/components/doodles";
 
 export const metadata: Metadata = {
-  title: "פעילויות",
+  title: "גלריה",
 };
 
-// Activities & Gallery — a deliberately loose, scattered "photo wall" feel.
-// TODO for a later phase: back the gallery with real photos (Firebase
-// Storage) and the events list with Firestore.
-export default function ActivitiesPage() {
+// Gallery — a deliberately loose, scattered "photo wall" feel.
+// TODO: back this with real photos (Firebase Storage) once assets exist.
+export default function GalleryPage() {
   return (
     <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
       <DoodleStar className="pointer-events-none absolute top-6 left-8 hidden h-8 w-8 text-copper-500 xl:block" />
@@ -33,10 +28,10 @@ export default function ActivitiesPage() {
       </span>
 
       <h1 className="relative max-w-3xl text-4xl leading-[0.95] font-semibold text-navy-950 uppercase sm:text-6xl">
-        פעילויות
+        גלריית
         <br />
         <span className="relative inline-block bg-copper-500 px-3 text-cream">
-          וגלריה
+          תמונות
           <SquigglyUnderline className="absolute -bottom-3 right-0 h-2 w-full text-navy-900" />
         </span>
         <DoodleDots className="pointer-events-none absolute -top-4 left-0 hidden h-6 w-14 text-copper-500/60 sm:block" />
@@ -49,21 +44,6 @@ export default function ActivitiesPage() {
         <DoodleZigzag className="pointer-events-none absolute -top-10 right-1/3 hidden h-5 w-14 text-navy-900/25 xl:block" />
         <DoodleNotebookPage className="pointer-events-none absolute top-1/3 -left-6 hidden h-20 w-16 -rotate-6 text-navy-900/15 xl:block" />
         <PhotoGallery />
-      </div>
-
-      <div className="relative mt-24">
-        <DoodleTape className="pointer-events-none absolute -top-4 right-16 hidden h-7 w-24 rotate-3 text-copper-300 sm:block" />
-        <div className="mb-8 flex items-center gap-3">
-          <h2 className="inline-block border-2 border-black bg-navy-900 px-4 py-2 text-2xl font-semibold text-cream uppercase shadow-brutal sm:text-3xl">
-            אירועים קרובים
-          </h2>
-          <DoodleScribble className="hidden h-6 w-12 text-copper-500/70 sm:block" />
-        </div>
-
-        <div className="relative">
-          <DoodleBoldArrow className="pointer-events-none absolute -top-14 right-10 hidden h-14 w-14 rotate-45 text-copper-600 lg:block" />
-          <EventBulletinBoard />
-        </div>
       </div>
     </div>
   );
