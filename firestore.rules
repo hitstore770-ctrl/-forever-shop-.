@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Reference Firestore Security Rules — deploy with `firebase deploy --only
+// firestore:rules` once a Firebase project is connected. This is the
+// second layer of defense behind the app's own admin auth: even a direct
+// API call to Firestore (bypassing the Next.js app entirely) has to pass
+// these rules.
+//
+// Public collections are readable by anyone (the site itself reads them
+// unauthenticated) but writable only by signed-in users — the app-level
+// admin login (see lib/firebase-admin.ts) is what actually restricts who
+// can sign in and reach the write-capable /admin UI in the first place;
+// these rules assume that any authenticated user reaching Firestore
+// directly is trusted, which holds as long as public sign-up stays
+// disabled in the Firebase Console (Authentication -> Sign-in method).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /donations/{donationId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /contactSubmissions/{submissionId} {
+      // Anyone can submit the Contact page's form (no write auth needed),
+      // but only signed-in admins can read the resulting list back.
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    match /kuntresim/{kuntresId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // TODO: once /admin/gallery, /admin/events, and /admin/staff get real
+    // CRUD (see lib/gallery-data.ts, lib/events-data.ts,
+    // lib/contact-data.ts), add matching collections here, e.g.:
+    // match /galleryPhotos/{photoId} {
+    //   allow read: if true;
+    //   allow write: if request.auth != null;
+    // }
+  }
+}
