@@ -66,14 +66,32 @@ export type ContactSubmission = {
   date: string;
   name: string;
   phone: string;
-  preferredDate: string;
+  message: string;
 };
 
-// Mirrors the fields collected by the "Join Us" visit-request form.
+// Mirrors the fields collected by the Contact page's message form.
 export const CONTACT_SUBMISSIONS: ContactSubmission[] = [
-  { id: "1", date: "05/07/2026", name: "איתי שלום", phone: "050-1234567", preferredDate: "10/07/2026" },
-  { id: "2", date: "03/07/2026", name: "משה פרידמן", phone: "052-7654321", preferredDate: "12/07/2026" },
-  { id: "3", date: "01/07/2026", name: "נועם ביטון", phone: "054-9876543", preferredDate: "08/07/2026" },
+  {
+    id: "1",
+    date: "05/07/2026",
+    name: "איתי שלום",
+    phone: "050-1234567",
+    message: "שלום, אשמח לקבל מידע נוסף על הרשמה לזמן החורף.",
+  },
+  {
+    id: "2",
+    date: "03/07/2026",
+    name: "משה פרידמן",
+    phone: "052-7654321",
+    message: "האם ניתן לתאם ביקור בישיבה בשבוע הבא?",
+  },
+  {
+    id: "3",
+    date: "01/07/2026",
+    name: "נועם ביטון",
+    phone: "054-9876543",
+    message: "מעוניין לשמוע פרטים על תרומה לזכות הילד שנולד.",
+  },
 ];
 
 // Reads the "contactSubmissions" collection from Firestore, newest first.
@@ -83,10 +101,27 @@ export async function getContactSubmissions(): Promise<ContactSubmission[]> {
   }
 
   try {
-    const snapshot = await getDocs(query(collection(db, "contactSubmissions"), orderBy("date", "desc")));
+    const snapshot = await getDocs(query(collection(db, "contactSubmissions"), orderBy("createdAt", "desc")));
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as ContactSubmission);
   } catch (error) {
     console.warn("Failed to load contact submissions from Firestore, using mock data.", error);
     return CONTACT_SUBMISSIONS;
+  }
+}
+
+// Writes a new message from the Contact page's form to Firestore.
+// No-ops (just logs) when Firebase isn't configured, so the form still
+// completes end-to-end in local/demo environments.
+export async function addContactSubmission(submission: Omit<ContactSubmission, "id">): Promise<void> {
+  if (!isFirebaseConfigured || !db) {
+    console.log("[Firestore placeholder] Would save contact submission:", submission);
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "contactSubmissions"), { ...submission, createdAt: serverTimestamp() });
+  } catch (error) {
+    console.error("Failed to save contact submission to Firestore.", error);
+    throw error;
   }
 }

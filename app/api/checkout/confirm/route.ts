@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { addDonation } from "@/lib/admin-data";
 import { notifyAdminOfDonation } from "@/lib/whatsapp-notify";
+import { formatDateDMY } from "@/lib/format";
 
 // Mock payment-gateway "webhook" — simulates the callback a real gateway
 // would hit once the donor approves payment on its hosted page. Called by
@@ -19,12 +20,6 @@ type ConfirmRequestBody = {
   donorName: string;
 };
 
-function formatDate(date: Date) {
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  return `${day}/${month}/${date.getFullYear()}`;
-}
-
 export async function POST(request: Request) {
   let body: Partial<ConfirmRequestBody>;
   try {
@@ -40,7 +35,7 @@ export async function POST(request: Request) {
   const amount = body.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tier = body.items.map((item) => `${item.title} (×${item.quantity})`).join(", ");
   const donation = {
-    date: formatDate(new Date()),
+    date: formatDateDMY(new Date()),
     donorName: body.donorName?.trim() || "אנונימי",
     tier,
     amount,

@@ -1,8 +1,6 @@
 import type { ContactSubmission } from "@/lib/admin-data";
 
-// Table for visit-request submissions from the "Join Us" form.
-// TODO: back this with real submissions once VisitForm posts to Firestore
-// instead of just being local UI state.
+// Table for message submissions from the Contact page's form.
 export default function ContactSubmissionsTable({ submissions }: { submissions: ContactSubmission[] }) {
   return (
     <div className="overflow-x-auto border-4 border-black shadow-brutal-lg">
@@ -12,7 +10,7 @@ export default function ContactSubmissionsTable({ submissions }: { submissions: 
             <th className="px-4 py-3 text-sm font-semibold uppercase">תאריך פנייה</th>
             <th className="px-4 py-3 text-sm font-semibold uppercase">שם</th>
             <th className="px-4 py-3 text-sm font-semibold uppercase">טלפון</th>
-            <th className="px-4 py-3 text-sm font-semibold uppercase">תאריך ביקור מבוקש</th>
+            <th className="px-4 py-3 text-sm font-semibold uppercase">הודעה</th>
           </tr>
         </thead>
         <tbody>
@@ -24,7 +22,7 @@ export default function ContactSubmissionsTable({ submissions }: { submissions: 
               <td className="px-4 py-3 font-normal text-navy-700/80">{submission.date}</td>
               <td className="px-4 py-3 font-semibold text-navy-950">{submission.name}</td>
               <td className="px-4 py-3 font-normal text-navy-700/80">{submission.phone}</td>
-              <td className="px-4 py-3 font-normal text-navy-700/80">{submission.preferredDate}</td>
+              <td className="px-4 py-3 font-normal text-navy-700/80">{submission.message}</td>
             </tr>
           ))}
         </tbody>
