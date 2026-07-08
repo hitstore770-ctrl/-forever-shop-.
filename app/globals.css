@@ -1,25 +1,30 @@
 @import "tailwindcss";
 
 /*
-  "Neo-Chassidic" design system — now art-directed as raw/brutalist collage:
-  navy + copper stay, but pure black borders/shadows push the contrast harder.
-  - navy   -> primary brand color (dark sections, footer, headline ink)
-  - copper -> loud accent color (CTAs, icons, highlights, ticker)
+  Brand palette, art-directed as raw/brutalist collage with pure black
+  borders/shadows for hard contrast. Anchored to the logo's two brand
+  colors, exposed as scales so hovers/gradients/text all have room:
+  - navy   -> Royal Chabad Blue (#1A4A88 at 900) — dark sections, footer,
+              headline ink. 950 is a deeper royal for the darkest ink/bg;
+              800->600 lighten for gradients & secondary fills.
+  - copper -> Crown Gold (#E5B842 at 500) — CTAs, icons, highlights, ticker.
+              300/400 are lighter golds; 600/700 stay deep gold-brown so
+              they remain legible as accent TEXT on the cream background.
   - cream  -> base background (soft off-white, easier on the eyes than pure white)
   Exposed as Tailwind utilities via @theme, e.g. bg-navy-900, text-copper-500, bg-cream.
 */
 @theme {
-  --color-navy-950: #060f1d;
-  --color-navy-900: #0b1e36;
-  --color-navy-800: #142c4c;
-  --color-navy-700: #1e3d64;
-  --color-navy-600: #2c5280;
+  --color-navy-950: #12325c;
+  --color-navy-900: #1a4a88;
+  --color-navy-800: #24589c;
+  --color-navy-700: #2f69b4;
+  --color-navy-600: #3e7ac4;
 
-  --color-copper-300: #e3b983;
-  --color-copper-400: #d3a15e;
-  --color-copper-500: #bd8443;
-  --color-copper-600: #9c6830;
-  --color-copper-700: #7a4f22;
+  --color-copper-300: #f5dc8c;
+  --color-copper-400: #edc95c;
+  --color-copper-500: #e5b842;
+  --color-copper-600: #9a7318;
+  --color-copper-700: #77590f;
 
   --color-cream: #fbf6ec;
   --color-cream-dark: #f1e7d4;

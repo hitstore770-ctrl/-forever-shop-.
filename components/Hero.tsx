@@ -54,11 +54,11 @@ export default function Hero() {
               variants={fadeUp}
               className="text-6xl leading-[0.92] font-semibold tracking-tight text-navy-950 uppercase sm:text-7xl lg:text-8xl"
             >
-              מקום של
+              הישיבה שלך
               <br />
-              <span className="relative inline-block bg-copper-500 px-3 text-cream">תורה</span>{" "}
+              <span className="relative inline-block bg-copper-500 px-3 text-navy-950">במרכז</span>{" "}
               <span className="relative inline-block lg:-ml-3">
-                וחום
+                ירושלים.
                 <SquigglyUnderline className="absolute -bottom-2 right-0 h-2 w-full text-copper-500" />
               </span>
             </motion.h1>
@@ -67,21 +67,21 @@ export default function Hero() {
               variants={fadeUp}
               className="mt-8 max-w-md border-r-4 border-navy-900 pr-4 text-lg font-normal text-navy-800 sm:text-xl"
             >
-              ישיבה שמטפחת תלמידים בלימוד, בערכים ובאהבת ישראל —{" "}
-              <MarkerHighlight colorClassName="text-copper-400/60">לתמימים ולמקרבים</MarkerHighlight> כאחד.
+              הישיבת חב״ד הגדולה בירושלים, לחוזרים בתשובה, ומתחזקים. המקום שלך{" "}
+              <MarkerHighlight colorClassName="text-copper-400/60">להתקרב לה׳</MarkerHighlight>, ולהתכונן לחתונה.
             </motion.p>
 
             <motion.div variants={fadeUp} className="relative mt-10 flex flex-wrap items-center gap-4">
               <DoodleBoldArrow className="pointer-events-none absolute -top-9 right-4 hidden h-8 w-14 -rotate-6 text-copper-600 sm:block" />
               <Link
-                href="/learning"
-                className="border-4 border-black bg-copper-500 px-8 py-4 text-lg font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
+                href="/join"
+                className="border-4 border-black bg-copper-500 px-10 py-5 text-xl font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none sm:text-2xl"
               >
-                בואו ללמוד
+                לסיור בישיבה
               </Link>
               <Link
                 href="/donate"
-                className="border-4 border-black bg-navy-900 px-8 py-4 text-lg font-semibold text-cream uppercase shadow-brutal-copper transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
+                className="border-4 border-black bg-navy-900 px-6 py-3 text-base font-semibold text-cream uppercase shadow-brutal-copper transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-none"
               >
                 תמכו בנו
               </Link>
@@ -129,7 +129,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="absolute -top-5 right-4 border-2 border-black bg-cream px-3 py-1 text-xs font-semibold uppercase shadow-brutal sm:right-8"
             >
-              תמימים ומקרבים ★
+על הישיבה ★
             </motion.div>
 
             <DoodleZigzag className="pointer-events-none absolute -bottom-2 right-2 hidden h-5 w-16 text-navy-900/40 sm:block" />
