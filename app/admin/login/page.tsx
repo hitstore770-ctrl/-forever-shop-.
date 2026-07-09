@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "כניסת מנהלים",
 };
 
+// cache buster — force a fresh Vercel build from a new commit
 // Render at request time, never statically at build. Otherwise Next.js
 // prerenders this page during `next build` and bakes in whatever
 // SITE_PASSCODE was (or wasn't) present then — which made the live page
