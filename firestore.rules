@@ -29,6 +29,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if false;
+    }
 
     match /donations/{donationId} {
       allow read: if true;

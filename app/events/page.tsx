@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import EventBulletinBoard from "@/components/events/EventBulletinBoard";
+import { Suspense } from "react";
+import EventBulletinBoardLoader from "@/components/events/EventBulletinBoardLoader";
+import EventBulletinBoardSkeleton from "@/components/events/EventBulletinBoardSkeleton";
 import {
   SquigglyUnderline,
   DoodleStar,
@@ -14,8 +16,9 @@ export const metadata: Metadata = {
   title: "אירועים",
 };
 
-// Events — an upcoming-Shiurim/gatherings bulletin board.
-// TODO: back this with a real Firestore collection once ready.
+// Events — an upcoming-Shiurim/gatherings bulletin board. Firestore-backed
+// (the "events" collection, managed from /admin) with an optional cover image
+// per event; falls back to the seed events until real ones are added.
 export default function EventsPage() {
   return (
     <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
@@ -43,7 +46,9 @@ export default function EventsPage() {
       <div className="relative mt-16">
         <DoodleScribble className="pointer-events-none absolute -top-10 left-1/4 hidden h-6 w-14 text-copper-500/70 sm:block" />
         <DoodleBoldArrow className="pointer-events-none absolute -top-14 right-10 hidden h-14 w-14 rotate-45 text-copper-600 lg:block" />
-        <EventBulletinBoard />
+        <Suspense fallback={<EventBulletinBoardSkeleton />}>
+          <EventBulletinBoardLoader />
+        </Suspense>
       </div>
     </div>
   );
