@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import LeadershipGrid from "@/components/yeshiva/LeadershipGrid";
+import { Suspense } from "react";
+import LeadershipGridLoader from "@/components/yeshiva/LeadershipGridLoader";
+import LeadershipGridSkeleton from "@/components/yeshiva/LeadershipGridSkeleton";
 import HistoryTimeline from "@/components/yeshiva/HistoryTimeline";
 import {
   SquigglyUnderline,
@@ -96,7 +98,9 @@ export default function YeshivaPage() {
           <DoodleStar className="hidden h-6 w-6 text-copper-500/70 sm:block" />
         </div>
 
-        <LeadershipGrid />
+        <Suspense fallback={<LeadershipGridSkeleton />}>
+          <LeadershipGridLoader />
+        </Suspense>
       </div>
     </div>
   );

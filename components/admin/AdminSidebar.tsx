@@ -10,6 +10,7 @@ import {
   GridIcon,
   CalendarIcon,
   UsersIcon,
+  ClockIcon,
 } from "@/components/icons";
 
 const NAV_ITEMS = [
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/admin/gallery", label: "גלריה", icon: GridIcon },
   { href: "/admin/events", label: "אירועים", icon: CalendarIcon },
   { href: "/admin/staff", label: "צוות", icon: UsersIcon },
+  { href: "/admin/schedule", label: "סדר היום", icon: ClockIcon },
   { href: "/admin/learning", label: "קונטרסים ושיעורים", icon: BookIcon },
   { href: "/admin/contacts", label: "פניות ממתקרבים", icon: MessageIcon },
 ];

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import JoinHero from "@/components/join/JoinHero";
-import ScheduleTimeline from "@/components/join/ScheduleTimeline";
+import ScheduleTimelineLoader from "@/components/join/ScheduleTimelineLoader";
+import ScheduleSkeleton from "@/components/join/ScheduleSkeleton";
 import FaqAccordion from "@/components/join/FaqAccordion";
 import VisitForm from "@/components/join/VisitForm";
 import VibeGallery from "@/components/join/VibeGallery";
@@ -10,9 +12,9 @@ export const metadata: Metadata = {
   title: "הצטרפות",
 };
 
-// "Join Us" page — general info, daily schedule, FAQ, and a visit-request form.
-// TODO for a later phase: back the schedule/FAQ with Firebase so staff can
-// edit them without a deploy, and wire VisitForm up to a real backend.
+// "Join Us" page — general info, daily schedule (now Firestore-backed via
+// the "schedule" collection, editable from /admin), FAQ, and a
+// visit-request form.
 export default function JoinPage() {
   return (
     <>
@@ -28,7 +30,9 @@ export default function JoinPage() {
             </h2>
             <DoodleStar className="hidden h-8 w-8 text-copper-500 sm:block" />
           </div>
-          <ScheduleTimeline />
+          <Suspense fallback={<ScheduleSkeleton />}>
+            <ScheduleTimelineLoader />
+          </Suspense>
         </div>
       </section>
 

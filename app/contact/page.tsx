@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import StaffTeamGrid from "@/components/contact/StaffTeamGrid";
+import { Suspense } from "react";
+import StaffTeamGridLoader from "@/components/contact/StaffTeamGridLoader";
+import StaffTeamGridSkeleton from "@/components/contact/StaffTeamGridSkeleton";
 import ContactForm from "@/components/contact/ContactForm";
 import WhatsAppUrgentNote from "@/components/contact/WhatsAppUrgentNote";
 import {
@@ -56,7 +58,9 @@ export default function ContactPage() {
           <DoodleZigzag className="hidden h-6 w-12 text-copper-500/70 sm:block" />
         </div>
 
-        <StaffTeamGrid />
+        <Suspense fallback={<StaffTeamGridSkeleton />}>
+          <StaffTeamGridLoader />
+        </Suspense>
       </div>
 
       {/* Contact form */}

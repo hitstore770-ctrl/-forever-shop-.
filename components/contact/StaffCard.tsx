@@ -3,18 +3,16 @@
 import { motion } from "framer-motion";
 import { UserIcon } from "@/components/icons";
 import { DoodleTape } from "@/components/doodles";
-import type { StaffMember } from "@/lib/contact-data";
+import type { StaffMember } from "@/lib/staff-data";
 import { fadeInUp, hoverTilt } from "@/lib/motion-variants";
 
 const ACCENTS = ["bg-navy-900 text-cream", "bg-copper-400 text-navy-950", "bg-cream-dark text-navy-900", "bg-navy-800 text-cream"];
 const ROTATION_DEG = [-2, 2, -1, 1];
 const TAPE_ROTATIONS = ["-rotate-6", "rotate-3", "-rotate-3", "rotate-6"];
 
-// Brutalist staff profile card — a photo placeholder "pinned" at an angle
-// with washi tape, plus a name/role plate below. Slight alternating
-// rotation per card, per the deliberately loose feel of this page. Entrance
-// is orchestrated by the parent grid's stagger container (see the "show"
-// variant name below), not triggered independently per card.
+// Brutalist staff profile card — a photo (or placeholder) "pinned" at an
+// angle with washi tape, plus a name/role plate below. Entrance is
+// orchestrated by the parent grid's stagger container.
 export default function StaffCard({ staff, index }: { staff: StaffMember; index: number }) {
   return (
     <motion.div
@@ -26,8 +24,15 @@ export default function StaffCard({ staff, index }: { staff: StaffMember; index:
         className={`pointer-events-none absolute -top-4 left-1/2 h-8 w-28 -translate-x-1/2 text-copper-300 ${TAPE_ROTATIONS[index % TAPE_ROTATIONS.length]}`}
       />
 
-      <div className={`flex h-40 items-center justify-center border-4 border-black ${ACCENTS[index % ACCENTS.length]}`}>
-        <UserIcon className="h-16 w-16 opacity-60" />
+      <div className={`flex h-40 items-center justify-center overflow-hidden border-4 border-black ${ACCENTS[index % ACCENTS.length]}`}>
+        {staff.imageUrl ? (
+          // Arbitrary admin-entered URL — native lazy <img> avoids
+          // next/image's per-host allow-list.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={staff.imageUrl} alt={staff.name} loading="lazy" className="h-full w-full object-cover" />
+        ) : (
+          <UserIcon className="h-16 w-16 opacity-60" />
+        )}
       </div>
 
       <div className="mt-4 text-center">

@@ -1,23 +1,6 @@
-// Placeholder content for the "Join Us" page.
-// TODO: replace with real data from Firebase once staff can edit the
-// schedule/FAQ without a deploy.
-
-export type ScheduleItem = {
-  time: string;
-  title: string;
-  note?: string;
-};
-
-export const SCHEDULE_ITEMS: ScheduleItem[] = [
-  { time: "07:00", title: "השכמה" },
-  { time: "07:30", title: "חסידות בוקר", note: "לימוד מעמיק בפנימיות התורה" },
-  { time: "08:15", title: "תפילה" },
-  { time: "09:00", title: "סדר א' - נגלה", note: "בחברותות" },
-  { time: "13:00", title: "ארוחת צהריים" },
-  { time: "16:00", title: "סדר ב' - חסידות" },
-  { time: "18:00", title: "סדר ערב", note: "עיון וחזרה" },
-  { time: "20:30", title: "שיעור כללי" },
-];
+// Static content for the "Join Us" page's FAQ. (The daily schedule moved to
+// lib/schedule-data.ts + the Firestore "schedule" collection so staff can
+// edit it from /admin without a deploy.)
 
 export type FaqItem = {
   question: string;
