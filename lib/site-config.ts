@@ -7,7 +7,7 @@ export type NavLink = {
 };
 
 export const SITE_NAME = "ישיבת המלך המשיח";
-export const SITE_TITLE = "ישיבת המלך המשיח | מקום של תורה וחום בירושלים";
+export const SITE_TITLE = "הישיבה שלך | במרכז ירושלים";
 export const SITE_DESCRIPTION =
   "הישיבת חב״ד הגדולה בירושלים, לחוזרים בתשובה, ומתחזקים. המקום שלך להתקרב לה׳, ולהתכונן לחתונה.";
 
