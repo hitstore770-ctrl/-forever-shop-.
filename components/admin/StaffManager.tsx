@@ -4,6 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { UserIcon, TrashIcon } from "@/components/icons";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import type { StaffMember } from "@/lib/staff-data";
 import { createStaff, updateStaff, deleteStaff, type StaffInput } from "@/app/admin/(dashboard)/staff/actions";
 
@@ -199,14 +200,11 @@ function StaffForm({
           />
         </div>
         <div className="sm:col-span-2">
-          <label className={labelClass}>כתובת תמונה (URL, אופציונלי)</label>
-          <input
-            type="url"
+          <ImageUploadField
+            label="תמונה (אופציונלי)"
             value={form.imageUrl}
-            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-            placeholder="https://..."
-            className={inputClass}
-            dir="ltr"
+            onChange={(url) => setForm({ ...form, imageUrl: url })}
+            disabled={disabled}
           />
         </div>
       </div>

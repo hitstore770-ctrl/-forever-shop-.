@@ -24,6 +24,7 @@ import {
   Pin,
   Camera,
   User,
+  ImageUp,
   type LucideProps,
 } from "lucide-react";
 
@@ -56,3 +57,4 @@ export const GridIcon = withThickStroke(LayoutGrid);
 export const PinIcon = withThickStroke(Pin);
 export const CameraIcon = withThickStroke(Camera);
 export const UserIcon = withThickStroke(User);
+export const ImageUploadIcon = withThickStroke(ImageUp);

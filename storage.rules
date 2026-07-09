@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Reference Cloud Storage Security Rules — deploy with
+// `firebase deploy --only storage` once a Firebase project is connected.
+//
+// Same auth model as firestore.rules: the /admin dashboard is gated by a
+// shared passcode (lib/admin-auth.ts), NOT Firebase Auth, so `request.auth`
+// is always null here. Admin image uploads therefore never come from the
+// browser — they go through a server-side Server Action using the Firebase
+// Admin SDK (a service account), which BYPASSES these rules entirely
+// (see lib/upload-actions.ts). That lets us deny all direct client writes
+// while the CMS upload still works.
+//
+// Uploaded images are world-readable so the public site can display them.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /uploads/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

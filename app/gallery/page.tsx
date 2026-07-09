@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import PhotoGallery from "@/components/gallery/PhotoGallery";
+import { Suspense } from "react";
+import PhotoGalleryLoader from "@/components/gallery/PhotoGalleryLoader";
+import PhotoGallerySkeleton from "@/components/gallery/PhotoGallerySkeleton";
 import {
   SquigglyUnderline,
   DoodleStar,
@@ -14,8 +16,10 @@ export const metadata: Metadata = {
   title: "גלריה",
 };
 
-// Gallery — a deliberately loose, scattered "photo wall" feel.
-// TODO: back this with real photos (Firebase Storage) once assets exist.
+// Gallery — a deliberately loose, scattered "photo wall" feel. Photos are
+// Firestore-backed (the "gallery" collection, managed from /admin) with an
+// uploaded image per photo; falls back to captioned placeholder tiles until
+// real photos are uploaded.
 export default function GalleryPage() {
   return (
     <div className="relative mx-auto max-w-6xl px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
@@ -43,7 +47,9 @@ export default function GalleryPage() {
       <div className="relative mt-16">
         <DoodleZigzag className="pointer-events-none absolute -top-10 right-1/3 hidden h-5 w-14 text-navy-900/25 xl:block" />
         <DoodleNotebookPage className="pointer-events-none absolute top-1/3 -left-6 hidden h-20 w-16 -rotate-6 text-navy-900/15 xl:block" />
-        <PhotoGallery />
+        <Suspense fallback={<PhotoGallerySkeleton />}>
+          <PhotoGalleryLoader />
+        </Suspense>
       </div>
     </div>
   );

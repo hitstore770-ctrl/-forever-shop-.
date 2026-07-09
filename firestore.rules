@@ -25,6 +25,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    match /gallery/{photoId} {
+      allow read: if true;
+      allow write: if false;
+    }
 
     match /donations/{donationId} {
       allow read: if true;
