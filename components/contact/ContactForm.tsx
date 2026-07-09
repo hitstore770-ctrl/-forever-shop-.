@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import { DoodleBoldArrow } from "@/components/doodles";
 import { addContactSubmission } from "@/lib/admin-data";
 import { formatDateDMY } from "@/lib/format";
@@ -8,20 +9,20 @@ import { formatDateDMY } from "@/lib/format";
 const inputClass =
   "w-full border-4 border-black bg-cream px-4 py-3 text-lg font-normal text-navy-950 shadow-brutal placeholder:font-normal placeholder:text-navy-900/40 focus:outline-none";
 
+const labelClass = "mb-1.5 block text-sm font-semibold text-navy-950 uppercase";
+
 // Brutalist contact form — writes directly to Firestore's
 // "contactSubmissions" collection via the client SDK (falls back to a
-// console.log placeholder when Firebase isn't configured).
+// console.log placeholder when Firebase isn't configured). Success/failure
+// feedback is surfaced as floating brand toasts.
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
 
-    const form = event.currentTarget;
-    const formData = new FormData(form);
+    const formData = new FormData(event.currentTarget);
     const name = String(formData.get("name") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
     const message = String(formData.get("message") ?? "").trim();
@@ -29,9 +30,12 @@ export default function ContactForm() {
     setIsSubmitting(true);
     try {
       await addContactSubmission({ date: formatDateDMY(new Date()), name, phone, message });
+      toast.success("ההודעה נשלחה!", { description: "ניצור איתך קשר בהקדם האפשרי." });
       setIsSubmitted(true);
     } catch {
-      setError("משהו השתבש בשליחת ההודעה. אפשר לנסות שוב, או לפנות אלינו ישירות בוואטסאפ.");
+      toast.error("שליחת ההודעה נכשלה", {
+        description: "אפשר לנסות שוב, או לפנות אלינו ישירות בוואטסאפ.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -49,28 +53,21 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label htmlFor="contact-name" className="mb-1.5 block text-sm font-semibold text-navy-950 uppercase">
+        <label htmlFor="contact-name" className={labelClass}>
           שם מלא
         </label>
         <input id="contact-name" name="name" type="text" required placeholder="ישראל ישראלי" className={inputClass} />
       </div>
 
       <div>
-        <label htmlFor="contact-phone" className="mb-1.5 block text-sm font-semibold text-navy-950 uppercase">
+        <label htmlFor="contact-phone" className={labelClass}>
           טלפון
         </label>
-        <input
-          id="contact-phone"
-          name="phone"
-          type="tel"
-          required
-          placeholder="050-000-0000"
-          className={inputClass}
-        />
+        <input id="contact-phone" name="phone" type="tel" required placeholder="050-000-0000" className={inputClass} />
       </div>
 
       <div>
-        <label htmlFor="contact-message" className="mb-1.5 block text-sm font-semibold text-navy-950 uppercase">
+        <label htmlFor="contact-message" className={labelClass}>
           הודעה
         </label>
         <textarea
@@ -82,8 +79,6 @@ export default function ContactForm() {
           className={`${inputClass} resize-none`}
         />
       </div>
-
-      {error && <p className="text-sm font-semibold text-copper-700">{error}</p>}
 
       <div className="relative">
         <DoodleBoldArrow className="pointer-events-none absolute -top-12 -right-6 hidden h-14 w-14 rotate-[70deg] text-copper-600 sm:block" />

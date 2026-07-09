@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import GlobalDoodleField from "@/components/GlobalDoodleField";
+import BrandToaster from "@/components/ui/BrandToaster";
 import { SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site-config";
 
 // Assistant is a clean, modern Hebrew/Latin sans-serif — lighter and more
@@ -61,18 +62,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" className={`${assistant.variable} h-full antialiased`}>
-      {/*
-        Phase 1 skeleton only. Future additions to this layout will likely include:
-        - A FirebaseProvider / auth context wrapper (once Firebase is wired up)
-        - A global toast/notification provider
-        - Analytics scripts (e.g. Google Analytics, Meta Pixel)
-      */}
       <body className="flex min-h-full flex-col font-sans">
         <GlobalDoodleField />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
         <WhatsAppButton />
+        <BrandToaster />
       </body>
     </html>
   );

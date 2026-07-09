@@ -23,7 +23,7 @@ const NAV_ITEMS = [
 
 // Route-based nav (each tab is a real URL, not client-only state) so the
 // browser back button and page refresh both behave normally.
-export default function AdminSidebar({ adminEmail }: { adminEmail: string }) {
+export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -36,11 +36,9 @@ export default function AdminSidebar({ adminEmail }: { adminEmail: string }) {
   return (
     <nav className="flex h-full flex-col justify-between border-l-4 border-black bg-navy-900 p-4 text-cream">
       <div>
-        {adminEmail && (
-          <p className="mb-4 truncate border-b-2 border-cream/20 pb-3 text-xs font-normal text-cream/50" dir="ltr">
-            {adminEmail}
-          </p>
-        )}
+        <p className="mb-4 border-b-2 border-cream/20 pb-3 text-xs font-semibold tracking-widest text-copper-300 uppercase">
+          לוח ניהול
+        </p>
         <div className="space-y-3">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
