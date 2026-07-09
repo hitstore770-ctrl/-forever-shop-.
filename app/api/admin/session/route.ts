@@ -12,7 +12,7 @@ import {
 // is the one and only place a login attempt is decided — the passcode is
 // compared here, on the server, against ADMIN_ACCESS_CODE.
 export async function POST(request: Request) {
-  if (!isAdminConfigured) {
+  if (!isAdminConfigured()) {
     return NextResponse.json({ error: "קוד הגישה אינו מוגדר בשרת." }, { status: 503 });
   }
 
