@@ -1,5 +1,5 @@
 // Server-only admin authentication via a single shared passcode set in the
-// environment (ADMIN_ACCESS_CODE) — designed so the admin can change the
+// environment (SITE_PASSCODE) — designed so the admin can change the
 // passcode straight from Vercel's Environment Variables without a code
 // change or redeploy of the source.
 //
@@ -12,7 +12,7 @@
 // the login page) guarantees the live runtime env value is used.
 //
 // Security notes:
-//  - ADMIN_ACCESS_CODE is a SERVER-ONLY var (never NEXT_PUBLIC_*), so the
+//  - SITE_PASSCODE is a SERVER-ONLY var (never NEXT_PUBLIC_*), so the
 //    passcode is never shipped to the browser bundle.
 //  - On a correct passcode we set an httpOnly cookie holding an HMAC token
 //    derived FROM the passcode — unforgeable without the code, and rotating
@@ -27,7 +27,7 @@ export const SESSION_MAX_AGE_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
 // Read the passcode fresh from the environment on every call (see the
 // module comment above for why this must not be a top-level const).
 function accessCode(): string | undefined {
-  return process.env.ADMIN_ACCESS_CODE;
+  return process.env.SITE_PASSCODE;
 }
 
 // True once a passcode is configured. A FUNCTION (not a const) so callers
@@ -46,7 +46,7 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(ha, hb);
 }
 
-// Does the submitted passcode match ADMIN_ACCESS_CODE?
+// Does the submitted passcode match SITE_PASSCODE?
 export function checkAccessCode(input: string): boolean {
   const code = accessCode();
   if (!code) return false;

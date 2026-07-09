@@ -10,7 +10,7 @@ import {
 
 // Exchanges a correct admin passcode for an httpOnly session cookie. This
 // is the one and only place a login attempt is decided — the passcode is
-// compared here, on the server, against ADMIN_ACCESS_CODE.
+// compared here, on the server, against SITE_PASSCODE.
 export async function POST(request: Request) {
   if (!isAdminConfigured()) {
     return NextResponse.json({ error: "קוד הגישה אינו מוגדר בשרת." }, { status: 503 });

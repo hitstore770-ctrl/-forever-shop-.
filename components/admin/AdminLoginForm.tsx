@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { LockIcon } from "@/components/icons";
 
 // Passcode sign-in. The code is posted to /api/admin/session, which compares
-// it server-side against ADMIN_ACCESS_CODE and, on a match, sets the httpOnly
+// it server-side against SITE_PASSCODE and, on a match, sets the httpOnly
 // session cookie. The code is never checked in the browser.
 export default function AdminLoginForm() {
   const router = useRouter();
