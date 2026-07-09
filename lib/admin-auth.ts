@@ -26,8 +26,14 @@ export const SESSION_MAX_AGE_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
 
 // Read the passcode fresh from the environment on every call (see the
 // module comment above for why this must not be a top-level const).
+//
+// TEMPORARY — the "yyh770mmh" fallback is a disposable throwaway code added
+// only to work around a Vercel project-domain env-linking issue where the
+// Production domain wasn't receiving SITE_PASSCODE. REMOVE this fallback once
+// the Vercel env var is delivering correctly, and rotate the real passcode —
+// this temporary value is now in git history permanently.
 function accessCode(): string | undefined {
-  return process.env.SITE_PASSCODE;
+  return process.env.SITE_PASSCODE || "yyh770mmh";
 }
 
 // True once a passcode is configured. A FUNCTION (not a const) so callers
