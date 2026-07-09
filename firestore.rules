@@ -50,8 +50,5 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
-
-    // TODO: when /admin/gallery and /admin/events get real CRUD, add
-    // matching collections here (allow read: if true; allow write: if false).
   }
 }
