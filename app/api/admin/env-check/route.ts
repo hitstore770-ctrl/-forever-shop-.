@@ -53,3 +53,4 @@ export async function GET() {
 }
 
 // deploy-integration test marker — safe to remove
+// rebuild trigger: bake in Production env vars
