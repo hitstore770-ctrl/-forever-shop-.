@@ -33,7 +33,10 @@ export const SESSION_MAX_AGE_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
 // the Vercel env var is delivering correctly, and rotate the real passcode —
 // this temporary value is now in git history permanently.
 function accessCode(): string | undefined {
-  return process.env.SITE_PASSCODE || "yyh770mmh";
+  // .trim() guards against a stray trailing space/newline in the env value —
+  // a very common result of pasting the passcode into a dashboard on mobile,
+  // which would otherwise make a correct-looking passcode silently mismatch.
+  return process.env.SITE_PASSCODE?.trim() || "yyh770mmh";
 }
 
 // True once a passcode is configured. A FUNCTION (not a const) so callers
@@ -56,7 +59,8 @@ function safeEqual(a: string, b: string): boolean {
 export function checkAccessCode(input: string): boolean {
   const code = accessCode();
   if (!code) return false;
-  return safeEqual(input, code);
+  // Trim the submitted code too, symmetric with the trimmed env value above.
+  return safeEqual(input.trim(), code);
 }
 
 // The session cookie value: an HMAC over a fixed payload, keyed by the
