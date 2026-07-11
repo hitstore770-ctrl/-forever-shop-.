@@ -42,17 +42,12 @@ export function isEmailAllowed(email: string | undefined): boolean {
 
 // Read the passcode fresh from the environment on every call (see the
 // module comment above for why this must not be a top-level const).
-//
-// TEMPORARY — the "yyh770mmh" fallback is a disposable throwaway code added
-// only to work around a Vercel project-domain env-linking issue where the
-// Production domain wasn't receiving SITE_PASSCODE. REMOVE this fallback once
-// the Vercel env var is delivering correctly, and rotate the real passcode —
-// this temporary value is now in git history permanently.
 function accessCode(): string | undefined {
   // .trim() guards against a stray trailing space/newline in the env value —
   // a very common result of pasting the passcode into a dashboard on mobile,
   // which would otherwise make a correct-looking passcode silently mismatch.
-  return process.env.SITE_PASSCODE?.trim() || "yyh770mmh";
+  const value = process.env.SITE_PASSCODE?.trim();
+  return value && value.length > 0 ? value : undefined;
 }
 
 // True once a passcode is configured. A FUNCTION (not a const) so callers
