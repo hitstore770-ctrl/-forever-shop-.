@@ -24,6 +24,22 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 export const SESSION_COOKIE_NAME = "admin_session";
 export const SESSION_MAX_AGE_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
 
+// Google sign-in allow-list. Only these email addresses may exchange a Google
+// ID token for an admin session. Defaults to the owner's address; override
+// with ADMIN_ALLOWED_EMAILS (comma-separated) if the team ever grows. Not a
+// secret — it's just an email — so it's safe to default in code (no extra
+// Vercel var required).
+const ALLOWED_ADMIN_EMAILS = (process.env.ADMIN_ALLOWED_EMAILS ?? "hitstore770@gmail.com")
+  .split(",")
+  .map((email) => email.trim().toLowerCase())
+  .filter(Boolean);
+
+// Is this (verified) Google email permitted to hold an admin session?
+export function isEmailAllowed(email: string | undefined): boolean {
+  if (!email) return false;
+  return ALLOWED_ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
 // Read the passcode fresh from the environment on every call (see the
 // module comment above for why this must not be a top-level const).
 //

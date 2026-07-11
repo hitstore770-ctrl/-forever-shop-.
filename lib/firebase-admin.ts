@@ -12,6 +12,7 @@ import "server-only";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
+import { getAuth, type Auth } from "firebase-admin/auth";
 import type { Bucket } from "@google-cloud/storage";
 
 const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -47,3 +48,7 @@ export const adminDb: Firestore | null = app ? getFirestore(app) : null;
 // or no bucket name was provided. getStorage().bucket() only throws lazily on
 // use when unnamed, so we gate on `storageBucket` here to keep it null-safe.
 export const adminBucket: Bucket | null = app && storageBucket ? getStorage(app).bucket() : null;
+
+// Server-side Auth, used to verify Google sign-in ID tokens (their signature,
+// expiry, and issuing project) before we trust the email inside them.
+export const adminAuth: Auth | null = app ? getAuth(app) : null;
