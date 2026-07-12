@@ -11,6 +11,7 @@ import {
   CalendarIcon,
   UsersIcon,
   ClockIcon,
+  HistoryIcon,
 } from "@/components/icons";
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { href: "/admin/events", label: "אירועים", icon: CalendarIcon },
   { href: "/admin/staff", label: "צוות", icon: UsersIcon },
   { href: "/admin/schedule", label: "סדר היום", icon: ClockIcon },
+  { href: "/admin/history", label: "ארכיון היסטורי", icon: HistoryIcon },
   { href: "/admin/learning", label: "קונטרסים ושיעורים", icon: BookIcon },
   { href: "/admin/contacts", label: "פניות ממתקרבים", icon: MessageIcon },
 ];

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HISTORY_MILESTONES } from "@/lib/yeshiva-data";
+import type { HistoryMilestone } from "@/lib/yeshiva-data";
 import { fadeInUp, staggerContainer, hoverTilt } from "@/lib/motion-variants";
 
 // Same torn-notepad clip-path used by the Contact page's WhatsApp CTA,
@@ -14,13 +14,13 @@ const TORN_PAPER_CLIP =
 const ACCENTS = ["bg-copper-300", "bg-cream-dark", "bg-copper-300", "bg-cream-dark"];
 const ROTATIONS = [-1.5, 1.2, -1, 1.5];
 
-// A vertical run of torn-notepad milestone cards — the yeshiva's story,
-// told as pages ripped straight off the same pad. Each card's rotation is
-// baked into its "show" variant (not a raw style.transform string) since
-// Framer Motion takes over the whole inline transform once it's animating
-// opacity/y on the same element — a plain transform string would otherwise
-// get silently discarded.
-export default function HistoryTimeline() {
+// A vertical run of torn-notepad milestone cards — the yeshiva's story told as
+// pages ripped off the same pad. Firestore-backed (the "history" collection,
+// editable from /admin); each milestone can carry an archive image. Cards
+// reveal gently on scroll (whileInView stagger). Each card's rotation is baked
+// into its "show" variant (not a raw transform string) since Framer Motion
+// owns the whole inline transform once it animates opacity/y on the element.
+export default function HistoryTimeline({ milestones }: { milestones: HistoryMilestone[] }) {
   return (
     <motion.div
       initial="hidden"
@@ -29,7 +29,7 @@ export default function HistoryTimeline() {
       variants={staggerContainer(0.12)}
       className="space-y-10"
     >
-      {HISTORY_MILESTONES.map((milestone, index) => (
+      {milestones.map((milestone, index) => (
         <motion.div
           key={milestone.id}
           variants={fadeInUp(ROTATIONS[index % ROTATIONS.length])}
@@ -38,14 +38,29 @@ export default function HistoryTimeline() {
           style={{ filter: "drop-shadow(6px 6px 0 #000)" }}
         >
           <div
-            className={`border-4 border-black px-7 py-8 sm:px-10 ${ACCENTS[index % ACCENTS.length]}`}
+            className={`border-4 border-black ${ACCENTS[index % ACCENTS.length]}`}
             style={{ clipPath: TORN_PAPER_CLIP }}
           >
-            <p className="font-mono text-sm font-semibold tracking-widest text-navy-900/70 uppercase">
-              {milestone.year}
-            </p>
-            <h3 className="mt-1 text-xl font-semibold text-navy-950 sm:text-2xl">{milestone.title}</h3>
-            <p className="mt-2 text-sm font-normal text-navy-800/80 sm:text-base">{milestone.description}</p>
+            {milestone.imageUrl && (
+              <div className="border-b-4 border-black bg-navy-900">
+                {/* Archive photo — arbitrary uploaded/external URL, so a native
+                    lazy <img> avoids next/image's per-host allow-list. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={milestone.imageUrl}
+                  alt={milestone.title}
+                  loading="lazy"
+                  className="h-48 w-full object-cover sm:h-60"
+                />
+              </div>
+            )}
+            <div className="px-7 py-8 sm:px-10">
+              <p className="font-mono text-sm font-semibold tracking-widest text-navy-900/70 uppercase">
+                {milestone.year}
+              </p>
+              <h3 className="mt-1 text-xl font-semibold text-navy-950 sm:text-2xl">{milestone.title}</h3>
+              <p className="mt-2 text-sm font-normal text-navy-800/80 sm:text-base">{milestone.description}</p>
+            </div>
           </div>
         </motion.div>
       ))}

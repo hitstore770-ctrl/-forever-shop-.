@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import LeadershipGridLoader from "@/components/yeshiva/LeadershipGridLoader";
 import LeadershipGridSkeleton from "@/components/yeshiva/LeadershipGridSkeleton";
-import HistoryTimeline from "@/components/yeshiva/HistoryTimeline";
+import HistoryTimelineLoader from "@/components/yeshiva/HistoryTimelineLoader";
+import HistoryTimelineSkeleton from "@/components/yeshiva/HistoryTimelineSkeleton";
 import {
   SquigglyUnderline,
   MarkerHighlight,
@@ -86,7 +87,9 @@ export default function YeshivaPage() {
           <DoodleScribble className="hidden h-6 w-12 text-copper-500/70 sm:block" />
         </div>
 
-        <HistoryTimeline />
+        <Suspense fallback={<HistoryTimelineSkeleton />}>
+          <HistoryTimelineLoader />
+        </Suspense>
       </div>
 
       {/* Leadership */}
