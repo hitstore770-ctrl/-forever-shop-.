@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CameraIcon, TrashIcon } from "@/components/icons";
 import ImageUploadField from "@/components/admin/ImageUploadField";
+import BulkGalleryUpload from "@/components/admin/BulkGalleryUpload";
 import type { GalleryPhoto } from "@/lib/gallery-data";
 import { createGalleryPhoto, deleteGalleryPhoto, type GalleryInput } from "@/app/admin/(dashboard)/gallery/actions";
 
@@ -54,13 +55,16 @@ export default function GalleryManager({ photos }: { photos: GalleryPhoto[] }) {
           onSubmit={(input) => run(() => createGalleryPhoto(input), "התמונה נוספה", () => setIsAdding(false))}
         />
       ) : (
-        <button
-          type="button"
-          onClick={() => setIsAdding(true)}
-          className="border-2 border-black bg-copper-500 px-4 py-2 text-sm font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none"
-        >
-          + הוספת תמונה
-        </button>
+        <div className="flex flex-wrap items-start gap-3">
+          <button
+            type="button"
+            onClick={() => setIsAdding(true)}
+            className="border-2 border-black bg-copper-500 px-4 py-2 text-sm font-semibold text-navy-950 uppercase shadow-brutal transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-none"
+          >
+            + הוספת תמונה
+          </button>
+          <BulkGalleryUpload />
+        </div>
       )}
 
       {showingSeed && (

@@ -37,6 +37,38 @@ export async function createGalleryPhoto(input: GalleryInput): Promise<ActionRes
   }
 }
 
+// Creates many gallery photos in a single batched write — used by the bulk
+// uploader, which has already uploaded each (client-compressed) image and just
+// needs the resulting docs created. Ordered so the batch lands after existing
+// photos, preserving selection order.
+export async function createGalleryPhotosBulk(inputs: GalleryInput[]): Promise<ActionResult> {
+  const guard = await getAdminDb();
+  if ("error" in guard) return { ok: false, error: guard.error };
+
+  const valid = inputs.filter((input) => input.imageUrl.trim());
+  if (valid.length === 0) return { ok: false, error: "לא הועלו תמונות." };
+
+  try {
+    const batch = guard.db.batch();
+    const base = Date.now();
+    valid.forEach((input, i) => {
+      const ref = guard.db.collection("gallery").doc();
+      batch.set(ref, {
+        caption: input.caption.trim(),
+        size: input.size,
+        imageUrl: input.imageUrl.trim(),
+        order: base + i,
+      });
+    });
+    await batch.commit();
+    revalidateGallery();
+    return { ok: true };
+  } catch (error) {
+    console.error("createGalleryPhotosBulk failed", error);
+    return { ok: false, error: "שמירת התמונות נכשלה." };
+  }
+}
+
 export async function deleteGalleryPhoto(id: string): Promise<ActionResult> {
   const guard = await getAdminDb();
   if ("error" in guard) return { ok: false, error: guard.error };
