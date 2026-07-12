@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import JoinHero from "@/components/join/JoinHero";
 import ScheduleTimelineLoader from "@/components/join/ScheduleTimelineLoader";
 import ScheduleSkeleton from "@/components/join/ScheduleSkeleton";
+import ZmanimPanel from "@/components/join/ZmanimPanel";
 import FaqAccordion from "@/components/join/FaqAccordion";
 import VisitForm from "@/components/join/VisitForm";
 import VibeGallery from "@/components/join/VibeGallery";
@@ -29,6 +30,9 @@ export default function JoinPage() {
               סדר היום
             </h2>
             <DoodleStar className="hidden h-8 w-8 text-copper-500 sm:block" />
+          </div>
+          <div className="mb-10">
+            <ZmanimPanel />
           </div>
           <Suspense fallback={<ScheduleSkeleton />}>
             <ScheduleTimelineLoader />
