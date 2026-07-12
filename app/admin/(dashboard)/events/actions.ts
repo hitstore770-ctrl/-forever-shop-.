@@ -8,6 +8,8 @@ export type EventInput = {
   date: string;
   description: string;
   imageUrl: string;
+  rsvpEnabled: boolean;
+  capacity: number;
 };
 
 // Revalidate the public events board plus the admin tab.
@@ -25,6 +27,8 @@ export async function createEvent(input: EventInput): Promise<ActionResult> {
       date: input.date.trim(),
       description: input.description.trim(),
       imageUrl: input.imageUrl.trim(),
+      rsvpEnabled: input.rsvpEnabled,
+      capacity: Math.max(0, Math.floor(input.capacity) || 0),
       // Auto-assigned so new events sort to the end of the board.
       order: Date.now(),
     });
@@ -45,6 +49,8 @@ export async function updateEvent(id: string, input: EventInput): Promise<Action
       date: input.date.trim(),
       description: input.description.trim(),
       imageUrl: input.imageUrl.trim(),
+      rsvpEnabled: input.rsvpEnabled,
+      capacity: Math.max(0, Math.floor(input.capacity) || 0),
     });
     revalidateEvents();
     return { ok: true };

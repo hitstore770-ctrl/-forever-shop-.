@@ -50,6 +50,13 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
+    match /rsvps/{rsvpId} {
+      // RSVPs are written server-side through the passcode-checked submitRsvp
+      // Server Action (Admin SDK), which enforces capacity — so even the
+      // create is denied to direct clients. Reads stay admin-only.
+      allow read, write: if false;
+    }
+
     match /kuntresim/{kuntresId} {
       allow read: if true;
       allow write: if false;

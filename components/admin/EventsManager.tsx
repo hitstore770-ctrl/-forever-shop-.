@@ -12,7 +12,7 @@ const inputClass =
   "w-full border-2 border-black bg-cream px-3 py-2 text-base font-normal text-navy-950 shadow-brutal placeholder:text-navy-900/40 focus:outline-none";
 const labelClass = "mb-1 block text-xs font-semibold text-navy-950 uppercase";
 
-const EMPTY: EventInput = { title: "", date: "", description: "", imageUrl: "" };
+const EMPTY: EventInput = { title: "", date: "", description: "", imageUrl: "", rsvpEnabled: false, capacity: 0 };
 
 function toInput(event: UpcomingEvent): EventInput {
   return {
@@ -20,6 +20,8 @@ function toInput(event: UpcomingEvent): EventInput {
     date: event.date,
     description: event.description,
     imageUrl: event.imageUrl ?? "",
+    rsvpEnabled: event.rsvpEnabled ?? false,
+    capacity: event.capacity ?? 0,
   };
 }
 
@@ -205,6 +207,31 @@ function EventForm({
             disabled={disabled}
           />
         </div>
+
+        <div className="sm:col-span-2 border-t-2 border-navy-900/15 pt-4">
+          <label className="flex items-center gap-2 text-sm font-semibold text-navy-950">
+            <input
+              type="checkbox"
+              checked={form.rsvpEnabled}
+              onChange={(e) => setForm({ ...form, rsvpEnabled: e.target.checked })}
+              className="h-4 w-4 accent-copper-500"
+            />
+            אפשר אישורי הגעה (RSVP) לאירוע זה
+          </label>
+        </div>
+        {form.rsvpEnabled && (
+          <div>
+            <label className={labelClass}>מגבלת מקומות (0 = ללא הגבלה)</label>
+            <input
+              type="number"
+              min={0}
+              value={form.capacity}
+              onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
+              className={inputClass}
+              dir="ltr"
+            />
+          </div>
+        )}
       </div>
 
       <div className="mt-5 flex gap-3">

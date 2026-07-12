@@ -26,6 +26,7 @@ import {
   User,
   ImageUp,
   History,
+  ClipboardCheck,
   type LucideProps,
 } from "lucide-react";
 
@@ -60,3 +61,4 @@ export const CameraIcon = withThickStroke(Camera);
 export const UserIcon = withThickStroke(User);
 export const ImageUploadIcon = withThickStroke(ImageUp);
 export const HistoryIcon = withThickStroke(History);
+export const RsvpIcon = withThickStroke(ClipboardCheck);

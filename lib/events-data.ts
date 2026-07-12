@@ -18,6 +18,10 @@ export type UpcomingEvent = {
   description: string;
   imageUrl?: string;
   order?: number;
+  // RSVP: when enabled, the public events page shows an "אישור הגעה" form.
+  // capacity is the total number of seats (0/undefined = unlimited).
+  rsvpEnabled?: boolean;
+  capacity?: number;
 };
 
 // Seed = the previously hardcoded events, ready to import into Firestore.

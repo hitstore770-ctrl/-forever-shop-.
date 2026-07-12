@@ -12,12 +12,14 @@ import {
   UsersIcon,
   ClockIcon,
   HistoryIcon,
+  RsvpIcon,
 } from "@/components/icons";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "תרומות והקדשות", icon: HeartHandIcon },
   { href: "/admin/gallery", label: "גלריה", icon: GridIcon },
   { href: "/admin/events", label: "אירועים", icon: CalendarIcon },
+  { href: "/admin/rsvps", label: "אישורי הגעה", icon: RsvpIcon },
   { href: "/admin/staff", label: "צוות", icon: UsersIcon },
   { href: "/admin/schedule", label: "סדר היום", icon: ClockIcon },
   { href: "/admin/history", label: "ארכיון היסטורי", icon: HistoryIcon },
