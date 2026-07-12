@@ -94,20 +94,9 @@ export const CONTACT_SUBMISSIONS: ContactSubmission[] = [
   },
 ];
 
-// Reads the "contactSubmissions" collection from Firestore, newest first.
-export async function getContactSubmissions(): Promise<ContactSubmission[]> {
-  if (!isFirebaseConfigured || !db) {
-    return CONTACT_SUBMISSIONS;
-  }
-
-  try {
-    const snapshot = await getDocs(query(collection(db, "contactSubmissions"), orderBy("createdAt", "desc")));
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as ContactSubmission);
-  } catch (error) {
-    console.warn("Failed to load contact submissions from Firestore, using mock data.", error);
-    return CONTACT_SUBMISSIONS;
-  }
-}
+// NOTE: reads of "contactSubmissions" are admin-only and go through the Admin
+// SDK — see lib/admin-contact-data.ts. The Firestore rules deny all client
+// reads of this collection, so there is deliberately no client-SDK reader here.
 
 // Writes a new message from the Contact page's form to Firestore.
 // No-ops (just logs) when Firebase isn't configured, so the form still

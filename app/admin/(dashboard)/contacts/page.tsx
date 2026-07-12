@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ContactSubmissionsTable from "@/components/admin/ContactSubmissionsTable";
-import { getContactSubmissions } from "@/lib/admin-data";
+import { getContactSubmissions } from "@/lib/admin-contact-data";
 
 export const metadata: Metadata = {
   title: "פניות ממתקרבים",
