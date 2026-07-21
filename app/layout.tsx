@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import GlobalDoodleField from "@/components/GlobalDoodleField";
 import BrandToaster from "@/components/ui/BrandToaster";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site-config";
 
 // Assistant is a clean, modern Hebrew/Latin sans-serif — lighter and more
@@ -69,6 +70,7 @@ export default function RootLayout({
         <Footer />
         <WhatsAppButton />
         <BrandToaster />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
