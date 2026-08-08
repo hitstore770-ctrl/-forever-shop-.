@@ -1,34 +1,62 @@
-import NewsTicker from "@/components/NewsTicker";
-import Hero from "@/components/Hero";
-import QuickNavCards from "@/components/QuickNavCards";
-import DailyDedication from "@/components/DailyDedication";
-import { DoodlePlus, DoodleZigzag, DoodleDots, DoodleFlyingDocument, DoodleMarkerScribble } from "@/components/doodles";
+import LightHero from "@/components/home/LightHero";
+import DoorSequence from "@/components/home/DoorSequence";
+import VideoReveal from "@/components/home/VideoReveal";
+import LuxNavCards from "@/components/home/LuxNavCards";
+import StickyCta from "@/components/home/StickyCta";
+import Reveal from "@/components/home/Reveal";
 
-// Home page.
-// Future additions: highlights pulled from the learning area, an
-// upcoming-activities preview, and a donation progress widget — all likely
-// backed by Firebase once that's wired up.
+// Home page — light/"lux" art direction, deliberately different from the
+// brutalist styling of the rest of the site.
+//
+// The .lux-page class is what dials the sitewide paper grain down to a sheen
+// (see app/globals.css); GlobalDoodleField also opts this route out of the
+// scrapbook doodles. Everything else on the site is untouched.
+//
+// Reading order is a single narrative: hero -> walk to the door -> the door
+// opens -> the film plays -> the sections you can act on.
 export default function HomePage() {
   return (
-    <>
-      <NewsTicker />
-      <Hero />
-      <section className="relative z-10 -mt-6 bg-cream py-16 sm:-mt-10 sm:py-24">
-        {/* Decorative filler doodles — only shown once there's guaranteed gutter beyond the content column */}
-        <DoodlePlus className="pointer-events-none absolute top-16 left-10 hidden h-6 w-6 text-navy-900/30 xl:block" />
-        <DoodlePlus className="pointer-events-none absolute right-8 bottom-20 hidden h-8 w-8 text-copper-500/40 xl:block" />
-        <DoodleZigzag className="pointer-events-none absolute top-32 right-12 hidden h-5 w-16 text-navy-900/25 xl:block" />
-        <DoodleDots className="pointer-events-none absolute bottom-32 left-16 hidden h-6 w-14 text-copper-500/40 xl:block" />
-        <DoodleFlyingDocument className="pointer-events-none absolute top-6 right-24 hidden h-16 w-20 -rotate-12 text-copper-600/40 xl:block" />
-        <DoodleMarkerScribble className="pointer-events-none absolute bottom-6 left-24 hidden h-8 w-20 text-navy-900/15 xl:block" />
+    <div className="lux-page bg-white">
+      <LightHero />
 
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-16 sm:mb-20">
-            <DailyDedication />
+      {/* Scroll-driven canvas sequence; ends washed out to pearl, which is
+          exactly the colour VideoReveal opens on. */}
+      <DoorSequence />
+
+      <VideoReveal />
+
+      <section className="bg-white px-4 py-16 sm:px-6 sm:py-24">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="max-w-2xl">
+            <p className="text-xs font-semibold tracking-[0.3em] text-copper-600 uppercase">
+              הישיבה
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-navy-950 sm:text-4xl">
+              מה מחכה לך כאן
+            </h2>
+          </Reveal>
+
+          <div className="mt-10 sm:mt-14">
+            <LuxNavCards />
           </div>
-          <QuickNavCards />
         </div>
       </section>
-    </>
+
+      {/*
+        CONTENT SLOTS — the pieces to feed in next, in the light card style
+        (bg-white / rounded-2xl / shadow-lux / shadow-lux-inset), each wrapped
+        in <Reveal> so it fades up on scroll:
+
+        1. Daily dedication + zmanim. <DailyDedication> already exists but is
+           styled brutalist (border-4 / shadow-brutal); it needs a light
+           variant before it can sit on this page.
+        2. Testimonials from alumni — a 2-3 card row.
+        3. An upcoming-events strip, reading the events data already in
+           lib/events-data.ts.
+        4. A donation progress widget.
+      */}
+
+      <StickyCta />
+    </div>
   );
 }

@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { DoodleStar, DoodleZigzag, DoodleDots, DoodleScribble, DoodlePlus, DoodleCircle } from "@/components/doodles";
 
 // A sparse, very faint layer of doodles fixed to the viewport (not the
@@ -7,7 +10,17 @@ import { DoodleStar, DoodleZigzag, DoodleDots, DoodleScribble, DoodlePlus, Doodl
 // background texture, not a decoration anyone should consciously notice.
 // More doodles are shown at wider breakpoints so the effect grows with
 // the extra screen real estate instead of ever cluttering mobile.
+//
+// The home page is the one exception: it runs the light/"lux" art direction,
+// where hand-drawn scribbles read as clutter rather than texture. Opting out
+// here keeps that knowledge in one place instead of every lux section having
+// to paint over the field.
+const DOODLE_FREE_ROUTES = new Set(["/"]);
+
 export default function GlobalDoodleField() {
+  const pathname = usePathname();
+  if (DOODLE_FREE_ROUTES.has(pathname)) return null;
+
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <DoodlePlus className="absolute top-[12%] left-[4%] hidden h-5 w-5 text-navy-900/10 lg:block" />
