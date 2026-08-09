@@ -2,11 +2,15 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Bottom-docked enrolment CTA that appears once the visitor has scrolled past
 // the hero, so the primary action is always one tap away without occupying the
 // first screen.
+//
+// The threshold is measured from the viewport rather than hard-coded, because
+// the hero is a full-height section: on a phone "past the hero" is ~700px, on
+// a desktop it is ~900px, and a fixed number gets one of them wrong.
 //
 // Two collision details worth keeping: the floating WhatsApp button in the root
 // layout is fixed bottom-right at z-50, so this bar sits below it (z-40) and
@@ -14,14 +18,26 @@ import { useState } from "react";
 // the page is RTL, that side is padding-inline-START; and the
 // bottom padding respects the iOS home-indicator inset.
 
-const SHOW_AFTER_PX = 520;
+/** Fraction of the hero that has to leave the screen before the bar docks. */
+const SHOW_AFTER_VH = 0.75;
 
 export default function StickyCta() {
   const [isVisible, setIsVisible] = useState(false);
+  const thresholdRef = useRef(Number.POSITIVE_INFINITY);
   const { scrollY } = useScroll();
 
+  useEffect(() => {
+    const measure = () => {
+      thresholdRef.current = window.innerHeight * SHOW_AFTER_VH;
+      setIsVisible(window.scrollY > thresholdRef.current);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   useMotionValueEvent(scrollY, "change", (value) => {
-    setIsVisible(value > SHOW_AFTER_PX);
+    setIsVisible(value > thresholdRef.current);
   });
 
   return (

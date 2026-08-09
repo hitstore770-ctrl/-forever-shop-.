@@ -150,3 +150,11 @@ body::before {
 body:has(.lux-page)::before {
   opacity: 0.035;
 }
+
+/* Height of the sticky header, so full-height sections can subtract it and
+   still fit the visible screen. The header sits in normal flow, so a plain
+   100svh hero overflows the viewport by exactly this much and pushes its own
+   CTA below the fold. Keep in sync with components/Header.tsx. */
+:root {
+  --header-h: 5.25rem;
+}
