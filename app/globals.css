@@ -142,13 +142,30 @@ body::before {
   color: var(--color-navy-900) !important;
 }
 
-/* The sitewide grain above is part of the brutalist "printed paper" look and
-   fights the clean light surfaces of the redesigned home page. Rather than
-   move the overlay into a component (which every other page would then have
-   to opt into), the home page marks itself with .lux-page and the grain is
-   dialled down to a barely-there sheen just for it. */
-body:has(.lux-page)::before {
-  opacity: 0.035;
+/* The sitewide grain above is part of the brutalist "printed paper" look. The
+   home page wants a colder, flatter white than the cream it was tuned for, so
+   it marks itself with .flat-page and the grain drops to a whisper — enough to
+   keep an editorial print feel, not enough to grey the white down. Rather than
+   move the overlay into a component (which every other page would then have to
+   opt into), the opt-out lives here. */
+body:has(.flat-page)::before {
+  opacity: 0.022;
+}
+
+/* Lenis (see components/home/SmoothScroll.tsx). These classes are added to
+   <html> only while a Lenis instance is alive, i.e. only on the home page.
+   The height reset matters because the root element carries h-full: with a
+   fixed 100% height Lenis measures a viewport-sized scroll extent and the page
+   will not scroll past the first screen. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 /* Height of the sticky header, so full-height sections can subtract it and

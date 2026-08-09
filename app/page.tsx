@@ -1,66 +1,64 @@
-import PremiumHero from "@/components/home/PremiumHero";
-import AlleyReveal from "@/components/home/AlleyReveal";
-import BentoGrid from "@/components/home/BentoGrid";
+import SmoothScroll from "@/components/home/SmoothScroll";
+import BrutalHero from "@/components/home/BrutalHero";
+import KineticMarquee from "@/components/home/KineticMarquee";
+import SharpGrid from "@/components/home/SharpGrid";
 import StickyCta from "@/components/home/StickyCta";
-import Reveal from "@/components/home/Reveal";
+import MaskReveal from "@/components/home/MaskReveal";
 
-// Home page — light/"lux" art direction, deliberately different from the
-// brutalist styling of the rest of the site.
+// Home page — "kinetic brutalism": pure white ground, pitch black type, no
+// radius anywhere, and every rule at least 2px.
 //
-// The .lux-page class is what dials the sitewide paper grain down to a sheen
-// (see app/globals.css); GlobalDoodleField also opts this route out of the
-// scrapbook doodles. Everything else on the site is untouched.
+// The .flat-page class drops the sitewide paper grain to a whisper (see
+// app/globals.css) so the white stays white; GlobalDoodleField also opts this
+// route out of the scrapbook doodles. Nothing else on the site is touched, and
+// this palette now agrees with the brutalist header and footer rather than
+// fighting them.
 //
-// This file stays a server component on purpose. Only the three sections that
-// actually need scroll position, timers or touch state are "use client", so
-// the page's own markup and copy ship as HTML with no hydration cost — making
-// the whole page a client component to save a few imports would send every
-// string below through the JS bundle instead.
-//
-// Reading order is one narrative: the statement -> the walk into the alley ->
-// the things you can act on.
+// This file stays a server component. Only the pieces that genuinely need
+// scroll position, a frame loop or touch state are "use client", so the page's
+// own markup and copy ship as HTML with no hydration cost.
 export default function HomePage() {
   return (
-    <div className="lux-page bg-white">
-      {/* 100svh statement, fade-in-up on load, self-rewriting subtitle. */}
-      <PremiumHero />
+    <div className="flat-page bg-white">
+      {/* Lenis. Renders nothing; smooths wheel scrolling for everything below
+          and leaves touch scrolling native. */}
+      <SmoothScroll />
 
-      {/* Scroll grows the card from inset to near full-bleed. */}
-      <AlleyReveal />
+      <BrutalHero />
 
-      <section className="bg-white px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-[0.3em] text-copper-600 uppercase">
-              הישיבה
-            </p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-navy-950 sm:text-4xl">
-              מה מחכה לך כאן
+      <KineticMarquee />
+
+      <section className="border-b-[3px] border-black bg-white px-4 py-16 sm:px-8 sm:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4 sm:mb-14">
+            <h2 className="text-4xl font-extrabold tracking-[-0.04em] text-black sm:text-6xl">
+              <MaskReveal inView delay={0} duration={0.7}>
+                מה מחכה לך כאן
+              </MaskReveal>
             </h2>
-          </Reveal>
-
-          <div className="mt-10 sm:mt-14">
-            <BentoGrid />
+            <p className="text-[0.65rem] font-bold tracking-[0.3em] text-black/40">
+              06 / סקשנים
+            </p>
           </div>
+
+          <SharpGrid />
         </div>
       </section>
 
       {/*
-        CONTENT SLOTS — the pieces to feed in next, in the light card style
-        (bg-white / rounded-2xl / shadow-lux / shadow-lux-inset), each wrapped
-        in <Reveal> so it fades up on scroll:
+        CONTENT SLOTS — the pieces to feed in next. In this system a section is
+        a white tile on a black rule: border-[3px] border-black, no radius,
+        heavy tracking-tight headings, and MaskReveal with inView for entrances.
 
-        1. Daily dedication + zmanim. <DailyDedication> already exists but is
-           styled brutalist (border-4 / shadow-brutal); it needs a light
-           variant before it can sit on this page.
-        2. Testimonials from alumni — a 2-3 card row.
-        3. An upcoming-events strip, reading the events data already in
-           lib/events-data.ts.
-        4. A donation progress widget.
-        5. <VideoReveal /> — the tap-to-play סרטון התדמית. Built and working,
-           but off the page for now: it and the alley clip in the same scroll
-           read as two videos competing. Drop it back in once HOME_VIDEO.src
-           in lib/home-data.ts points at a real file.
+        1. Daily dedication + zmanim. <DailyDedication> already exists and is
+           already brutalist, so it should drop straight in — it just needs the
+           cream/navy swapped for white/black.
+        2. Alumni testimonials — full-bleed quotes, one per row, huge type.
+        3. An upcoming-events strip reading lib/events-data.ts.
+        4. A donation progress bar — a black fill on a white track, no radius.
+        5. The /yavetz-walk.mp4 clip, once it exists. It has no home in this
+           layout yet; a full-bleed band between the marquee and the grid is
+           the obvious slot.
       */}
 
       <StickyCta />
