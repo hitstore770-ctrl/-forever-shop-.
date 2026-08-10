@@ -121,6 +121,15 @@ export const TRACKS: TrackItem[] = [
   },
 ];
 
+// Short forms used by the pinned hero sequence, where the cards reveal around
+// the character and there is no room for the full descriptions above.
+export const TRACK_TEASERS = [
+  "המסלול הלימודי המלא – שנתיים",
+  "מסלול חצי יום לימוד וחצי יום עבודה",
+  "המסלול האקסטרני",
+  "מסלול השלוחים",
+] as const;
+
 // ---------------------------------------------------------------------------
 // Team
 // ---------------------------------------------------------------------------

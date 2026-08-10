@@ -1,34 +1,41 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useAnimationFrame, useReducedMotion } from "framer-motion";
+import { useEffect } from "react";
+import { useReducedMotion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 
 // Lenis smooth scroll, scoped to whichever page renders it.
 //
-// Three decisions worth knowing about:
+// Lenis is driven from GSAP's ticker rather than its own autoRaf or framer's
+// frame loop. That ordering is the whole point once ScrollTrigger is on the
+// page: GSAP's ticker also drives ScrollTrigger, so within a single frame the
+// scroll position advances first and every scrub reads the value it just
+// produced. Split across two loops, a scrubbed timeline can sample a scroll
+// position one frame stale, which shows up as the pinned canvas lagging the
+// finger by a frame.
 //
-// 1. Lenis is driven from framer-motion's frame loop rather than its own
-//    `autoRaf`. Both would work, but this keeps the page on exactly one
-//    requestAnimationFrame — Lenis' integration and every motion value on the
-//    page then resolve in a single frame, in a fixed order, instead of racing
-//    across two loops and occasionally landing a scroll update after the
-//    transforms that were supposed to read it.
+// `lagSmoothing(0)` disables GSAP's habit of clamping large frame deltas. That
+// behaviour is right for regular tweens — it stops a tab regaining focus from
+// jumping an animation forward — but on a scrubbed timeline it would swallow
+// real scroll distance after a stall.
 //
-// 2. `syncTouch` is left off, which means touch scrolling stays native. This
-//    looks like the opposite of "smooth scroll on mobile" and is deliberate:
-//    iOS momentum scrolling is implemented off the main thread, and replacing
-//    it with a JS-interpolated equivalent reliably makes phones feel worse,
-//    not better. Lenis smooths the wheel; the phone keeps its own physics.
+// `syncTouch` is left off, which means touch scrolling stays native. This looks
+// like the opposite of "smooth scroll on mobile" and is deliberate: iOS
+// momentum scrolling is implemented off the main thread, and replacing it with
+// a JS-interpolated equivalent reliably makes phones feel worse, not better.
+// Lenis smooths the wheel; the phone keeps its own physics.
 //
-// 3. Lenis moves the real scroll position (it is not a transformed proxy
-//    container), so framer's useScroll, IntersectionObserver, sticky
-//    positioning and anchor links all keep working untouched.
+// Lenis moves the real scroll position (it is not a transformed proxy
+// container), so framer's useScroll, IntersectionObserver, sticky positioning
+// and anchor links all keep working untouched.
 //
 // Under prefers-reduced-motion nothing is constructed at all.
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function SmoothScroll() {
-  const lenisRef = useRef<Lenis | null>(null);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -45,16 +52,21 @@ export default function SmoothScroll() {
       syncTouch: false,
     });
 
-    lenisRef.current = lenis;
+    // Keep ScrollTrigger's cached scroll position in step with Lenis.
+    lenis.on("scroll", ScrollTrigger.update);
+
+    // GSAP's ticker reports seconds; Lenis wants milliseconds.
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
+
     return () => {
+      gsap.ticker.remove(tick);
+      gsap.ticker.lagSmoothing(500, 33);
+      lenis.off("scroll", ScrollTrigger.update);
       lenis.destroy();
-      lenisRef.current = null;
     };
   }, [prefersReducedMotion]);
-
-  useAnimationFrame((time) => {
-    lenisRef.current?.raf(time);
-  });
 
   return null;
 }

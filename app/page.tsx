@@ -1,9 +1,9 @@
 import BottomNav from "@/components/home/BottomNav";
-import BrutalHero from "@/components/home/BrutalHero";
 import DailyTimeline from "@/components/home/DailyTimeline";
 import DonateBanner from "@/components/home/DonateBanner";
 import FaqAccordion from "@/components/home/FaqAccordion";
 import FloatingActions from "@/components/home/FloatingActions";
+import InteractiveHero from "@/components/home/InteractiveHero";
 import JoinForm from "@/components/home/JoinForm";
 import KbFooter from "@/components/home/KbFooter";
 import KineticMarquee from "@/components/home/KineticMarquee";
@@ -49,7 +49,10 @@ export default async function HomePage() {
       <ThemeToggle />
       <SmoothScroll />
 
-      <BrutalHero sunset={sunset} />
+      {/* Pinned, scroll-scrubbed opening sequence. Carries everything the
+          static hero did — eyebrow, zmanim plate, CTA, time-aware line — so
+          nothing was lost in the swap. */}
+      <InteractiveHero sunset={sunset} />
 
       <KineticMarquee />
 
