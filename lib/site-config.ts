@@ -75,3 +75,10 @@ export const QUICK_NAV_CARDS: QuickNavCard[] = [
     icon: "events",
   },
 ];
+
+// External donation system. The landing page deliberately holds no donation
+// logic of its own — no amounts, no checkout, no payment state — it only links
+// out to whichever platform the yeshiva runs. Swap this one constant to move
+// providers; nothing else needs to change.
+// TODO: replace with the real donation platform URL before launch.
+export const EXTERNAL_DONATION_URL = "https://external-donation-system.com";

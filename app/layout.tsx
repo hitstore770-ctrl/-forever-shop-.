@@ -3,6 +3,7 @@ import { Assistant } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import RouteGate from "@/components/RouteGate";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import GlobalDoodleField from "@/components/GlobalDoodleField";
 import BrandToaster from "@/components/ui/BrandToaster";
@@ -67,7 +68,10 @@ export default function RootLayout({
         <GlobalDoodleField />
         <Header />
         <main className="flex-1">{children}</main>
-        <Footer />
+        {/* The landing page ships its own bottom navigation and closing bar. */}
+        <RouteGate hideOn={["/"]}>
+          <Footer />
+        </RouteGate>
         <WhatsAppButton />
         <BrandToaster />
         <ServiceWorkerRegister />

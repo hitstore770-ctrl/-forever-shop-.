@@ -143,13 +143,100 @@ body::before {
 }
 
 /* The sitewide grain above is part of the brutalist "printed paper" look. The
-   home page wants a colder, flatter white than the cream it was tuned for, so
-   it marks itself with .flat-page and the grain drops to a whisper — enough to
-   keep an editorial print feel, not enough to grey the white down. Rather than
-   move the overlay into a component (which every other page would then have to
-   opt into), the opt-out lives here. */
-body:has(.flat-page)::before {
+   home page wants a colder, flatter ground than the cream it was tuned for, so
+   it marks itself with .kb-page and the grain drops to a whisper — enough to
+   keep an editorial print feel, not enough to muddy the white. Rather than move
+   the overlay into a component (which every other page would then have to opt
+   into), the opt-out lives here. */
+body:has(.kb-page)::before {
   opacity: 0.022;
+}
+
+/* --- Kinetic Brutalism surface ------------------------------------------
+   The landing page is a two-colour system, and the dark toggle swaps which
+   colour is which. Everything on that page paints through these two custom
+   properties rather than literal bg-white/text-black, so the inversion is a
+   single attribute flip on <html> instead of a conditional class on every
+   element. Scoped to .kb-page — the rest of the site keeps cream/navy. */
+.kb-page {
+  /* Mature premium, not stark: a pearl ground and a midnight navy that reads
+     as black at a glance but never goes flat, plus one muted bronze used only
+     for emphasis. Pure #fff/#000 was correct for the earlier art direction and
+     too hard for this one. */
+  --kb-bg: #f8fafc;
+  --kb-fg: #020617;
+  --kb-accent: #b49a55;
+
+  /* Height of the fixed bottom navigation. The floating buttons stack above
+     it off this one value, so the bar can change height without every one of
+     them needing a new magic number. */
+  --kb-nav-h: 4.25rem;
+
+  /* Prevents the double-tap-to-zoom gesture, which on a page this
+     interaction-dense fires constantly by accident. Deliberately scoped here
+     rather than applied to <body> sitewide: it also suppresses pinch-zoom,
+     and taking that away from the forms, the admin area and long reading
+     pages would be an accessibility regression. */
+  touch-action: pan-y;
+}
+html[data-kb-dark="true"] .kb-page {
+  --kb-bg: #020617;
+  --kb-fg: #f8fafc;
+  /* Lifted a step: the bronze that carries on pearl is muddy on navy. */
+  --kb-accent: #c9b075;
+}
+/* The grain is tuned for a light ground; over black it reads as dirt. */
+html[data-kb-dark="true"] body:has(.kb-page)::before {
+  opacity: 0;
+}
+
+@utility bg-kb {
+  background-color: var(--kb-bg);
+}
+@utility bg-kb-inv {
+  background-color: var(--kb-fg);
+}
+@utility text-kb {
+  color: var(--kb-fg);
+}
+@utility text-kb-inv {
+  color: var(--kb-bg);
+}
+/* Two muted steps. color-mix keeps them tied to the live token, so they
+   invert with everything else instead of staying a fixed grey. */
+@utility text-kb-dim {
+  color: color-mix(in srgb, var(--kb-fg) 55%, transparent);
+}
+@utility text-kb-faint {
+  color: color-mix(in srgb, var(--kb-fg) 38%, transparent);
+}
+@utility text-kb-accent {
+  color: var(--kb-accent);
+}
+@utility bg-kb-accent {
+  background-color: var(--kb-accent);
+}
+@utility border-kb-accent {
+  border-color: var(--kb-accent);
+}
+@utility bg-kb-faint {
+  background-color: color-mix(in srgb, var(--kb-fg) 18%, transparent);
+}
+@utility border-kb {
+  border-color: var(--kb-fg);
+}
+@utility divide-kb {
+  border-color: var(--kb-fg);
+}
+
+/* Custom text selection, sitewide. */
+::selection {
+  background-color: #020617;
+  color: #f8fafc;
+}
+html[data-kb-dark="true"] ::selection {
+  background-color: #f8fafc;
+  color: #020617;
 }
 
 /* Lenis (see components/home/SmoothScroll.tsx). These classes are added to
@@ -175,3 +262,4 @@ html.lenis body {
 :root {
   --header-h: 5.25rem;
 }
+

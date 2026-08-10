@@ -1,12 +1,22 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { buildWhatsAppLink } from "@/lib/site-config";
 
 // Floating WhatsApp button, rendered once in the root layout so it appears
 // on every page. Kept as its own component so the default message (or the
 // whole component) can later be swapped per-page if needed.
+//
+// The landing page renders its own version that only appears once the hero is
+// behind you and sits in a managed stack above the fixed bottom bar, so this
+// one steps aside there rather than the two overlapping.
+const SELF_MANAGED_ROUTES = new Set(["/"]);
+
 export default function WhatsAppButton() {
+  const pathname = usePathname();
   const href = buildWhatsAppLink("שלום, אשמח לקבל מידע נוסף");
+
+  if (SELF_MANAGED_ROUTES.has(pathname)) return null;
 
   return (
     <a

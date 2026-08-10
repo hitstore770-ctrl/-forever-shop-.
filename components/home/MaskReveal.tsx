@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
@@ -16,8 +17,17 @@ import { cn } from "@/lib/cn";
 // below the baseline — ק, ן, ך, ף, ץ. The padding gives the mask room to hide
 // the line in; the matching negative margin gives that room back to the
 // layout, so stacked lines still set tight.
+//
+// The scroll trigger watches the MASK, not the line. This is the whole trick
+// and it is easy to get backwards: `whileInView` on the line itself never
+// fires, because IntersectionObserver clips an element's intersection rect
+// against its ancestors' overflow — the line starts translated out of the mask,
+// so the observer reports it as 0% visible, forever. The line needs to be
+// visible to animate and needs to animate to become visible. Observing the
+// unclipped mask breaks the deadlock.
 
 const EASE_SNAP: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const HIDDEN_Y = "115%";
 
 export type MaskRevealProps = {
   children: ReactNode;
@@ -38,24 +48,23 @@ export default function MaskReveal({
   inView = false,
 }: MaskRevealProps) {
   const prefersReducedMotion = useReducedMotion();
+  const maskRef = useRef<HTMLSpanElement>(null);
+  const isMaskInView = useInView(maskRef, { once: true, amount: 0.4 });
 
   if (prefersReducedMotion) {
     return <span className={cn("block", className)}>{children}</span>;
   }
 
-  const motionProps = inView
-    ? {
-        whileInView: { y: "0%" },
-        viewport: { once: true, amount: 0.6 } as const,
-      }
-    : { animate: { y: "0%" } };
+  // Mount-triggered lines reveal immediately; scroll-triggered ones wait for
+  // their mask to come into view.
+  const shouldReveal = inView ? isMaskInView : true;
 
   return (
-    <span className="block overflow-hidden pb-[0.12em] -mb-[0.12em]">
+    <span ref={maskRef} className="block overflow-hidden pb-[0.12em] -mb-[0.12em]">
       <motion.span
         className={cn("block", className)}
-        initial={{ y: "115%" }}
-        {...motionProps}
+        initial={{ y: HIDDEN_Y }}
+        animate={{ y: shouldReveal ? "0%" : HIDDEN_Y }}
         transition={{ duration, ease: EASE_SNAP, delay }}
       >
         {children}

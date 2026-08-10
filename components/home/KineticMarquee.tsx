@@ -84,7 +84,7 @@ export default function KineticMarquee() {
     <section
       ref={sectionRef}
       aria-label={MARQUEE_PHRASES.join(" · ")}
-      className="relative border-y-[3px] border-black bg-white py-5 sm:py-7"
+      className="relative border-y-[3px] border-kb bg-kb-inv py-5 sm:py-7"
     >
       <div dir="ltr" aria-hidden="true" className="overflow-hidden">
         <motion.div style={{ x }} className="flex w-max flex-nowrap will-change-transform">
@@ -92,12 +92,12 @@ export default function KineticMarquee() {
             <span
               key={copy}
               dir="rtl"
-              className="flex shrink-0 items-center gap-7 px-3.5 text-4xl font-extrabold tracking-[-0.03em] whitespace-nowrap text-black sm:gap-10 sm:px-5 sm:text-6xl"
+              className="flex shrink-0 items-center gap-7 px-3.5 text-3xl font-extrabold tracking-[-0.03em] whitespace-nowrap text-kb-accent sm:gap-10 sm:px-5 sm:text-5xl"
             >
               {MARQUEE_PHRASES.map((phrase) => (
                 <Fragment key={phrase}>
                   <span>{phrase}</span>
-                  <span className="text-black/25">•</span>
+                  <span className="opacity-45">•</span>
                 </Fragment>
               ))}
             </span>

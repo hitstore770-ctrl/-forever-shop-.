@@ -9,9 +9,18 @@ import { MenuIcon, XIcon } from "@/components/icons";
 
 // Sticky site header with desktop nav + a collapsible mobile menu.
 // "use client" is required for the open/close state and active-link highlighting.
+//
+// The landing page is the one exception: it ships its own fixed bottom
+// navigation instead, and stacking a top header above it would give that page
+// two competing navigations. Keeping the opt-out here means the rest of the
+// site is untouched.
+const HEADERLESS_ROUTES = new Set(["/"]);
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+
+  if (HEADERLESS_ROUTES.has(pathname)) return null;
 
   return (
     <header className="sticky top-0 z-40 border-b-4 border-black bg-cream">
