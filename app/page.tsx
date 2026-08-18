@@ -1088,6 +1088,7 @@ function TerminalForm() {
                     onChange={set("name")}
                     index={0}
                   />
+                  <TerminalField
                   id="age"
                     label="גיל"
                     value={form.age}
