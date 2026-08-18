@@ -1088,4 +1088,126 @@ function TerminalForm() {
                     onChange={set("name")}
                     index={0}
                   />
+                  id="age"
+                    label="גיל"
+                    value={form.age}
+                    onChange={set("age")}
+                    index={1}
+                    inputMode="numeric"
+                  />
                   <TerminalField
+                    id="phone"
+                    label="מספר טלפון"
+                    type="tel"
+                    inputMode="tel"
+                    value={form.phone}
+                    onChange={set("phone")}
+                    index={2}
+                  />
+                </div>
+
+                <div className="flex flex-col items-start gap-6 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <MagnetButton>[ שליחה ]</MagnetButton>
+                  <p className="max-w-[30ch] text-[11px] font-bold leading-relaxed text-[#F8FAFC]/40 sm:text-xs">
+                    הפרטים נשמרים בסודיות. נחזור אליך בהקדם.
+                  </p>
+                </div>
+              </motion.form>
+            ) : (
+              <motion.div
+                key="sent"
+                initial={{ opacity: 0, scale: 0.94 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: "spring", stiffness: 220, damping: 20 }}
+                className="flex flex-col items-start gap-6 border-[3px] border-amber-700 p-8 sm:flex-row sm:items-center sm:gap-8 sm:p-14"
+              >
+                <motion.div
+                  initial={{ rotate: -25, scale: 0 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{
+                    delay: 0.12,
+                    type: "spring",
+                    stiffness: 380,
+                    damping: 15,
+                  }}
+                  className="grid h-16 w-16 shrink-0 place-items-center border-[3px] border-[#F8FAFC] bg-amber-700 shadow-[5px_5px_0px_0px_#F8FAFC] sm:h-20 sm:w-20"
+                >
+                  <Check
+                    strokeWidth={4}
+                    className="h-8 w-8 text-slate-950 sm:h-10 sm:w-10"
+                  />
+                </motion.div>
+                <div>
+                  <h3 className="text-2xl font-black tracking-tight text-[#F8FAFC] sm:text-4xl">
+                    הפרטים נשלחו בהצלחה
+                  </h3>
+                  <p className="mt-2 text-sm font-bold text-[#F8FAFC]/55 sm:text-lg">
+                    ניצור איתך קשר בקרוב. תודה שפנית אלינו.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Sign-off */}
+      <div className="mt-16 flex flex-col items-center gap-4 border-t-4 border-slate-950 pt-10 sm:flex-row sm:justify-between">
+        <p className="text-[11px] font-black tracking-[0.2em] text-slate-950/45">
+          ישיבה • ירושלים © {new Date().getFullYear()}
+        </p>
+        <p className="text-center text-[11px] font-black tracking-[0.16em] text-amber-700">
+          יחי אדונינו מורינו ורבינו מלך המשיח לעולם ועד!
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== */
+/*  MAIN CONTENT — assembled                                           */
+/* ================================================================== */
+function MainContent() {
+  return (
+    <main
+      id="home"
+      className="relative w-full bg-[#F8FAFC] pb-40"
+      style={{
+        backgroundImage: `
+          linear-gradient(to right, rgba(2,6,23,0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(2,6,23,0.05) 1px, transparent 1px)
+        `,
+        backgroundSize: "24px 24px",
+      }}
+    >
+      {/* Top brutalist rule */}
+      <div className="h-[10px] w-full border-b-4 border-slate-950 bg-amber-700" />
+
+      <HeroSection />
+      <ScrollMarquees />
+      <BentoGrid />
+      <FAQAccordion />
+      <TerminalForm />
+    </main>
+  );
+}
+
+/* ================================================================== */
+/*  PAGE — APP SHELL + CONTENT                                         */
+/* ================================================================== */
+export default function Page() {
+  return (
+    <div
+      dir="rtl"
+      lang="he"
+      className="min-h-screen bg-[#F8FAFC] text-slate-950 antialiased selection:bg-amber-700 selection:text-slate-50"
+    >
+      <SmoothScrollProvider>
+        <MainContent />
+      </SmoothScrollProvider>
+
+      <FloatingMascot />
+      <BottomDock />
+    </div>
+  );
+}
