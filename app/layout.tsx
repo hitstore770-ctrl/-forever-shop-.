@@ -65,10 +65,7 @@ export default function RootLayout({
     <html lang="he" dir="rtl" className={`${assistant.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         <GlobalDoodleField />
-        <Header />
         <main className="flex-1">{children}</main>
-        <Footer />
-        <WhatsAppButton />
         <BrandToaster />
         <ServiceWorkerRegister />
       </body>
