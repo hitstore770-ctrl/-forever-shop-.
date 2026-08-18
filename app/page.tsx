@@ -1,6 +1,3 @@
-Here's the complete App Shell with production-grade micro-interactions:
-
-```tsx
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
@@ -10,6 +7,9 @@ import {
   useMotionValueEvent,
   useSpring,
   useMotionValue,
+  useTransform,
+  useMotionTemplate,
+  useInView,
   useAnimationControls,
   AnimatePresence,
   type Variants,
@@ -20,16 +20,28 @@ import {
   Home,
   Calendar,
   ShoppingBag,
+  Plus,
+  ArrowLeft,
+  Send,
+  Check,
   type LucideIcon,
 } from "lucide-react";
 
 /* ================================================================== */
-/*  1. SMOOTH SCROLL PROVIDER                                          */
-/*  Heavy "buttery" scroll simulated by translating the content        */
-/*  wrapper with a critically-damped spring that lags behind the       */
-/*  native scroll position. A spacer div preserves real scrollbar      */
-/*  height so useScroll() and anchor links keep working natively.      */
+/*  SMOOTH SCROLL PROVIDER                                             */
+/*  Heavy "buttery" scroll simulated by translating the content         */
+/*  wrapper with a critically-damped spring that lags behind the        */
+/*  native scroll position. A spacer div preserves real scrollbar       */
+/*  height so useScroll() and anchor links keep working natively.       */
 /* ================================================================== */
+
+/* Helper: invert a MotionValue (scroll down → move content up) */
+function useNegative(mv: ReturnType<typeof useSpring>) {
+  const out = useMotionValue(0);
+  useMotionValueEvent(mv, "change", (v) => out.set(-v));
+  return out;
+}
+
 function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
@@ -44,6 +56,8 @@ function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
     mass: 0.9,
     restDelta: 0.001,
   });
+
+  const translateY = useNegative(smoothY);
 
   /* --- Measure content height into the spacer (ResizeObserver) --- */
   useEffect(() => {
@@ -75,12 +89,8 @@ function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
       if (frame) return;
       frame = requestAnimationFrame(() => {
         const y = window.scrollY;
-        if (prefersReduced) {
-          rawY.set(y);
-          smoothY.jump(y);
-        } else {
-          rawY.set(y);
-        }
+        rawY.set(y);
+        if (prefersReduced) smoothY.jump(y);
         frame = 0;
       });
     };
@@ -97,10 +107,7 @@ function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
     <>
       {/* Fixed viewport-locked stage holding the transformed content */}
       <div className="fixed inset-0 overflow-hidden">
-        <motion.div
-          ref={contentRef}
-          style={{ y: useNegative(smoothY), willChange: "transform" }}
-        >
+        <motion.div ref={contentRef} style={{ y: translateY, willChange: "transform" }}>
           {children}
         </motion.div>
       </div>
@@ -111,15 +118,8 @@ function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* Helper: invert a MotionValue (scroll down → move content up) */
-function useNegative(mv: ReturnType<typeof useSpring>) {
-  const out = useMotionValue(0);
-  useMotionValueEvent(mv, "change", (v) => out.set(-v));
-  return out;
-}
-
 /* ================================================================== */
-/*  2. BOTTOM DOCK                                                     */
+/*  BOTTOM DOCK                                                        */
 /* ================================================================== */
 type DockItem = {
   label: string;
@@ -189,11 +189,7 @@ function BottomDock() {
           const isHot = hovered === i;
 
           return (
-            <motion.li
-              key={item.label}
-              variants={dockItemVariants}
-              className="flex-1"
-            >
+            <motion.li key={item.label} variants={dockItemVariants} className="flex-1">
               <motion.a
                 href={item.href}
                 target={item.external ? "_blank" : undefined}
@@ -268,9 +264,7 @@ function BottomDock() {
                     animate={{ scaleX: isHot ? 1 : 0 }}
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     style={{ originX: 1 }}
-                    className={`absolute bottom-0 right-0 left-0 h-[3px] ${
-                      item.accent ? "bg-amber-700" : "bg-amber-700"
-                    }`}
+                    className="absolute bottom-0 right-0 left-0 h-[3px] bg-amber-700"
                   />
                 )}
               </motion.a>
@@ -283,7 +277,7 @@ function BottomDock() {
 }
 
 /* ================================================================== */
-/*  3. FLOATING MASCOT                                                 */
+/*  FLOATING MASCOT                                                    */
 /* ================================================================== */
 function FloatingMascot() {
   const { scrollY } = useScroll();
@@ -293,7 +287,7 @@ function FloatingMascot() {
   const jumpControls = useAnimationControls();
   const isJumping = useRef(false);
 
-  /* --- B. Scroll direction tracker --- */
+  /* --- Scroll direction tracker --- */
   useMotionValueEvent(scrollY, "change", (latest) => {
     const delta = latest - lastScroll.current;
     if (Math.abs(delta) < 2) return; // dead-zone kills jitter
@@ -301,7 +295,7 @@ function FloatingMascot() {
     lastScroll.current = latest;
   });
 
-  /* --- C. Tap → jump + rotate --- */
+  /* --- Tap → jump + rotate --- */
   const handleJump = useCallback(async () => {
     if (isJumping.current) return;
     isJumping.current = true;
@@ -329,7 +323,7 @@ function FloatingMascot() {
     >
       {/* Layer 1: TAP JUMP (imperative controls) */}
       <motion.div animate={jumpControls} style={{ transformOrigin: "50% 100%" }}>
-        {/* Layer 2: IDLE BOB (infinite loop, never interrupted) */}
+        {/* Layer 2: IDLE BOB (infinite declarative loop) */}
         <motion.div
           animate={{ y: [0, -9, 0] }}
           transition={{
@@ -354,9 +348,7 @@ function FloatingMascot() {
                 whileHover={{ scale: 1.07 }}
                 whileTap={{ scale: 0.92 }}
                 className="w-32 h-auto cursor-pointer rounded-none"
-                style={{
-                  filter: "drop-shadow(5px 7px 0px rgba(2,6,23,0.28))",
-                }}
+                style={{ filter: "drop-shadow(5px 7px 0px rgba(2,6,23,0.28))" }}
               />
             ) : (
               /* Brutalist fallback block */
@@ -385,361 +377,439 @@ function FloatingMascot() {
 }
 
 /* ================================================================== */
-/*  4. MAIN CONTENT (temporary scroll test rig)                        */
+/*  SHARED: Staggered word-split text                                  */
 /* ================================================================== */
-function MainContent() {
+const wordContainer: Variants = {
+  hidden: {},
+  show: (delay: number = 0) => ({
+    transition: { staggerChildren: 0.055, delayChildren: delay },
+  }),
+};
+
+const wordItem: Variants = {
+  hidden: { y: "115%", opacity: 0, rotate: 3 },
+  show: {
+    y: "0%",
+    opacity: 1,
+    rotate: 0,
+    transition: { type: "spring", stiffness: 320, damping: 26, mass: 0.7 },
+  },
+};
+
+function SplitWords({
+  text,
+  className = "",
+  wordClassName = "",
+  delay = 0,
+  as: Tag = "span",
+}: {
+  text: string;
+  className?: string;
+  wordClassName?: string;
+  delay?: number;
+  as?: React.ElementType;
+}) {
+  const MotionTag = motion(Tag as any);
   return (
-    <main
-      id="home"
-      className="relative min-h-[300vh] w-full bg-[#F8FAFC] pb-40"
-      style={{
-        backgroundImage: `
-          linear-gradient(to right, rgba(2,6,23,0.09) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(2,6,23,0.09) 1px, transparent 1px),
-          linear-gradient(to right, rgba(2,6,23,0.05) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(2,6,23,0.05) 1px, transparent 1px)
-        `,
-        backgroundSize: "120px 120px, 120px 120px, 24px 24px, 24px 24px",
-      }}
+    <MotionTag
+      variants={wordContainer}
+      custom={delay}
+      initial="hidden"
+      animate="show"
+      className={className}
+      aria-label={text}
     >
-      {/* Top brutalist rule */}
-      <div className="h-[10px] w-full border-b-4 border-slate-950 bg-amber-700" />
-
-      <section className="px-5 pt-16 sm:px-10 lg:px-16">
-        <motion.p
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.7 }}
-          className="mb-6 inline-block rounded-none border-2 border-slate-950 bg-slate-50 px-3 py-1 text-[11px] font-black tracking-[0.25em] text-slate-950 shadow-[4px_4px_0px_0px_#020617]"
+      {text.split(" ").map((word, i) => (
+        <span
+          key={`${word}-${i}`}
+          className="inline-block overflow-hidden align-bottom pb-[0.08em]"
         >
-          ב״ה · ישיבה · ירושלים
-        </motion.p>
+          <motion.span variants={wordItem} className={`inline-block ${wordClassName}`}>
+            {word}
+            {"\u00A0"}
+          </motion.span>
+        </span>
+      ))}
+    </MotionTag>
+  );
+}
 
-        <motion.h1
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            type: "spring",
-            stiffness: 120,
-            damping: 20,
-            delay: 0.3,
-          }}
-          className="max-w-[18ch] text-[13vw] font-black leading-[0.85] tracking-tighter text-slate-950 sm:text-[9vw] lg:text-[7vw]"
-        >
-          גלוש למטה
-          <br />
-          <span className="text-amber-700">כדי לראות</span>
-          <br />
-          את הקסם
-        </motion.h1>
+/* ================================================================== */
+/*  SHARED: Section heading with brutalist index rule                  */
+/* ================================================================== */
+function SectionLabel({ index, title }: { index: string; title: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.6 });
 
+  return (
+    <div ref={ref} className="mb-12 sm:mb-16">
+      <div className="flex items-center gap-4">
+        <span className="border-2 border-slate-950 bg-slate-950 px-2 py-1 text-[11px] font-black tracking-[0.2em] text-amber-700">
+          {index}
+        </span>
         <motion.div
           initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.75, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          animate={inView ? { scaleX: 1 } : {}}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           style={{ originX: 1 }}
-          className="mt-10 h-[6px] w-full max-w-2xl bg-slate-950"
+          className="h-[3px] flex-1 bg-slate-950"
         />
-      </section>
-
-      {/* Scroll test markers */}
-      <div className="mt-32 space-y-40 px-5 sm:px-10 lg:px-16">
-        {[
-          { n: "01", t: "בדוק את התנופה של הגלילה" },
-          { n: "02", t: "גלול למעלה — המסקוט מתהפך" },
-          { n: "03", t: "לחץ על המסקוט — הוא קופץ" },
-        ].map((block, i) => (
-          <motion.div
-            key={block.n}
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ type: "spring", stiffness: 90, damping: 20 }}
-            className="flex flex-col gap-4 border-t-4 border-b-4 border-slate-950 bg-slate-50 p-6 shadow-[8px_8px_0px_0px_#020617] sm:flex-row sm:items-center sm:gap-8 sm:p-10"
-          >
-            <span className="text-6xl font-black leading-none text-amber-700 sm:text-8xl">
-              {block.n}
-            </span>
-            <h2 className="text-2xl font-black leading-tight tracking-tight text-slate-950 sm:text-4xl">
-              {block.t}
-            </h2>
-          </motion.div>
-        ))}
       </div>
-
-      {/* Bottom sentinel */}
-      <div className="mt-48 border-t-4 border-slate-950 bg-slate-950 px-5 py-16 sm:px-10 lg:px-16">
-        <p className="text-3xl font-black tracking-tight text-slate-50 sm:text-5xl">
-          סוף אזור הבדיקה <span className="text-amber-700">·</span> Shell Ready
-        </p>
-      </div>
-    </main>
+      <h2 className="mt-5 text-3xl font-black leading-[0.95] tracking-tighter text-slate-950 sm:text-5xl lg:text-6xl">
+        {title}
+      </h2>
+    </div>
   );
 }
 
 /* ================================================================== */
-/*  PAGE — APP SHELL                                                   */
+/*  HERO SECTION — scroll-driven pin + scale/fade exit                 */
 /* ================================================================== */
-export default function Page() {
-  return (
-    <div
-      dir="rtl"
-      lang="he"
-      className="min-h-screen bg-[#F8FAFC] text-slate-950 antialiased selection:bg-amber-700 selection:text-slate-50"
-    >
-      <SmoothScrollProvider>
-        <MainContent />
-      </SmoothScrollProvider>
-
-      <FloatingMascot />
-      <BottomDock />
-    </div>
-  );
-}
-```
-
----
-
-## Engineering Notes
-
-### `SmoothScrollProvider` — the "heavy glide"
-This is a **transform-based lerp** (the same technique Locomotive/Lenis use), implemented purely in Framer Motion:
-
-- A hidden **spacer div** matches the content height, so the native scrollbar, `useScroll()`, and `#anchor` links all keep working — nothing is faked away.
-- Content lives in a `fixed inset-0` stage and is translated by a `useSpring` that **lags** the raw `window.scrollY`.
-- Tuning: `stiffness: 90, damping: 26, mass: 0.9` → critically damped, no overshoot wobble, but a distinctly weighty settle. Raise `mass` to `1.4` for even more inertia; raise `stiffness` to `180` to tighten it up.
-- `ResizeObserver` keeps the spacer accurate when content reflows (fonts loading, images, accordions).
-- **A11y:** `prefers-reduced-motion` short-circuits the spring via `smoothY.jump()`, giving instant 1:1 scroll.
-
-### `BottomDock`
-- Array order is **visual right→left** because the `<nav>` inherits `dir="rtl"` — no `flex-row-reverse` hack needed, which keeps keyboard tab order matching visual order.
-- **Two-stage entrance:** the bar itself springs up first (`delay: 0.15`), then `staggerChildren: 0.08` pops each item — reads as one intentional gesture rather than five random ones.
-- Active "בית" item gets: `h-9 w-9` icon vs `h-6 w-6`, a solid `bg-slate-950` plate with a `shadow-[4px_4px_0px_0px_#B45309]` gold offset, and a **6px gold accent bar** bleeding over the top border via `layoutId` — so when you wire up real routing, the mark will physically slide between items.
-- `whileTap={{ scale: 0.85 }}` + `whileHover={{ y: -6 }}` on a stiff spring (`500/18`) gives that snappy tactile "click."
-- Shop link carries `target="_blank"` + `rel="noopener noreferrer"` and is locked to `text-amber-700`.
-- `pb-[max(0.5rem,env(safe-area-inset-bottom))]` prevents the iPhone home-bar from eating the labels.
-
-### `FloatingMascot` — the 3-layer transform stack
-This is the critical architectural decision. Bobbing, flipping, and jumping all write to `transform`, so putting them on one element makes them **fight and cancel out**. Solution — three nested wrappers, each owning exactly one property:
-
-| Layer | Owns | Driver |
-|---|---|---|
-| Outer | `y`, `rotate`, `scale` (jump) | `useAnimationControls()` — imperative |
-| Middle | `y` (idle bob) | Infinite declarative loop |
-| Inner | `scaleX` (facing) | `useState` from scroll delta |
-
-- **Direction flip** uses a `Math.abs(delta) < 2` dead-zone; without it, sub-pixel scroll noise makes the mascot strobe.
-- **Jump** is guarded by an `isJumping` ref so mashing the mascot can't stack keyframes into a broken pose. `transformOrigin: "50% 100%"` makes it pivot from the feet, so the 10° tilt looks like a real leap instead of a spin.
-- **Ground shadow** is a hard-edged `6px` slab that squashes in sync with the bob (same `1.15s` duration) — sells the weight, stays brutalist (zero blur).
-- Graceful fallback: if `/mascot.png` 404s, `onError` swaps in a bordered gold `ב״ה` block with a hard shadow, and it stays fully interactive.
-
-### Z-index ladder
-`BottomDock` at `z-50` → `FloatingMascot` at `z-40` → content below. The mascot at `bottom-24` sits just above the dock without ever overlapping the tap targets.
-
-**Ready for Part 2** — drop your content sections inside `<MainContent>` (or replace it entirely) and the shell will handle the rest. One thing to flag ahead of time: because content is inside a `fixed` stage, any `position: sticky` children won't work — for Part 2's sticky/pinned sections, tell me and I'll swap in a scroll-progress-driven pinning approach instead.    <div className="fixed bottom-8 left-8 z-50 flex flex-col items-center pointer-events-none select-none">
-      {/* Speech Bubble */}
-      <AnimatePresence>
-        {showBubble && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="mb-3 bg-slate-50 border-4 border-slate-950 px-4 py-3 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] relative"
-          >
-            <p className="text-slate-950 font-bold text-sm whitespace-nowrap">
-              המקום שלך לגדול. בוא נדבר.
-            </p>
-            {/* Little triangle pointer */}
-            <div className="absolute -bottom-[14px] left-8 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[14px] border-t-slate-950" />
-            <div className="absolute -bottom-[9px] left-[34px] w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-t-[10px] border-t-slate-50" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Mascot with bobbing (walking) animation */}
-      <motion.div
-        animate={{ y: [0, -14, 0] }}
-        transition={{
-          duration: 0.6,
-          repeat: Infinity,
-          repeatType: "loop",
-          ease: "easeInOut",
-        }}
-        style={{
-          filter: "drop-shadow(4px 6px 0px rgba(0,0,0,0.4))",
-        }}
-      >
-        <motion.div
-          animate={{ scaleX: direction === "down" ? 1 : -1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {!imgError ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src="/mascot.png"
-              alt="מסקוט הישיבה"
-              className="w-20 h-20 object-contain"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <div className="w-20 h-20 bg-slate-950 border-4 border-amber-700 flex items-center justify-center">
-              <User className="w-10 h-10 text-amber-700" strokeWidth={2.5} />
-            </div>
-          )}
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  KINETIC MARQUEE                                                    */
-/* ------------------------------------------------------------------ */
-function KineticMarquee() {
-  const text = "ללמוד בלב ירושלים – ולהשפיע על לב ירושלים • ";
-  const repeated = text.repeat(8);
-
-  return (
-    <div className="w-full overflow-hidden bg-slate-950 border-y-4 border-slate-950 py-6">
-      <motion.div
-        className="flex whitespace-nowrap"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      >
-        <span className="text-3xl md:text-5xl font-black text-slate-50 px-4 tracking-tight">
-          {repeated}
-        </span>
-        <span className="text-3xl md:text-5xl font-black text-slate-50 px-4 tracking-tight">
-          {repeated}
-        </span>
-      </motion.div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  SCROLL TRIGGERED TYPOGRAPHY                                        */
-/* ------------------------------------------------------------------ */
-function ScrollTypography() {
+function HeroSection() {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Progress across the 200vh track: 0 = pinned at top, 1 = fully released
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start 0.8", "start 0.2"],
+    offset: ["start start", "end start"],
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 1], [0.15, 1]);
-  const y = useTransform(scrollYProgress, [0, 1], [40, 0]);
+  // Pin: translate the inner stage down as the track scrolls past
+  const pinY = useTransform(scrollYProgress, [0, 1], ["0vh", "100vh"]);
+
+  // Exit choreography
+  const scale = useTransform(scrollYProgress, [0, 0.75], [1, 0.82]);
+  const opacity = useTransform(scrollYProgress, [0, 0.55, 0.8], [1, 1, 0]);
+  const blurPx = useTransform(scrollYProgress, [0, 0.8], [0, 7]);
+  const filter = useMotionTemplate`blur(${blurPx}px)`;
+  const gridY = useTransform(scrollYProgress, [0, 1], [0, -120]);
 
   return (
-    <section
-      ref={ref}
-      className="min-h-[70vh] flex flex-col items-center justify-center px-6 md:px-16 py-32 bg-slate-50"
-    >
-      <motion.h2
-        style={{ opacity, y }}
-        className="text-4xl md:text-6xl lg:text-7xl font-black text-slate-950 text-center leading-tight max-w-5xl"
+    <section ref={ref} className="relative h-[200vh] w-full">
+      <motion.div
+        style={{ y: pinY }}
+        className="absolute inset-x-0 top-0 h-screen overflow-hidden"
       >
-        לא כל בחור צריך להשתלב באותה תבנית.
-      </motion.h2>
-      <motion.p
-        style={{ opacity, y }}
-        className="mt-8 text-lg md:text-2xl text-slate-700 text-center max-w-3xl font-medium"
-      >
-        כל בחור מגיע עם הרקע, היכולות והצרכים שלו, ולכן המטרה היא להתאים עבורו
-        את הדרך שתאפשר לו להתקדם בצורה הטובה ביותר.
-      </motion.p>
+        {/* Parallax grid backdrop */}
+        <motion.div
+          style={{
+            y: gridY,
+            backgroundImage: `
+              linear-gradient(to right, rgba(2,6,23,0.07) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(2,6,23,0.07) 1px, transparent 1px)
+            `,
+            backgroundSize: "88px 88px",
+          }}
+          className="pointer-events-none absolute inset-0 -z-10"
+        />
+
+        {/* Corner brackets */}
+        <div className="pointer-events-none absolute right-5 top-24 h-16 w-16 border-r-4 border-t-4 border-slate-950 sm:right-10 lg:right-16" />
+        <div className="pointer-events-none absolute bottom-40 left-5 h-16 w-16 border-b-4 border-l-4 border-amber-700 sm:left-10 lg:left-16" />
+
+        <motion.div
+          style={{ scale, opacity, filter, transformOrigin: "50% 42%" }}
+          className="flex h-full flex-col justify-center px-5 pb-32 sm:px-10 lg:px-16"
+        >
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-8 self-start border-2 border-slate-950 bg-[#F8FAFC] px-3 py-1.5 shadow-[4px_4px_0px_0px_#020617]"
+          >
+            <span className="text-[10px] font-black tracking-[0.18em] text-slate-950 sm:text-xs">
+              [ שנת הלימודים ה'תשפ״ז • ירושלים ]
+            </span>
+          </motion.div>
+
+          {/* H1 */}
+          <h1 className="max-w-[16ch] text-[15vw] font-black leading-[0.82] tracking-tighter text-slate-950 sm:text-[10vw] lg:text-[8vw]">
+            <SplitWords text="העתיד שלך" delay={0.3} className="block" />
+            <SplitWords
+              text="מתחיל כאן"
+              delay={0.45}
+              className="block"
+              wordClassName="text-amber-700"
+            />
+          </h1>
+
+          {/* Rule */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.7, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            style={{ originX: 1 }}
+            className="my-8 h-[5px] w-full max-w-xl bg-slate-950"
+          />
+
+          {/* Subtitle */}
+          <SplitWords
+            as="p"
+            text="מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים. בלב ירושלים."
+            delay={0.75}
+            className="max-w-[34ch] text-lg font-bold leading-snug text-slate-950/70 sm:text-2xl lg:max-w-[42ch]"
+          />
+
+          {/* Kinetic CTA */}
+          <motion.a
+            href="#form"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.05, type: "spring", stiffness: 300, damping: 24 }}
+            whileHover={{ y: -4, x: -4 }}
+            whileTap={{ y: 0, x: 0, scale: 0.96 }}
+            className="group mt-12 inline-flex w-fit items-center gap-3 border-[3px] border-slate-950 bg-slate-950 px-7 py-4 shadow-[4px_4px_0px_0px_#B45309] transition-[box-shadow,background-color] duration-200 hover:bg-amber-700 hover:shadow-[10px_10px_0px_0px_#020617] sm:px-10 sm:py-5"
+          >
+            <span className="text-lg font-black tracking-tight text-[#F8FAFC] group-hover:text-slate-950 sm:text-2xl">
+              [ להרשמה לישיבה ]
+            </span>
+            <ArrowLeft
+              strokeWidth={3}
+              className="h-5 w-5 text-amber-700 transition-transform duration-200 group-hover:-translate-x-1.5 group-hover:text-slate-950 sm:h-7 sm:w-7"
+            />
+          </motion.a>
+
+          {/* Scroll hint */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-36 right-5 flex items-center gap-3 sm:right-10 lg:right-16"
+          >
+            <span className="text-[10px] font-black tracking-[0.25em] text-slate-950/40">
+              SCROLL
+            </span>
+            <motion.div
+              animate={{ scaleY: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              style={{ originY: 0 }}
+              className="h-10 w-[3px] bg-amber-700"
+            />
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  BRUTALIST BENTO GRID — 4 TRACKS                                    */
-/* ------------------------------------------------------------------ */
-const tracks = [
+/* ================================================================== */
+/*  SCROLL MARQUEES                                                    */
+/* ================================================================== */
+function MarqueeBand({
+  text,
+  direction = "left",
+  duration = 26,
+  dark = false,
+}: {
+  text: string;
+  direction?: "left" | "right";
+  duration?: number;
+  dark?: boolean;
+}) {
+  const repeated = text.repeat(6);
+  const from = direction === "left" ? "0%" : "-50%";
+  const to = direction === "left" ? "-50%" : "0%";
+
+  return (
+    <div
+      className={`w-full overflow-hidden border-y-4 border-slate-950 py-4 sm:py-6 ${
+        dark ? "bg-slate-950" : "bg-[#F8FAFC]"
+      }`}
+    >
+      <motion.div
+        className="flex w-max whitespace-nowrap"
+        animate={{ x: [from, to] }}
+        transition={{ duration, repeat: Infinity, ease: "linear" }}
+      >
+        {[0, 1].map((k) => (
+          <span
+            key={k}
+            className={`px-2 text-2xl font-black tracking-tight sm:text-4xl lg:text-5xl ${
+              dark ? "text-[#F8FAFC]" : "text-slate-950"
+            }`}
+          >
+            {repeated}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+function ScrollMarquees() {
+  return (
+    <div className="relative z-10 -mt-1">
+      <MarqueeBand
+        text="ללמוד בלב ירושלים – ולהשפיע על לב ירושלים • "
+        direction="right"
+        duration={30}
+      />
+      <MarqueeBand
+        text="מסלול אישי • ליווי חסידי • הכנה לחיים • "
+        direction="left"
+        duration={22}
+        dark
+      />
+    </div>
+  );
+}
+
+/* ================================================================== */
+/*  BENTO GRID — pointer-tracked 3D tilt                               */
+/* ================================================================== */
+type Track = { num: string; title: string; body: string };
+
+const TRACKS: Track[] = [
   {
+    num: "01",
     title: "המסלול הלימודי המלא – שנתיים",
-    desc: "לימוד תורה וחסידות, עבודת ה', סדר יום ישיבתי, ליווי אישי והכנה מעשית ורוחנית להמשך החיים.",
+    body: "לימוד תורה וחסידות, עבודת ה', סדר יום ישיבתי, ליווי אישי והכנה מעשית ורוחנית להמשך החיים.",
   },
   {
-    title: "מסלול חצי יום לימוד וחצי יום עבודה – שלוש שנים",
-    desc: "שילוב בין עבודה לבין מסגרת ישיבתית. שילוב נכון בין גשמיות לרוחניות.",
+    num: "02",
+    title: "מסלול חצי יום לימוד וחצי יום עבודה – 3 שנים",
+    body: "שילוב בין עבודה למסגרת ישיבתית. שילוב בין גשמיות לרוחניות.",
   },
   {
+    num: "03",
     title: "המסלול האקסטרני",
-    desc: "לבחורים שמעוניינים ללמוד בישיבה אך להמשיך להתגורר בבית. חברותות קבועות והשתתפות בחיי החברה והאווירה החסידית.",
+    body: "לבחורים שמעוניינים ללמוד בישיבה אך להמשיך להתגורר בבית. חברותות קבועות והשתתפות בחיי החברה.",
   },
   {
+    num: "04",
     title: "מסלול השלוחים",
-    desc: "בחורים למדנים שהגיעו מ־770. עיקר תפקידם בישיבה הוא הליווי האישי והלימוד עם הבחורים.",
+    body: "בחורים למדנים שהגיעו מ־770. ליווי אישי ולימוד עם הבחורים.",
   },
 ];
 
-function SharpGrid() {
+function TiltCard({ track, index }: { track: Track; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const springCfg = { stiffness: 260, damping: 20, mass: 0.6 };
+  const rotateX = useSpring(rx, springCfg);
+  const rotateY = useSpring(ry, springCfg);
+
+  // Glare position
+  const gx = useMotionValue(50);
+  const gy = useMotionValue(50);
+  const glareX = useSpring(gx, springCfg);
+  const glareY = useSpring(gy, springCfg);
+  const glare = useMotionTemplate`radial-gradient(340px circle at ${glareX}% ${glareY}%, rgba(180,83,9,0.14), transparent 70%)`;
+
+  const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+
+    ry.set((px - 0.5) * 13);
+    rx.set((0.5 - py) * 13);
+    gx.set(px * 100);
+    gy.set(py * 100);
+  };
+
+  const reset = () => {
+    rx.set(0);
+    ry.set(0);
+    gx.set(50);
+    gy.set(50);
+  };
+
   return (
-    <section className="px-6 md:px-16 py-32 bg-slate-50">
-      <motion.h2
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-3xl md:text-5xl font-black text-slate-950 mb-16 text-center"
+    <motion.div
+      initial={{ opacity: 0, y: 70 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{
+        type: "spring",
+        stiffness: 110,
+        damping: 20,
+        delay: (index % 2) * 0.09,
+      }}
+      style={{ perspective: 1000 }}
+    >
+      <motion.div
+        ref={ref}
+        onPointerMove={handleMove}
+        onPointerLeave={reset}
+        onPointerCancel={reset}
+        onTapStart={() => rx.set(-6)}
+        onTap={reset}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="group relative h-full min-h-[300px] cursor-pointer border-[3px] border-slate-950 bg-white p-6 shadow-[4px_4px_0px_0px_#020617] transition-shadow duration-300 hover:shadow-[10px_10px_0px_0px_#020617] sm:min-h-[340px] sm:p-9"
       >
-        המסלולים בישיבה
-      </motion.h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-slate-950">
-        {tracks.map((track, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            whileHover={{
-              backgroundColor: "#020617",
-            }}
-            className={`group p-8 md:p-12 border-slate-950 flex flex-col justify-between min-h-[280px] transition-colors duration-300
-              ${i % 2 === 0 ? "md:border-l-4" : ""}
-              ${i < 2 ? "border-b-4" : ""}
-            `}
-          >
-            <div>
-              <span className="text-amber-700 font-black text-5xl block mb-4 group-hover:text-amber-500 transition-colors">
-                0{i + 1}
-              </span>
-              <h3 className="text-2xl md:text-3xl font-black text-slate-950 group-hover:text-slate-50 mb-4 transition-colors">
-                {track.title}
-              </h3>
-              <p className="text-slate-700 group-hover:text-slate-300 font-medium leading-relaxed transition-colors">
-                {track.desc}
-              </p>
-            </div>
-          </motion.div>
+        {/* Pointer glare */}
+        <motion.div
+          style={{ background: glare }}
+          className="pointer-events-none absolute inset-0"
+        />
+
+        {/* Corner tick */}
+        <div className="absolute left-0 top-0 h-0 w-0 border-l-[26px] border-t-[26px] border-l-transparent border-t-amber-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+        <div style={{ transform: "translateZ(46px)" }} className="relative flex h-full flex-col">
+          <div className="flex items-start justify-between gap-4">
+            <span className="text-5xl font-black leading-none tracking-tighter text-amber-700 sm:text-7xl">
+              {track.num}
+            </span>
+            <span className="mt-2 h-[3px] w-10 shrink-0 bg-slate-950 transition-all duration-300 group-hover:w-20" />
+          </div>
+
+          <h3 className="mt-7 text-xl font-black leading-[1.05] tracking-tight text-slate-950 sm:text-3xl">
+            {track.title}
+          </h3>
+
+          <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-950/65 sm:text-base">
+            {track.body}
+          </p>
+
+          <div className="mt-auto flex items-center gap-2 pt-7">
+            <span className="text-[10px] font-black tracking-[0.22em] text-slate-950/50 transition-colors group-hover:text-amber-700">
+              פרטים נוספים
+            </span>
+            <ArrowLeft
+              strokeWidth={3}
+              className="h-4 w-4 text-slate-950/50 transition-all duration-300 group-hover:-translate-x-1.5 group-hover:text-amber-700"
+            />
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function BentoGrid() {
+  return (
+    <section id="about" className="px-5 py-24 sm:px-10 sm:py-32 lg:px-16">
+      <SectionLabel index="01" title="המסלולים בישיבה" />
+      <div className="grid grid-cols-1 gap-5 sm:gap-7 md:grid-cols-2">
+        {TRACKS.map((t, i) => (
+          <TiltCard key={t.num} track={t} index={i} />
         ))}
       </div>
     </section>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  BRUTALIST FAQ ACCORDION                                            */
-/* ------------------------------------------------------------------ */
-const faqs = [
+/* ================================================================== */
+/*  FAQ ACCORDION                                                      */
+/* ================================================================== */
+const FAQS = [
   {
     q: "הקמפוס והפנימייה",
-    a: "פנימייה מרווחת. החדרים ממוזגים, ולכל בחור יש מיטה אישית וארון אישי. בתוך הקמפוס נמצא מקווה טהרה חדש ומשופץ.",
+    a: "פנימייה מרווחת, חדרים ממוזגים, מיטה וארון אישי. מקווה טהרה משופץ בקמפוס.",
   },
   {
     q: "שלוש ארוחות ביום",
-    a: "בישיבה יש טבח צמוד העובד במקום, והארוחות מוכנות עבור הבחורים באופן מסודר.",
+    a: "טבח צמוד במקום. ארוחות מוגשות באופן מסודר.",
   },
   {
-    q: "החיים החסידיים בישיבה",
-    a: "לימוד חסידות, התוועדויות, שבתות משותפות, קשר עם משפיעים, וחיים עם ענייני גאולה ומשיח.",
+    q: "החיים החסידיים",
+    a: "לימוד חסידות, התוועדויות, שבתות משותפות וקשר עם משפיעים.",
   },
 ];
 
@@ -747,67 +817,77 @@ function FAQAccordion() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="px-6 md:px-16 py-32 bg-slate-50">
-      <motion.h2
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-3xl md:text-5xl font-black text-slate-950 mb-16 text-center"
-      >
-        שאלות ותשובות
-      </motion.h2>
-      <div className="max-w-4xl mx-auto border-4 border-slate-950">
-        {faqs.map((faq, i) => {
+    <section id="more" className="px-5 pb-24 sm:px-10 sm:pb-32 lg:px-16">
+      <SectionLabel index="02" title="שאלות נפוצות" />
+
+      <div className="border-[3px] border-slate-950 bg-white shadow-[6px_6px_0px_0px_#020617]">
+        {FAQS.map((faq, i) => {
           const isOpen = open === i;
           return (
-            <div
-              key={i}
-              className={`border-slate-950 ${
-                i !== faqs.length - 1 ? "border-b-4" : ""
-              }`}
+            <motion.div
+              key={faq.q}
+              initial={{ opacity: 0, y: 26 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.5, delay: i * 0.07 }}
+              className={i !== FAQS.length - 1 ? "border-b-[3px] border-slate-950" : ""}
             >
-              <button
+              <motion.button
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="w-full flex items-center justify-between gap-6 p-6 md:p-8 text-right bg-slate-50 hover:bg-slate-950 group transition-colors duration-300"
+                aria-expanded={isOpen}
+                whileTap={{ scale: 0.985 }}
+                className={`flex w-full items-center justify-between gap-5 p-5 text-right outline-none transition-colors duration-300 focus-visible:ring-4 focus-visible:ring-amber-700/40 sm:p-8 ${
+                  isOpen ? "bg-slate-950" : "bg-white hover:bg-slate-950/[0.04]"
+                }`}
               >
-                <span className="text-xl md:text-3xl font-black text-slate-950 group-hover:text-slate-50 transition-colors">
+                <span
+                  className={`text-lg font-black leading-tight tracking-tight transition-colors duration-300 sm:text-3xl ${
+                    isOpen ? "text-[#F8FAFC]" : "text-slate-950"
+                  }`}
+                >
                   {faq.q}
                 </span>
-                <span className="shrink-0 w-10 h-10 md:w-12 md:h-12 border-4 border-slate-950 group-hover:border-amber-700 flex items-center justify-center bg-amber-700 group-hover:bg-slate-50 transition-colors">
-                  {isOpen ? (
-                    <Minus
-                      className="w-5 h-5 md:w-6 md:h-6 text-slate-50 group-hover:text-slate-950"
-                      strokeWidth={3}
-                    />
-                  ) : (
-                    <Plus
-                      className="w-5 h-5 md:w-6 md:h-6 text-slate-50 group-hover:text-slate-950"
-                      strokeWidth={3}
-                    />
-                  )}
-                </span>
-              </button>
+
+                {/* + rotates sharply to × */}
+                <motion.span
+                  animate={{
+                    rotate: isOpen ? 135 : 0,
+                    backgroundColor: isOpen ? "#B45309" : "#020617",
+                  }}
+                  transition={{ type: "spring", stiffness: 620, damping: 24 }}
+                  className="grid h-9 w-9 shrink-0 place-items-center border-[3px] border-slate-950 sm:h-12 sm:w-12"
+                >
+                  <Plus strokeWidth={3.5} className="h-5 w-5 text-[#F8FAFC] sm:h-6 sm:w-6" />
+                </motion.span>
+              </motion.button>
 
               <AnimatePresence initial={false}>
                 {isOpen && (
                   <motion.div
-                    key="content"
+                    key="answer"
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                    transition={{
+                      height: { duration: 0.42, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.28 },
+                    }}
                     className="overflow-hidden bg-slate-950"
                   >
-                    <div className="p-6 md:p-8 border-t-4 border-amber-700">
-                      <p className="text-slate-300 text-lg md:text-xl font-medium leading-relaxed">
+                    <div className="border-t-[3px] border-amber-700 p-5 sm:p-8">
+                      <motion.p
+                        initial={{ y: 16, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.1, duration: 0.4 }}
+                        className="max-w-[60ch] text-base font-semibold leading-relaxed text-[#F8FAFC]/75 sm:text-xl"
+                      >
                         {faq.a}
-                      </p>
+                      </motion.p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -815,265 +895,197 @@ function FAQAccordion() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  FOOTER FORM                                                        */
-/* ------------------------------------------------------------------ */
-function FooterForm() {
-  const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    age: "",
-    phone: "",
-    track: "",
-  });
+/* ================================================================== */
+/*  TERMINAL FORM — magnet-hover submit                                */
+/* ================================================================== */
+function MagnetButton({
+  children,
+  disabled,
+}: {
+  children: React.ReactNode;
+  disabled?: boolean;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const cfg = { stiffness: 320, damping: 18, mass: 0.5 };
+  const x = useSpring(mx, cfg);
+  const y = useSpring(my, cfg);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const el = ref.current;
+    if (!el || disabled) return;
+    const r = el.getBoundingClientRect();
+    // Pull toward pointer, capped at ±10px
+    mx.set(Math.max(-10, Math.min(10, (e.clientX - (r.left + r.width / 2)) * 0.32)));
+    my.set(Math.max(-10, Math.min(10, (e.clientY - (r.top + r.height / 2)) * 0.32)));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const reset = () => {
+    mx.set(0);
+    my.set(0);
+  };
+
+  return (
+    <motion.button
+      ref={ref}
+      type="submit"
+      disabled={disabled}
+      onPointerMove={handleMove}
+      onPointerLeave={reset}
+      style={{ x, y }}
+      whileTap={{ scale: 0.94 }}
+      className="group relative flex w-full items-center justify-center gap-3 border-[3px] border-[#F8FAFC] bg-amber-700 px-8 py-5 shadow-[6px_6px_0px_0px_#F8FAFC] outline-none transition-[background-color,box-shadow] duration-200 hover:bg-[#F8FAFC] hover:shadow-[12px_12px_0px_0px_#B45309] focus-visible:ring-4 focus-visible:ring-amber-700/50 disabled:opacity-60 sm:w-auto sm:px-14"
+    >
+      <span className="text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
+        {children}
+      </span>
+      <Send
+        strokeWidth={3}
+        className="h-5 w-5 text-slate-950 transition-transform duration-200 group-hover:-translate-x-1.5 sm:h-6 sm:w-6"
+      />
+    </motion.button>
+  );
+}
+
+function TerminalField({
+  id,
+  label,
+  type = "text",
+  value,
+  onChange,
+  index,
+  inputMode,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (v: string) => void;
+  index: number;
+  inputMode?: "text" | "numeric" | "tel";
+}) {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 26 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.4 }}
+      transition={{ duration: 0.5, delay: index * 0.09 }}
+      className="relative"
+    >
+      <label
+        htmlFor={id}
+        className={`mb-2 flex items-center gap-2 text-[11px] font-black tracking-[0.2em] transition-colors duration-200 sm:text-xs ${
+          focused ? "text-amber-700" : "text-[#F8FAFC]/50"
+        }`}
+      >
+        <span className="text-amber-700">›</span>
+        {label}
+      </label>
+
+      <input
+        id={id}
+        name={id}
+        type={type}
+        inputMode={inputMode}
+        required
+        autoComplete="off"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        className="w-full rounded-none border-0 border-b-4 border-[#F8FAFC]/25 bg-transparent py-3 text-xl font-black text-[#F8FAFC] caret-amber-700 outline-none transition-colors duration-200 focus:border-amber-700 sm:text-3xl"
+      />
+
+      {/* Focus sweep underline */}
+      <motion.div
+        initial={false}
+        animate={{ scaleX: focused ? 1 : 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        style={{ originX: 1 }}
+        className="absolute bottom-0 right-0 left-0 h-[4px] bg-amber-700"
+      />
+    </motion.div>
+  );
+}
+
+function TerminalForm() {
+  const [form, setForm] = useState({ name: "", age: "", phone: "" });
+  const [sent, setSent] = useState(false);
+
+  const set = (k: keyof typeof form) => (v: string) =>
+    setForm((p) => ({ ...p, [k]: v }));
+
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: connect to your API / Google Sheet / CRM
-    console.log("FORM SUBMIT:", form);
-    setSubmitted(true);
+    // TODO: wire to your API route / CRM
+    console.log("[YESHIVA_FORM]", form);
+    setSent(true);
   };
 
-  const fields = [
-    { name: "name", label: "שם מלא", type: "text" },
-    { name: "age", label: "גיל", type: "text" },
-    { name: "phone", label: "מספר טלפון", type: "tel" },
-    { name: "track", label: "המסלול שמעניין אותך", type: "text" },
-  ];
-
   return (
-    <footer
-      id="contact"
-      className="bg-slate-950 px-6 md:px-16 py-32 border-t-4 border-slate-950"
-    >
-      <div className="max-w-5xl mx-auto">
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-black text-slate-50 leading-tight mb-4"
-        >
-          המקום שלך לגדול,
-          <br />
-          <span className="text-amber-700">להתקדם ולבנות</span>
-          <br />
-          את העתיד שלך.
-        </motion.h2>
-
-        <div className="w-32 h-2 bg-amber-700 my-12" />
-
-        <AnimatePresence mode="wait">
-          {!submitted ? (
-            <motion.form
-              key="form"
-              onSubmit={handleSubmit}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10"
-            >
-              {fields.map((field, i) => (
-                <motion.div
-                  key={field.name}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.08 }}
-                  className="relative group"
-                >
-                  <label
-                    htmlFor={field.name}
-                    className="block text-amber-700 text-sm font-black tracking-widest uppercase mb-3"
-                  >
-                    {field.label}
-                  </label>
-                  <input
-                    id={field.name}
-                    name={field.name}
-                    type={field.type}
-                    required
-                    value={(form as any)[field.name]}
-                    onChange={handleChange}
-                    className="w-full bg-transparent rounded-none border-0 border-b-4 border-slate-700 focus:border-amber-700 text-slate-50 text-xl md:text-2xl font-bold py-3 outline-none transition-colors duration-300 placeholder:text-slate-700"
-                    placeholder="..."
-                  />
-                </motion.div>
-              ))}
-
-              <div className="md:col-span-2 pt-6">
-                <motion.button
-                  type="submit"
-                  whileHover={{ x: -6, y: -6 }}
-                  whileTap={{ x: 0, y: 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="group inline-flex items-center gap-4 bg-amber-700 text-slate-950 rounded-none border-4 border-amber-700 px-10 py-5 text-xl md:text-2xl font-black shadow-[8px_8px_0px_0px_#f8fafc] hover:bg-slate-50 hover:border-slate-50 transition-colors duration-200"
-                >
-                  <span>[ שליחת פרטים ]</span>
-                  <ArrowLeft
-                    className="w-6 h-6 group-hover:-translate-x-2 transition-transform"
-                    strokeWidth={3}
-                  />
-                </motion.button>
-              </div>
-            </motion.form>
-          ) : (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="border-4 border-amber-700 p-10 md:p-16"
-            >
-              <h3 className="text-3xl md:text-5xl font-black text-slate-50 mb-4">
-                הפרטים נשלחו בהצלחה!
-              </h3>
-              <p className="text-slate-400 text-lg md:text-xl font-medium">
-                ניצור איתך קשר בהקדם. תודה שפנית אלינו.
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="mt-32 pt-10 border-t-4 border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-slate-500 font-bold text-sm tracking-wide">
-            ישיבה בלב ירושלים © {new Date().getFullYear()}
-          </p>
-          <p className="text-amber-700 font-black text-sm tracking-wide text-center">
-            יחי אדונינו מורינו ורבינו מלך המשיח לעולם ועד!
-          </p>
+    <section id="form" className="px-5 pb-32 sm:px-10 lg:px-16">
+      <div className="border-[3px] border-slate-950 bg-slate-950 shadow-[10px_10px_0px_0px_#B45309]">
+        {/* Terminal chrome bar */}
+        <div className="flex items-center justify-between border-b-[3px] border-[#F8FAFC]/20 px-5 py-3 sm:px-9">
+          <span className="text-[10px] font-black tracking-[0.25em] text-amber-700">
+            [ הרשמה_לישיבה ]
+          </span>
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                animate={{ opacity: [0.25, 1, 0.25] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  delay: i * 0.22,
+                  ease: "easeInOut",
+                }}
+                className="h-2.5 w-2.5 bg-amber-700"
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </footer>
-  );
-}
 
-/* ------------------------------------------------------------------ */
-/*  HERO                                                               */
-/* ------------------------------------------------------------------ */
-function BrutalHero() {
-  const scrollToForm = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const container = {
-    hidden: {},
-    show: {
-      transition: { staggerChildren: 0.12, delayChildren: 0.15 },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 60 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
-    },
-  };
-
-  return (
-    <section className="relative h-screen min-h-[700px] w-full bg-slate-50 flex flex-col justify-between overflow-hidden border-b-4 border-slate-950">
-      {/* Decorative brutalist grid lines */}
-      <div className="pointer-events-none absolute inset-0 hidden md:grid grid-cols-4">
-        <div className="border-l-2 border-slate-950/5" />
-        <div className="border-l-2 border-slate-950/5" />
-        <div className="border-l-2 border-slate-950/5" />
-        <div className="border-l-2 border-slate-950/5" />
-      </div>
-
-      {/* Top bar */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 w-full border-b-2 border-slate-950 py-3 px-6 md:px-16"
-      >
-        <p className="text-xs md:text-sm font-black tracking-widest text-slate-950 text-center">
-          יחי אדונינו מורינו ורבינו מלך המשיח לעולם ועד!
-        </p>
-      </motion.div>
-
-      {/* Main content */}
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-16"
-      >
-        <motion.div variants={item} className="overflow-hidden">
-          <h1 className="text-[15vw] md:text-[11vw] lg:text-[9.5vw] leading-[0.85] font-black text-slate-950 tracking-tighter">
-            העתיד שלך
-            <br />
-            <span className="text-amber-700">מתחיל כאן</span>
-          </h1>
-        </motion.div>
-
-        <motion.div
-          variants={item}
-          className="mt-10 md:mt-14 max-w-2xl border-r-4 border-amber-700 pr-6"
-        >
-          <p className="text-lg md:text-2xl text-slate-700 font-bold leading-relaxed">
-            מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים.
-            <br className="hidden md:block" /> בלב ירושלים.
-          </p>
-        </motion.div>
-
-        <motion.div variants={item} className="mt-12">
-          <motion.button
-            onClick={scrollToForm}
-            whileHover={{ x: -6, y: -6 }}
-            whileTap={{ x: 0, y: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="inline-flex items-center gap-3 bg-slate-950 text-slate-50 rounded-none border-4 border-slate-950 px-8 md:px-10 py-4 md:py-5 text-lg md:text-2xl font-black shadow-[8px_8px_0px_0px_#b45309] hover:bg-amber-700 hover:border-amber-700 hover:text-slate-950 transition-colors duration-200"
+        <div className="p-6 sm:p-12 lg:p-16">
+          <motion.h2
+            initial={{ opacity: 0, y: 34 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ type: "spring", stiffness: 110, damping: 20 }}
+            className="max-w-[22ch] text-3xl font-black leading-[0.92] tracking-tighter text-[#F8FAFC] sm:text-6xl lg:text-7xl"
           >
-            [ להרשמה לישיבה ]
-          </motion.button>
-        </motion.div>
-      </motion.div>
+            המקום שלך לגדול,{" "}
+            <span className="text-amber-700">להתקדם ולבנות</span> את העתיד שלך.
+          </motion.h2>
 
-      {/* Bottom meta bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9, duration: 0.6 }}
-        className="relative z-10 w-full border-t-2 border-slate-950 py-4 px-6 md:px-16 flex items-center justify-between"
-      >
-        <span className="text-xs md:text-sm font-black tracking-widest text-slate-950">
-          ירושלים · ישיבה חסידית
-        </span>
-        <motion.span
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          className="text-xs md:text-sm font-black tracking-widest text-amber-700"
-        >
-          גלול למטה ↓
-        </motion.span>
-      </motion.div>
-    </section>
-  );
-}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            style={{ originX: 1 }}
+            className="my-10 h-[4px] w-full bg-[#F8FAFC]/20 sm:my-14"
+          />
 
-/* ------------------------------------------------------------------ */
-/*  PAGE                                                               */
-/* ------------------------------------------------------------------ */
-export default function Page() {
-  return (
-    <main
-      dir="rtl"
-      className="bg-slate-50 text-slate-950 antialiased selection:bg-amber-700 selection:text-slate-50"
-    >
-      <BrutalHero />
-      <KineticMarquee />
-      <ScrollTypography />
-      <SharpGrid />
-      <KineticMarquee />
-      <FAQAccordion />
-      <FooterForm />
-      <FloatingMascot />
-    </main>
-  );
-                        }
+          <AnimatePresence mode="wait">
+            {!sent ? (
+              <motion.form
+                key="form"
+                onSubmit={submit}
+                exit={{ opacity: 0, y: -24 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-10 sm:space-y-14"
+              >
+                <div className="grid grid-cols-1 gap-10 sm:gap-12 md:grid-cols-3">
+                  <TerminalField
+                    id="name"
+                    label="שם מלא"
+                    value={form.name}
+                    onChange={set("name")}
+                    index={0}
+                  />
+                  <TerminalField
