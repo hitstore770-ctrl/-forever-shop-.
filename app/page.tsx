@@ -998,7 +998,6 @@ function HeroSection(props: { video?: WeeklyVideo }) {
     </section>
   );
 }
-/
 
 /* ==================================================================
    MARQUEES
