@@ -176,7 +176,7 @@ function AmbientFloaters({ section }: { section: SectionKey }) {
         <motion.div key={section} className="absolute inset-0">
           {FLOAT_POS.map((p, i) => (
             <motion.span
-              key={`${section}-${i}`}
+              key={section + "-" + i}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{
                 opacity: 0.2,
