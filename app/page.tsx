@@ -1,4 +1,3 @@
-```tsx
 "use client";
 
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
@@ -8,17 +7,14 @@ import {
   useMotionValueEvent,
   useSpring,
   useMotionValue,
-  useTransform,
-  useInView,
   AnimatePresence,
-  type Variants,
+  LayoutGroup,
 } from "framer-motion";
 import {
   MapPin,
   Home,
-  Calendar,
   ShoppingBag,
-  MessageCircle,
+  Sparkles,
   Plus,
   ArrowLeft,
   Send,
@@ -28,51 +24,99 @@ import {
 } from "lucide-react";
 
 /* ==================================================================
-   FONTS
-   Add to app/layout.tsx <head> (or use next/font):
+   FONTS - add to app/layout.tsx head:
 
    <link
-     href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:wght@400;700&family=Assistant:wght@300;400;600;700;800&display=swap"
+     href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:wght@400;700&family=Assistant:wght@200;300;400;600;700;800&display=swap"
      rel="stylesheet"
    />
 ================================================================== */
-
 const FONT_HEAD = "'Bona Nova SC', 'Bona Nova', serif";
 const FONT_BODY = "'Assistant', 'Heebo', system-ui, sans-serif";
 
-/* Gold system — replaces all navy / brown / red */
+/* Gold system */
 const GOLD = {
   light: "#F3DFA6",
   base: "#D4AF37",
   deep: "#B8912B",
   dark: "#8A6B1F",
-  ink: "#3B2F14", // warm dark for text, never navy
+  ink: "#3B2F14",
+};
+const GOLD_GRADIENT =
+  "linear-gradient(135deg, #F3DFA6 0%, #D4AF37 45%, #B8912B 100%)";
+
+/* Page surface - lighter dark blue */
+const BG = {
+  page: "#1E293B",
+  pageSoft: "#243349",
+  line: "#33425C",
+  text: "#F1F5F9",
+  mute: "#A3B2C9",
 };
 
-const GOLD_GRADIENT = "linear-gradient(135deg, #F3DFA6 0%, #D4AF37 45%, #B8912B 100%)";
-const GOLD_GRADIENT_SOFT = "linear-gradient(135deg, #FBF3DC 0%, #F3DFA6 100%)";
+/* Clean card surfaces */
+const CARD = {
+  solid: "#FFFFFF",
+  glass: "rgba(255,255,255,0.94)",
+  glassLine: "rgba(255,255,255,0.65)",
+};
 
-/* Gentle shared easing + timing */
+/* Pre-built color strings - no template literals anywhere */
+const GOLD_A12 = "rgba(212,175,55,0.12)";
+const GOLD_A18 = "rgba(212,175,55,0.18)";
+const GOLD_A24 = "rgba(212,175,55,0.24)";
+const GOLD_A30 = "rgba(212,175,55,0.30)";
+const GOLD_A40 = "rgba(212,175,55,0.40)";
+const GOLD_A60 = "rgba(212,175,55,0.60)";
+const GOLD_LIGHT_A50 = "rgba(243,223,166,0.50)";
+
+const BORDER_GOLD_SOFT = "1px solid rgba(212,175,55,0.18)";
+const BORDER_GOLD_MED = "1px solid rgba(212,175,55,0.30)";
+const BORDER_GOLD_STRONG = "1px solid rgba(212,175,55,0.40)";
+const BORDER_TRANSPARENT = "1px solid transparent";
+const BORDER_CARD_LINE = "1px solid rgba(255,255,255,0.65)";
+const BORDER_GOLD_CARD = "1px solid rgba(212,175,55,0.40)";
+const BORDER_SLATE = "1px solid #E2E8F0";
+const BORDER_INPUT = "1px solid #E2E8F0";
+const BORDER_INPUT_FOCUS = "1px solid rgba(212,175,55,0.60)";
+
+const SHADOW_GOLD_SM = "0 6px 20px rgba(212,175,55,0.25)";
+const SHADOW_GOLD_MD = "0 10px 28px rgba(212,175,55,0.40)";
+const SHADOW_GOLD_LG = "0 14px 38px rgba(212,175,55,0.30)";
+const SHADOW_GOLD_FLOAT = "0 12px 34px rgba(212,175,55,0.40)";
+const SHADOW_GOLD_PLAY = "0 10px 30px rgba(212,175,55,0.35)";
+const SHADOW_INPUT_FOCUS = "0 8px 26px rgba(212,175,55,0.18)";
+
 const EASE = [0.22, 0.61, 0.36, 1] as const;
 const SOFT = { duration: 1.1, ease: EASE };
 const SOFT_SLOW = { duration: 1.4, ease: EASE };
+const MORPH = {
+  type: "spring" as const,
+  stiffness: 170,
+  damping: 26,
+  mass: 0.9,
+};
+
+/* Radius scale */
+const R = { card: 12, sm: 10, pill: 999 };
 
 /* ==================================================================
-   SMOOTH SCROLL — light-touch, never blocks fast scrolling
+   SMOOTH SCROLL
 ================================================================== */
 function useNegative(mv: ReturnType<typeof useSpring>) {
   const out = useMotionValue(0);
-  useMotionValueEvent(mv, "change", (v) => out.set(-v));
+  useMotionValueEvent(mv, "change", function (v) {
+    out.set(-v);
+  });
   return out;
 }
 
-function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
+function SmoothScrollProvider(props: { children: React.ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
   const [enabled, setEnabled] = useState(false);
 
   const rawY = useMotionValue(0);
-  // Much lighter than before: high stiffness, low mass = responsive, no drag
   const smoothY = useSpring(rawY, {
     stiffness: 260,
     damping: 40,
@@ -81,128 +125,173 @@ function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   });
   const translateY = useNegative(smoothY);
 
-  useEffect(() => {
+  useEffect(function () {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const touch = window.matchMedia("(hover: none)").matches;
-    // Disable transform-scroll on touch + reduced-motion → native, zero friction
     setEnabled(!reduced && !touch);
   }, []);
 
-  useEffect(() => {
+  useEffect(function () {
     const el = contentRef.current;
     if (!el) return;
-    const measure = () => setHeight(el.getBoundingClientRect().height);
+    const measure = function () {
+      setHeight(el.getBoundingClientRect().height);
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     window.addEventListener("resize", measure);
-    return () => {
+    return function () {
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
   }, []);
 
-  useEffect(() => {
-    if (!enabled) return;
-    let frame = 0;
-    const onScroll = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        rawY.set(window.scrollY);
-        frame = 0;
-      });
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, [enabled, rawY]);
+  useEffect(
+    function () {
+      if (!enabled) return;
+      let frame = 0;
+      const onScroll = function () {
+        if (frame) return;
+        frame = requestAnimationFrame(function () {
+          rawY.set(window.scrollY);
+          frame = 0;
+        });
+      };
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return function () {
+        window.removeEventListener("scroll", onScroll);
+        if (frame) cancelAnimationFrame(frame);
+      };
+    },
+    [enabled, rawY]
+  );
 
-  if (!enabled) return <>{children}</>;
+  if (!enabled) return <>{props.children}</>;
 
   return (
     <>
       <div className="fixed inset-0 overflow-hidden">
-        <motion.div ref={contentRef} style={{ y: translateY, willChange: "transform" }}>
-          {children}
+        <motion.div
+          ref={contentRef}
+          style={{ y: translateY, willChange: "transform" }}
+        >
+          {props.children}
         </motion.div>
       </div>
-      <div style={{ height }} aria-hidden="true" />
+      <div style={{ height: height }} aria-hidden="true" />
     </>
   );
 }
 
 /* ==================================================================
-   ACTIVE SECTION TRACKER (drives ambient elements)
+   FAST SCROLL HELPER
 ================================================================== */
-type SectionKey = "hero" | "tracks" | "faq" | "form";
-
-function useActiveSection(): SectionKey {
-  const [active, setActive] = useState<SectionKey>("hero");
-  const { scrollYProgress } = useScroll();
-
-  useMotionValueEvent(scrollYProgress, "change", (p) => {
-    const next: SectionKey =
-      p < 0.24 ? "hero" : p < 0.55 ? "tracks" : p < 0.8 ? "faq" : "form";
-    setActive((prev) => (prev === next ? prev : next));
-  });
-
-  return active;
+function fastScrollTo(targetY: number, duration?: number) {
+  const dur = duration || 500;
+  const startY = window.scrollY;
+  const delta = targetY - startY;
+  if (Math.abs(delta) < 4) return;
+  const t0 = performance.now();
+  const ease = function (t: number) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  };
+  const step = function (now: number) {
+    const p = Math.min((now - t0) / dur, 1);
+    window.scrollTo(0, startY + delta * ease(p));
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
 /* ==================================================================
-   AMBIENT FLOATERS — subtle, section-aware, zero clutter
+   SCROLL STATE
+================================================================== */
+type SectionKey = "hero" | "tracks" | "faq" | "form";
+
+function useScrollState() {
+  const [section, setSection] = useState<SectionKey>("hero");
+  const [docked, setDocked] = useState(false);
+  const scrollInfo = useScroll();
+
+  useMotionValueEvent(scrollInfo.scrollYProgress, "change", function (p) {
+    let next: SectionKey = "form";
+    if (p < 0.28) next = "hero";
+    else if (p < 0.58) next = "tracks";
+    else if (p < 0.82) next = "faq";
+
+    setSection(function (prev) {
+      return prev === next ? prev : next;
+    });
+
+    const isDocked = p > 0.88;
+    setDocked(function (prev) {
+      return prev === isDocked ? prev : isDocked;
+    });
+  });
+
+  return { section: section, docked: docked };
+}
+
+/* ==================================================================
+   AMBIENT FLOATERS
 ================================================================== */
 const AMBIENT: Record<SectionKey, string[]> = {
-  hero: ["✦", "✧", "◆"],
-  tracks: ["✧", "✦", "❖"],
-  faq: ["◇", "✦", "✧"],
-  form: ["✦", "❖", "✧"],
+  hero: ["\u2726", "\u2727", "\u25C6"],
+  tracks: ["\u2727", "\u2726", "\u2756"],
+  faq: ["\u25C7", "\u2726", "\u2727"],
+  form: ["\u2726", "\u2756", "\u2727"],
 };
 
 const FLOAT_POS = [
-  { top: "14%", right: "7%", size: 30, dur: 15 },
-  { top: "42%", left: "6%", size: 20, dur: 19 },
-  { top: "72%", right: "13%", size: 24, dur: 17 },
+  { top: "16%", right: "7%", left: undefined, size: 26, dur: 16 },
+  { top: "46%", right: undefined, left: "6%", size: 18, dur: 20 },
+  { top: "74%", right: "12%", left: undefined, size: 22, dur: 18 },
 ];
 
-function AmbientFloaters({ section }: { section: SectionKey }) {
-  const glyphs = AMBIENT[section];
+function AmbientFloaters(props: { section: SectionKey }) {
+  const glyphs = AMBIENT[props.section];
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+    <div
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      aria-hidden="true"
+    >
       <AnimatePresence mode="wait">
-        <motion.div key={section} className="absolute inset-0">
-          {FLOAT_POS.map((p, i) => (
-            <motion.span
-              key={section + "-" + i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{
-                opacity: 0.2,
-                scale: 1,
-                y: [0, -18, 0],
-                x: [0, i % 2 ? 9 : -9, 0],
-              }}
-              exit={{ opacity: 0, transition: { duration: 0.9, ease: EASE } }}
-              transition={{
-                opacity: { duration: 1.6, ease: EASE },
-                scale: { duration: 1.6, ease: EASE },
-                y: { duration: p.dur, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: p.dur * 1.3, repeat: Infinity, ease: "easeInOut" },
-              }}
-              style={{
-                position: "absolute",
-                top: p.top,
-                left: (p as any).left,
-                right: (p as any).right,
-                fontSize: p.size,
-                color: GOLD.base,
-              }}
-            >
-              {glyphs[i % glyphs.length]}
-            </motion.span>
-          ))}
+        <motion.div key={props.section} className="absolute inset-0">
+          {FLOAT_POS.map(function (p, i) {
+            return (
+              <motion.span
+                key={props.section + "-" + i}
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: 0.16,
+                  y: [0, -16, 0],
+                  x: [0, i % 2 ? 8 : -8, 0],
+                }}
+                exit={{ opacity: 0, transition: { duration: 0.9, ease: EASE } }}
+                transition={{
+                  opacity: { duration: 1.6, ease: EASE },
+                  y: { duration: p.dur, repeat: Infinity, ease: "easeInOut" },
+                  x: {
+                    duration: p.dur * 1.3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  },
+                }}
+                style={{
+                  position: "absolute",
+                  top: p.top,
+                  left: p.left,
+                  right: p.right,
+                  fontSize: p.size,
+                  color: GOLD.base,
+                }}
+              >
+                {glyphs[i % glyphs.length]}
+              </motion.span>
+            );
+          })}
         </motion.div>
       </AnimatePresence>
     </div>
@@ -210,61 +299,78 @@ function AmbientFloaters({ section }: { section: SectionKey }) {
 }
 
 /* ==================================================================
-   TOP HEADER — stacked logo lockup
+   TOP HEADER - tall stacked light-weight logo lockup
 ================================================================== */
+const LOGO_LINES = ["\u05D9\u05E9\u05D9\u05D1\u05EA", "\u05D4\u05DE\u05DC\u05DA", "\u05D4\u05DE\u05E9\u05D9\u05D7"];
+
 function TopHeader() {
-  const { scrollY } = useScroll();
+  const scrollInfo = useScroll();
   const [solid, setSolid] = useState(false);
 
-  useMotionValueEvent(scrollY, "change", (y) => setSolid(y > 40));
+  useMotionValueEvent(scrollInfo.scrollY, "change", function (y) {
+    setSolid(y > 40);
+  });
 
   return (
     <motion.header
       initial={{ opacity: 0, y: -14 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SOFT, delay: 0.1 }}
+      transition={{ duration: 1.1, ease: EASE, delay: 0.1 }}
       className="fixed inset-x-0 top-0 z-50"
     >
       <div
         className="transition-all duration-700"
         style={{
-          background: solid ? "rgba(255,254,250,0.82)" : "rgba(255,254,250,0)",
-          backdropFilter: solid ? "blur(18px) saturate(150%)" : "none",
-          borderBottom: solid ? `1px solid ${GOLD.base}33` : "1px solid transparent",
+          background: solid ? "rgba(30,41,59,0.86)" : "rgba(30,41,59,0)",
+          backdropFilter: solid ? "blur(18px) saturate(140%)" : "none",
+          borderBottom: solid ? BORDER_GOLD_SOFT : BORDER_TRANSPARENT,
         }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-9">
-          {/* Logo lockup */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-stretch gap-3">
             <div
-              className="grid h-12 w-12 place-items-center sm:h-14 sm:w-14"
-              style={{ background: GOLD_GRADIENT, boxShadow: `0 6px 20px ${GOLD.base}40` }}
+              className="grid shrink-0 place-items-center"
+              style={{
+                width: 62,
+                height: 62,
+                borderRadius: R.sm,
+                background: GOLD_GRADIENT,
+                boxShadow: SHADOW_GOLD_SM,
+              }}
             >
-              <span
-                className="text-xl text-white sm:text-2xl"
-                style={{ fontFamily: FONT_HEAD }}
-              >
-                מ
+              <span className="text-2xl text-white" style={{ fontFamily: FONT_HEAD }}>
+                {"\u05DE"}
               </span>
             </div>
 
-            {/* Stacked, line by line */}
             <div
-              className="flex flex-col leading-[0.94]"
-              style={{ fontFamily: FONT_HEAD, color: GOLD.ink }}
+              className="flex flex-col justify-between py-px"
+              style={{ height: 62 }}
             >
-              {["ישיבת", "המלך", "המשיח"].map((line, i) => (
-                <motion.span
-                  key={line}
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.9, ease: EASE, delay: 0.25 + i * 0.09 }}
-                  className="text-[15px] tracking-tight sm:text-lg"
-                  style={i === 2 ? { color: GOLD.deep } : undefined}
-                >
-                  {line}
-                </motion.span>
-              ))}
+              {LOGO_LINES.map(function (line, i) {
+                return (
+                  <motion.span
+                    key={line}
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.9,
+                      ease: EASE,
+                      delay: 0.25 + i * 0.09,
+                    }}
+                    style={{
+                      fontFamily: FONT_BODY,
+                      fontWeight: 300,
+                      fontSize: 16,
+                      lineHeight: 1,
+                      letterSpacing: "0.06em",
+                      color: i === 2 ? GOLD.base : BG.text,
+                    }}
+                  >
+                    {line}
+                  </motion.span>
+                );
+              })}
             </div>
           </div>
 
@@ -276,11 +382,12 @@ function TopHeader() {
             style={{
               fontFamily: FONT_BODY,
               fontWeight: 700,
+              borderRadius: R.sm,
               background: GOLD_GRADIENT,
-              boxShadow: `0 6px 22px ${GOLD.base}45`,
+              boxShadow: SHADOW_GOLD_SM,
             }}
           >
-            הרשמה
+            {"\u05D4\u05E8\u05E9\u05DE\u05D4"}
           </motion.a>
         </div>
       </div>
@@ -289,107 +396,363 @@ function TopHeader() {
 }
 
 /* ==================================================================
-   BOTTOM DOCK — 4 items
+   WHATSAPP GLYPH
 ================================================================== */
-type DockItem = {
+const WA_HREF = "https://wa.me/972500000000";
+
+const WA_PATH =
+  "M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.27-.47-2.42-1.49-.9-.8-1.5-1.79-1.67-2.09-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.19-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47s1.06 2.87 1.21 3.07c.15.2 2.09 3.2 5.06 4.49.71.3 1.26.48 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.75-.71 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35zM12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z";
+
+function WhatsAppGlyph(props: { color: string; size: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill={props.color}
+      style={{ width: props.size, height: props.size }}
+      aria-hidden="true"
+    >
+      <path d={WA_PATH} />
+    </svg>
+  );
+}
+
+/* ==================================================================
+   FLOATING WHATSAPP - GOLD, morphs into dock slot 1
+================================================================== */
+function FloatingWhatsApp(props: { docked: boolean }) {
+  const [hot, setHot] = useState(false);
+
+  return (
+    <AnimatePresence>
+      {!props.docked && (
+        <motion.div
+          className="fixed left-4 z-[60] sm:left-7"
+          style={{ bottom: 108 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 1 }}
+        >
+          <div className="flex items-center gap-2.5">
+            <motion.a
+              layoutId="wa-morph"
+              transition={MORPH}
+              href={WA_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              onHoverStart={function () {
+                setHot(true);
+              }}
+              onHoverEnd={function () {
+                setHot(false);
+              }}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative grid place-items-center"
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: R.pill,
+                background: GOLD_GRADIENT,
+                boxShadow: SHADOW_GOLD_FLOAT,
+              }}
+            >
+              <motion.span
+                layoutId="wa-morph-icon"
+                transition={MORPH}
+                className="grid place-items-center"
+              >
+                <WhatsAppGlyph color="#FFFFFF" size={26} />
+              </motion.span>
+
+              <motion.span
+                animate={{ scale: [1, 1.3, 1], opacity: [0.32, 0, 0.32] }}
+                transition={{
+                  duration: 3.4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute inset-0"
+                style={{
+                  borderRadius: R.pill,
+                  border: "1px solid " + GOLD.base,
+                }}
+              />
+            </motion.a>
+
+            <AnimatePresence>
+              {hot && (
+                <motion.span
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  transition={{ duration: 0.5, ease: EASE }}
+                  className="hidden whitespace-nowrap px-3.5 py-2 text-xs sm:block"
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontWeight: 600,
+                    borderRadius: R.sm,
+                    color: BG.text,
+                    background: "rgba(36,51,73,0.94)",
+                    backdropFilter: "blur(14px)",
+                    border: BORDER_GOLD_STRONG,
+                    boxShadow: "0 8px 26px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  {"\u05E0\u05D3\u05D1\u05E8? \u05D0\u05E0\u05D7\u05E0\u05D5 \u05DB\u05D0\u05DF"}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ==================================================================
+   BOTTOM DOCK - fixed bottom-0 w-full z-50
+================================================================== */
+type DockEntry = {
+  key: string;
   label: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   href: string;
-  active?: boolean;
   external?: boolean;
+  center?: boolean;
+  isWA?: boolean;
 };
 
-const DOCK_ITEMS: DockItem[] = [
-  { label: "מה קורה פה", icon: MapPin, href: "#tracks" },
-  { label: "בית", icon: Home, href: "#hero", active: true },
-  { label: "ייעוץ", icon: MessageCircle, href: "#form" },
+const DOCK: DockEntry[] = [
   {
-    label: "חנות",
+    key: "wa",
+    label: "\u05D9\u05D9\u05E2\u05D5\u05E5",
+    href: WA_HREF,
+    external: true,
+    isWA: true,
+  },
+  {
+    key: "loc",
+    label: "\u05DE\u05D4 \u05E7\u05D5\u05E8\u05D4 \u05E4\u05D4",
+    icon: MapPin,
+    href: "#tracks",
+  },
+  {
+    key: "home",
+    label: "\u05D1\u05D9\u05EA",
+    icon: Home,
+    href: "#hero",
+    center: true,
+  },
+  {
+    key: "act",
+    label: "\u05DE\u05D4\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA",
+    icon: Sparkles,
+    href: "#faq",
+  },
+  {
+    key: "shop",
+    label: "\u05D7\u05E0\u05D5\u05EA",
     icon: ShoppingBag,
     href: "https://swiwgi-zu.myshopify.com/",
     external: true,
   },
 ];
 
-function BottomDock() {
-  const [hot, setHot] = useState<number | null>(null);
+function BottomDock(props: { docked: boolean }) {
+  const [hot, setHot] = useState<string | null>(null);
 
   return (
     <motion.nav
       dir="rtl"
-      aria-label="ניווט ראשי"
+      aria-label="Main navigation"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SOFT_SLOW, delay: 0.35 }}
-      className="fixed inset-x-0 bottom-0 z-50"
+      transition={{ duration: 1.4, ease: EASE, delay: 0.35 }}
+      className="fixed bottom-0 left-0 w-full z-50"
       style={{
-        background: "rgba(255,254,250,0.86)",
-        backdropFilter: "blur(22px) saturate(160%)",
-        borderTop: `1px solid ${GOLD.base}33`,
-        boxShadow: "0 -8px 34px rgba(59,47,20,0.07)",
+        background: "rgba(36,51,73,0.92)",
+        backdropFilter: "blur(22px) saturate(150%)",
+        borderTop: BORDER_GOLD_SOFT,
+        boxShadow: "0 -8px 34px rgba(0,0,0,0.28)",
       }}
     >
-      <ul className="mx-auto flex max-w-2xl items-stretch justify-between gap-1 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2.5 sm:gap-3 sm:px-8">
-        {DOCK_ITEMS.map((item, i) => {
+      <ul className="mx-auto flex max-w-3xl items-end justify-between gap-1 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2.5 sm:gap-2 sm:px-8">
+        {DOCK.map(function (item, i) {
           const Icon = item.icon;
-          const on = !!item.active;
-          const lit = hot === i;
+          const lit = hot === item.key;
+
+          if (item.isWA) {
+            return (
+              <li key={item.key} className="flex-1">
+                <div className="relative flex flex-col items-center gap-1.5 px-1 py-2">
+                  {props.docked ? (
+                    <motion.a
+                      layoutId="wa-morph"
+                      transition={MORPH}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={item.label}
+                      onHoverStart={function () {
+                        setHot(item.key);
+                      }}
+                      onHoverEnd={function () {
+                        setHot(null);
+                      }}
+                      whileHover={{ y: -3 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="grid place-items-center"
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: R.sm,
+                        background: lit ? GOLD_A24 : "transparent",
+                        boxShadow: "none",
+                      }}
+                    >
+                      <motion.span
+                        layoutId="wa-morph-icon"
+                        transition={MORPH}
+                        className="grid place-items-center"
+                      >
+                        <WhatsAppGlyph
+                          color={lit ? GOLD.base : BG.mute}
+                          size={19}
+                        />
+                      </motion.span>
+                    </motion.a>
+                  ) : (
+                    <div style={{ width: 34, height: 34 }} aria-hidden="true" />
+                  )}
+
+                  <motion.span
+                    animate={{ opacity: props.docked ? 1 : 0.3 }}
+                    transition={{ duration: 0.6, ease: EASE }}
+                    className="whitespace-nowrap text-[10px] sm:text-[11px]"
+                    style={{
+                      fontFamily: FONT_BODY,
+                      fontWeight: 500,
+                      color: lit ? GOLD.base : BG.mute,
+                    }}
+                  >
+                    {item.label}
+                  </motion.span>
+                </div>
+              </li>
+            );
+          }
+
+          if (item.center) {
+            return (
+              <motion.li
+                key={item.key}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: EASE, delay: 0.5 + i * 0.06 }}
+                className="flex-1"
+              >
+                <motion.a
+                  href={item.href}
+                  aria-current="page"
+                  onHoverStart={function () {
+                    setHot(item.key);
+                  }}
+                  onHoverEnd={function () {
+                    setHot(null);
+                  }}
+                  onClick={function (e) {
+                    e.preventDefault();
+                    fastScrollTo(0, 500);
+                  }}
+                  whileHover={{ y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                  className="relative flex flex-col items-center gap-1.5 px-1"
+                  style={{ marginTop: -22 }}
+                >
+                  <span
+                    className="grid place-items-center"
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: R.pill,
+                      background: GOLD_GRADIENT,
+                      boxShadow: SHADOW_GOLD_MD,
+                      border: "3px solid rgba(36,51,73,0.95)",
+                    }}
+                  >
+                    {Icon ? (
+                      <Icon
+                        strokeWidth={2.2}
+                        width={23}
+                        height={23}
+                        color="#ffffff"
+                      />
+                    ) : null}
+                  </span>
+                  <span
+                    className="whitespace-nowrap text-[10px] sm:text-[11px]"
+                    style={{
+                      fontFamily: FONT_BODY,
+                      fontWeight: 700,
+                      color: GOLD.base,
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </motion.a>
+              </motion.li>
+            );
+          }
 
           return (
             <motion.li
-              key={item.label}
+              key={item.key}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.5 + i * 0.07 }}
+              transition={{ duration: 0.9, ease: EASE, delay: 0.5 + i * 0.06 }}
               className="flex-1"
             >
               <motion.a
                 href={item.href}
                 target={item.external ? "_blank" : undefined}
                 rel={item.external ? "noopener noreferrer" : undefined}
-                aria-current={on ? "page" : undefined}
-                onHoverStart={() => setHot(i)}
-                onHoverEnd={() => setHot(null)}
-                onFocus={() => setHot(i)}
-                onBlur={() => setHot(null)}
+                onHoverStart={function () {
+                  setHot(item.key);
+                }}
+                onHoverEnd={function () {
+                  setHot(null);
+                }}
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ duration: 0.45, ease: EASE }}
-                className="relative flex flex-col items-center gap-1.5 px-1 py-2 outline-none"
+                className="flex flex-col items-center gap-1.5 px-1 py-2 outline-none"
               >
-                {on && (
-                  <motion.span
-                    layoutId="dock-mark"
-                    transition={{ duration: 0.6, ease: EASE }}
-                    className="absolute -top-2.5 h-[2px] w-8"
-                    style={{ background: GOLD_GRADIENT }}
-                  />
-                )}
-
-                <div
+                <span
                   className="grid place-items-center transition-all duration-500"
                   style={{
-                    width: on ? 40 : 34,
-                    height: on ? 40 : 34,
-                    background: on ? GOLD_GRADIENT : lit ? `${GOLD.base}18` : "transparent",
-                    boxShadow: on ? `0 6px 18px ${GOLD.base}45` : "none",
+                    width: 34,
+                    height: 34,
+                    borderRadius: R.sm,
+                    background: lit ? GOLD_A24 : "transparent",
                   }}
                 >
-                  <Icon
-                    strokeWidth={on ? 2.2 : 1.8}
-                    style={{ color: on ? "#fff" : lit ? GOLD.deep : `${GOLD.ink}80` }}
-                    className="transition-all duration-500"
-                    width={on ? 21 : 19}
-                    height={on ? 21 : 19}
-                  />
-                </div>
-
+                  {Icon ? (
+                    <Icon
+                      strokeWidth={1.9}
+                      width={19}
+                      height={19}
+                      color={lit ? GOLD.base : BG.mute}
+                    />
+                  ) : null}
+                </span>
                 <span
                   className="whitespace-nowrap text-[10px] transition-colors duration-500 sm:text-[11px]"
                   style={{
                     fontFamily: FONT_BODY,
-                    fontWeight: on ? 700 : 500,
-                    color: on ? GOLD.deep : lit ? GOLD.deep : `${GOLD.ink}70`,
+                    fontWeight: 500,
+                    color: lit ? GOLD.base : BG.mute,
                   }}
                 >
                   {item.label}
@@ -404,86 +767,9 @@ function BottomDock() {
 }
 
 /* ==================================================================
-   FLOATING WHATSAPP — follows scroll, docks above the menu
+   SHARED REVEAL HELPERS
 ================================================================== */
-function FloatingWhatsApp() {
-  const { scrollY } = useScroll();
-  const [ready, setReady] = useState(false);
-  const [open, setOpen] = useState(false);
-
-  useMotionValueEvent(scrollY, "change", (y) => setReady(y > 180));
-
-  const y = useSpring(0, { stiffness: 90, damping: 22, mass: 0.5 });
-  useMotionValueEvent(scrollY, "change", () => y.set(0));
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: ready ? 1 : 0, scale: ready ? 1 : 0.9 }}
-      transition={{ ...SOFT, delay: ready ? 0 : 0 }}
-      style={{ y, pointerEvents: ready ? "auto" : "none" }}
-      className="fixed bottom-[86px] left-4 z-40 flex items-center gap-2.5 sm:bottom-[92px] sm:left-7"
-    >
-      <AnimatePresence>
-        {open && (
-          <motion.span
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -8 }}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="hidden px-3.5 py-2 text-xs sm:block"
-            style={{
-              fontFamily: FONT_BODY,
-              fontWeight: 600,
-              color: GOLD.ink,
-              background: "rgba(255,254,250,0.92)",
-              backdropFilter: "blur(14px)",
-              border: `1px solid ${GOLD.base}40`,
-              boxShadow: "0 8px 26px rgba(59,47,20,0.09)",
-            }}
-          >
-            נדבר? אנחנו כאן
-          </motion.span>
-        )}
-      </AnimatePresence>
-
-      <motion.a
-        href="https://wa.me/972500000000"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="שיחה בוואטסאפ"
-        onHoverStart={() => setOpen(true)}
-        onHoverEnd={() => setOpen(false)}
-        whileHover={{ y: -3 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ duration: 0.5, ease: EASE }}
-        className="relative grid h-[52px] w-[52px] place-items-center sm:h-14 sm:w-14"
-        style={{ background: GOLD_GRADIENT, boxShadow: `0 10px 30px ${GOLD.base}55` }}
-      >
-        {/* soft breathing halo */}
-        <motion.span
-          animate={{ scale: [1, 1.28, 1], opacity: [0.32, 0, 0.32] }}
-          transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-0"
-          style={{ border: `1px solid ${GOLD.base}` }}
-        />
-        <svg viewBox="0 0 24 24" fill="#fff" className="h-6 w-6 sm:h-7 sm:w-7">
-          <path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.27-.47-2.42-1.49-.9-.8-1.5-1.79-1.67-2.09-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.19-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47s1.06 2.87 1.21 3.07c.15.2 2.09 3.2 5.06 4.49.71.3 1.26.48 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.75-.71 2-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35zM12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z" />
-        </svg>
-      </motion.a>
-    </motion.div>
-  );
-}
-
-/* ==================================================================
-   SHARED — gentle reveal
-================================================================== */
-function Reveal({
-  children,
-  delay = 0,
-  y = 14,
-  className = "",
-}: {
+function Reveal(props: {
   children: React.ReactNode;
   delay?: number;
   y?: number;
@@ -491,46 +777,51 @@ function Reveal({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y }}
+      initial={{ opacity: 0, y: props.y === undefined ? 14 : props.y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 1.2, ease: EASE, delay }}
-      className={className}
+      transition={{ duration: 1.2, ease: EASE, delay: props.delay || 0 }}
+      className={props.className || ""}
     >
-      {children}
+      {props.children}
     </motion.div>
   );
 }
 
-function GoldRule({ delay = 0, w = "100%" }: { delay?: number; w?: string }) {
+function GoldRule(props: { delay?: number; w?: string }) {
   return (
     <motion.div
       initial={{ scaleX: 0, opacity: 0 }}
       whileInView={{ scaleX: 1, opacity: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 1.5, ease: EASE, delay }}
-      style={{ originX: 1, width: w, height: 1, background: GOLD_GRADIENT }}
+      transition={{ duration: 1.5, ease: EASE, delay: props.delay || 0 }}
+      style={{
+        originX: 1,
+        width: props.w || "100%",
+        height: 1,
+        background: GOLD_GRADIENT,
+      }}
     />
   );
 }
 
-function SectionLabel({ kicker, title }: { kicker: string; title: string }) {
+function SectionLabel(props: { kicker: string; title: string }) {
   return (
     <div className="mb-12 sm:mb-16">
       <Reveal>
         <span
           className="text-[11px] tracking-[0.32em]"
-          style={{ fontFamily: FONT_BODY, fontWeight: 700, color: GOLD.deep }}
+          style={{ fontFamily: FONT_BODY, fontWeight: 700, color: GOLD.base }}
         >
-          {kicker}
+          {props.kicker}
         </span>
       </Reveal>
       <Reveal delay={0.1}>
         <h2
           className="mt-3 text-[30px] leading-[1.14] sm:text-5xl lg:text-[56px]"
-          style={{ fontFamily: FONT_HEAD, color: GOLD.ink }}
+          style={{ fontFamily: FONT_HEAD, color: BG.text }}
         >
-          {title}
+          {props.title}
         </h2>
       </Reveal>
       <div className="mt-6">
@@ -541,19 +832,15 @@ function SectionLabel({ kicker, title }: { kicker: string; title: string }) {
 }
 
 /* ==================================================================
-   VERTICAL VIDEO 9:16 — CMS-ready
+   HERO - single clean 9:16 vertical video placeholder
 ================================================================== */
-type WeeklyVideo = {
-  src?: string;
-  poster?: string;
-  caption?: string;
-};
+type WeeklyVideo = { src?: string; poster?: string; caption?: string };
 
-function VerticalVideo({ video }: { video?: WeeklyVideo }) {
+function HeroSection(props: { video?: WeeklyVideo }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
 
-  const toggle = useCallback(() => {
+  const toggle = useCallback(function () {
     const el = ref.current;
     if (!el) return;
     if (el.paused) {
@@ -565,365 +852,283 @@ function VerticalVideo({ video }: { video?: WeeklyVideo }) {
     }
   }, []);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.4, ease: EASE, delay: 0.35 }}
-      className="relative mx-auto w-full max-w-[240px] sm:max-w-[268px]"
-    >
-      {/* soft gold glow */}
-      <div
-        className="pointer-events-none absolute -inset-3 blur-2xl"
-        style={{ background: `${GOLD.base}22` }}
-      />
-
-      <div
-        className="relative overflow-hidden"
-        style={{
-          aspectRatio: "9 / 16",
-          border: `1px solid ${GOLD.base}4D`,
-          background: GOLD_GRADIENT_SOFT,
-          boxShadow: "0 22px 60px rgba(59,47,20,0.14)",
-        }}
-      >
-        {video?.src ? (
-          <video
-            ref={ref}
-            src={video.src}
-            poster={video.poster}
-            playsInline
-            muted
-            loop
-            onClick={toggle}
-            className="h-full w-full cursor-pointer object-cover"
-          />
-        ) : (
-          <button
-            onClick={toggle}
-            className="flex h-full w-full flex-col items-center justify-center gap-4"
-            style={{ background: GOLD_GRADIENT_SOFT }}
-          >
-            <motion.span
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
-              className="grid h-14 w-14 place-items-center"
-              style={{ background: GOLD_GRADIENT, boxShadow: `0 8px 24px ${GOLD.base}55` }}
-            >
-              <Play fill="#fff" strokeWidth={0} className="h-5 w-5 translate-x-[1px]" />
-            </motion.span>
-            <span
-              className="px-6 text-center text-[11px] leading-relaxed"
-              style={{ fontFamily: FONT_BODY, fontWeight: 600, color: GOLD.dark }}
-            >
-              העדכון השבועי
-            </span>
-          </button>
-        )}
-
-        {/* Live chip */}
-        <div
-          className="absolute right-3 top-3 flex items-center gap-1.5 px-2.5 py-1"
-          style={{
-            background: "rgba(255,254,250,0.9)",
-            backdropFilter: "blur(10px)",
-            border: `1px solid ${GOLD.base}40`,
-          }}
-        >
-          <motion.span
-            animate={{ opacity: [1, 0.35, 1] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            className="h-1.5 w-1.5"
-            style={{ background: GOLD.base }}
-          />
-          <span
-            className="text-[9px] tracking-[0.16em]"
-            style={{ fontFamily: FONT_BODY, fontWeight: 700, color: GOLD.deep }}
-          >
-            השבוע
-          </span>
-        </div>
-      </div>
-
-      <p
-        className="mt-3 text-center text-[11px]"
-        style={{ fontFamily: FONT_BODY, color: `${GOLD.ink}80` }}
-      >
-        {video?.caption ?? "מתעדכן כל שבוע"}
-      </p>
-    </motion.div>
-  );
-}
-
-/* ==================================================================
-   HERO — no blur, gentle fade, video beside headline
-================================================================== */
-function HeroSection({ video }: { video?: WeeklyVideo }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
-  // gentle only — no scale punch, no blur
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const y = useTransform(scrollYProgress, [0, 1], [0, 60]);
-
-  const words = "העתיד שלך מתחיל כאן".split(" ");
+  const hasSrc = !!(props.video && props.video.src);
 
   return (
     <section
       id="hero"
-      ref={ref}
-      className="relative flex min-h-[100svh] items-center px-5 pb-36 pt-28 sm:px-10 sm:pt-32 lg:px-16"
+      className="relative flex min-h-[100svh] flex-col items-center justify-center px-5 pb-32 pt-28 sm:px-10"
     >
-      <motion.div style={{ opacity, y }} className="mx-auto w-full max-w-6xl">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
-          {/* Text */}
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.1, ease: EASE, delay: 0.15 }}
-              className="mb-7 inline-flex items-center gap-2.5 px-4 py-2"
-              style={{
-                background: "rgba(255,254,250,0.7)",
-                backdropFilter: "blur(14px)",
-                border: `1px solid ${GOLD.base}3D`,
-              }}
-            >
-              <span className="h-1 w-1" style={{ background: GOLD.base }} />
-              <span
-                className="text-[10px] tracking-[0.2em] sm:text-[11px]"
-                style={{ fontFamily: FONT_BODY, fontWeight: 700, color: GOLD.deep }}
-              >
-                שנת הלימודים ה'תשפ״ז · ירושלים
-              </span>
-            </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.4, ease: EASE, delay: 0.2 }}
+        className="relative w-full max-w-[300px] sm:max-w-[340px]"
+      >
+        <div
+          className="pointer-events-none absolute -inset-5 blur-3xl"
+          style={{ background: GOLD_A12, borderRadius: R.card }}
+        />
 
-            <h1
-              className="text-[13vw] leading-[0.98] sm:text-[68px] lg:text-[82px]"
-              style={{ fontFamily: FONT_HEAD, color: GOLD.ink }}
-            >
-              {words.map((w, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1.2, ease: EASE, delay: 0.28 + i * 0.1 }}
-                  className="inline-block"
-                  style={
-                    i >= 2
-                      ? {
-                          background: GOLD_GRADIENT,
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          backgroundClip: "text",
-                        }
-                      : undefined
-                  }
-                >
-                  {w}&nbsp;
-                </motion.span>
-              ))}
-            </h1>
-
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1.5, ease: EASE, delay: 0.7 }}
-              style={{
-                originX: 1,
-                height: 1,
-                width: "72%",
-                maxWidth: 420,
-                background: GOLD_GRADIENT,
-                margin: "28px 0",
-              }}
+        <div
+          className="relative overflow-hidden"
+          style={{
+            aspectRatio: "9 / 16",
+            borderRadius: R.card,
+            border: BORDER_GOLD_CARD,
+            background: BG.pageSoft,
+            boxShadow: "0 28px 70px rgba(0,0,0,0.42)",
+          }}
+        >
+          {hasSrc ? (
+            <video
+              ref={ref}
+              src={props.video ? props.video.src : undefined}
+              poster={props.video ? props.video.poster : undefined}
+              playsInline
+              muted
+              loop
+              onClick={toggle}
+              className="h-full w-full cursor-pointer object-cover"
             />
-
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.3, ease: EASE, delay: 0.8 }}
-              className="max-w-[42ch] text-base leading-[1.85] sm:text-lg"
-              style={{ fontFamily: FONT_BODY, fontWeight: 400, color: `${GOLD.ink}B3` }}
+          ) : (
+            <button
+              onClick={toggle}
+              className="flex h-full w-full flex-col items-center justify-center gap-5"
+              style={{
+                background:
+                  "linear-gradient(160deg, #243349 0%, #1E293B 60%, #243349 100%)",
+              }}
             >
-              מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים. בלב ירושלים.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.3, ease: EASE, delay: 0.95 }}
-              className="mt-10 flex flex-wrap items-center gap-4"
-            >
-              <motion.a
-                href="#form"
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.5, ease: EASE }}
-                className="group inline-flex items-center gap-3 px-8 py-4 text-white sm:px-10"
+              <motion.span
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{
+                  duration: 3.6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="grid place-items-center"
                 style={{
-                  fontFamily: FONT_BODY,
-                  fontWeight: 700,
-                  fontSize: 16,
+                  width: 62,
+                  height: 62,
+                  borderRadius: R.pill,
                   background: GOLD_GRADIENT,
-                  boxShadow: `0 12px 34px ${GOLD.base}4D`,
+                  boxShadow: SHADOW_GOLD_PLAY,
                 }}
               >
-                להרשמה לישיבה
-                <ArrowLeft
-                  strokeWidth={2.2}
-                  className="h-4 w-4 transition-transform duration-500 group-hover:-translate-x-1"
+                <Play
+                  fill="#ffffff"
+                  strokeWidth={0}
+                  className="h-6 w-6 translate-x-px"
                 />
-              </motion.a>
-
-              <motion.a
-                href="#tracks"
-                whileHover={{ y: -3 }}
-                transition={{ duration: 0.5, ease: EASE }}
-                className="inline-flex items-center gap-2 px-7 py-4"
+              </motion.span>
+              <span
+                className="px-8 text-center text-[12px] leading-relaxed"
                 style={{
                   fontFamily: FONT_BODY,
                   fontWeight: 600,
-                  fontSize: 15,
-                  color: GOLD.deep,
-                  background: "rgba(255,254,250,0.6)",
-                  backdropFilter: "blur(14px)",
-                  border: `1px solid ${GOLD.base}3D`,
+                  color: GOLD.light,
                 }}
               >
-                המסלולים
-              </motion.a>
-            </motion.div>
-          </div>
+                {"\u05D4\u05E2\u05D3\u05DB\u05D5\u05DF \u05D4\u05E9\u05D1\u05D5\u05E2\u05D9"}
+              </span>
+            </button>
+          )}
 
-          {/* Video */}
-          <VerticalVideo video={video} />
+          <div
+            className="absolute right-3 top-3 flex items-center gap-1.5 px-2.5 py-1"
+            style={{
+              borderRadius: R.sm,
+              background: "rgba(30,41,59,0.82)",
+              backdropFilter: "blur(10px)",
+              border: BORDER_GOLD_STRONG,
+            }}
+          >
+            <motion.span
+              animate={{ opacity: [1, 0.35, 1] }}
+              transition={{
+                duration: 2.4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: R.pill,
+                background: GOLD.base,
+              }}
+            />
+            <span
+              className="text-[9px] tracking-[0.16em]"
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                color: GOLD.light,
+              }}
+            >
+              {"\u05D4\u05E9\u05D1\u05D5\u05E2"}
+            </span>
+          </div>
         </div>
       </motion.div>
+
+      <motion.a
+        href="#form"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.3, ease: EASE, delay: 0.55 }}
+        whileHover={{ y: -3 }}
+        whileTap={{ scale: 0.97 }}
+        className="group mt-10 inline-flex items-center gap-3 px-9 py-4 text-white sm:px-11"
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 16,
+          borderRadius: R.sm,
+          background: GOLD_GRADIENT,
+          boxShadow: SHADOW_GOLD_LG,
+        }}
+      >
+        {"\u05DC\u05D4\u05E8\u05E9\u05DE\u05D4 \u05DC\u05D9\u05E9\u05D9\u05D1\u05D4"}
+        <ArrowLeft
+          strokeWidth={2.2}
+          className="h-4 w-4 transition-transform duration-500 group-hover:-translate-x-1"
+        />
+      </motion.a>
     </section>
   );
 }
+/
 
 /* ==================================================================
-   MARQUEES — slow, quiet
+   MARQUEES
 ================================================================== */
-function MarqueeBand({
-  text,
-  reverse = false,
-  duration = 44,
-  filled = false,
-}: {
+function MarqueeBand(props: {
   text: string;
   reverse?: boolean;
   duration?: number;
   filled?: boolean;
 }) {
-  const line = text.repeat(6);
+  const line = props.text.repeat(6);
+  const dur = props.duration || 48;
+  const xFrom = props.reverse ? "-50%" : "0%";
+  const xTo = props.reverse ? "0%" : "-50%";
+
   return (
     <div
       className="w-full overflow-hidden py-4 sm:py-5"
       style={{
-        background: filled ? GOLD_GRADIENT : "transparent",
-        borderTop: `1px solid ${GOLD.base}30`,
-        borderBottom: `1px solid ${GOLD.base}30`,
+        background: props.filled ? GOLD_GRADIENT : "transparent",
+        borderTop: BORDER_GOLD_SOFT,
+        borderBottom: BORDER_GOLD_SOFT,
       }}
     >
       <motion.div
         className="flex w-max whitespace-nowrap"
-        animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
-        transition={{ duration, repeat: Infinity, ease: "linear" }}
+        animate={{ x: [xFrom, xTo] }}
+        transition={{ duration: dur, repeat: Infinity, ease: "linear" }}
       >
-        {[0, 1].map((k) => (
-          <span
-            key={k}
-            className="px-2 text-lg sm:text-2xl lg:text-[28px]"
-            style={{
-              fontFamily: FONT_HEAD,
-              color: filled ? "#fff" : GOLD.deep,
-              opacity: filled ? 0.95 : 0.55,
-            }}
-          >
-            {line}
-          </span>
-        ))}
+        {[0, 1].map(function (k) {
+          return (
+            <span
+              key={k}
+              className="px-2 text-lg sm:text-2xl lg:text-[28px]"
+              style={{
+                fontFamily: FONT_HEAD,
+                color: props.filled ? "#1E293B" : GOLD.light,
+                opacity: props.filled ? 0.92 : 0.6,
+              }}
+            >
+              {line}
+            </span>
+          );
+        })}
       </motion.div>
     </div>
   );
 }
 
+const MARQ_1 =
+  "\u05DC\u05DC\u05DE\u05D5\u05D3 \u05D1\u05DC\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD \u2013 \u05D5\u05DC\u05D4\u05E9\u05E4\u05D9\u05E2 \u05E2\u05DC \u05DC\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD \u00B7 ";
+const MARQ_2 =
+  "\u05DE\u05E1\u05DC\u05D5\u05DC \u05D0\u05D9\u05E9\u05D9 \u00B7 \u05DC\u05D9\u05D5\u05D5\u05D9 \u05D7\u05E1\u05D9\u05D3\u05D9 \u00B7 \u05D4\u05DB\u05E0\u05D4 \u05DC\u05D7\u05D9\u05D9\u05DD \u00B7 ";
+
 function ScrollMarquees() {
   return (
     <div className="relative z-10">
-      <MarqueeBand text="ללמוד בלב ירושלים – ולהשפיע על לב ירושלים · " duration={52} />
-      <MarqueeBand
-        text="מסלול אישי · ליווי חסידי · הכנה לחיים · "
-        reverse
-        duration={44}
-        filled
-      />
+      <MarqueeBand text={MARQ_1} duration={54} />
+      <MarqueeBand text={MARQ_2} reverse duration={46} filled />
     </div>
   );
 }
 
 /* ==================================================================
-   TRACK CARDS — glassmorphism, soft shadow, no 3D tilt
+   BENTO GRID - clean white cards, rounded corners
 ================================================================== */
 type Track = { num: string; title: string; body: string };
 
 const TRACKS: Track[] = [
   {
     num: "01",
-    title: "המסלול הלימודי המלא – שנתיים",
-    body: "לימוד תורה וחסידות, עבודת ה', סדר יום ישיבתי, ליווי אישי והכנה מעשית ורוחנית להמשך החיים.",
+    title:
+      "\u05D4\u05DE\u05E1\u05DC\u05D5\u05DC \u05D4\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9 \u05D4\u05DE\u05DC\u05D0 \u2013 \u05E9\u05E0\u05EA\u05D9\u05D9\u05DD",
+    body:
+      "\u05DC\u05D9\u05DE\u05D5\u05D3 \u05EA\u05D5\u05E8\u05D4 \u05D5\u05D7\u05E1\u05D9\u05D3\u05D5\u05EA, \u05E2\u05D1\u05D5\u05D3\u05EA \u05D4', \u05E1\u05D3\u05E8 \u05D9\u05D5\u05DD \u05D9\u05E9\u05D9\u05D1\u05EA\u05D9, \u05DC\u05D9\u05D5\u05D5\u05D9 \u05D0\u05D9\u05E9\u05D9 \u05D5\u05D4\u05DB\u05E0\u05D4 \u05DE\u05E2\u05E9\u05D9\u05EA \u05D5\u05E8\u05D5\u05D7\u05E0\u05D9\u05EA \u05DC\u05D4\u05DE\u05E9\u05DA \u05D4\u05D7\u05D9\u05D9\u05DD.",
   },
   {
     num: "02",
-    title: "חצי יום לימוד וחצי יום עבודה – 3 שנים",
-    body: "שילוב בין עבודה למסגרת ישיבתית. שילוב בין גשמיות לרוחניות.",
+    title:
+      "\u05D7\u05E6\u05D9 \u05D9\u05D5\u05DD \u05DC\u05D9\u05DE\u05D5\u05D3 \u05D5\u05D7\u05E6\u05D9 \u05D9\u05D5\u05DD \u05E2\u05D1\u05D5\u05D3\u05D4 \u2013 3 \u05E9\u05E0\u05D9\u05DD",
+    body:
+      "\u05E9\u05D9\u05DC\u05D5\u05D1 \u05D1\u05D9\u05DF \u05E2\u05D1\u05D5\u05D3\u05D4 \u05DC\u05DE\u05E1\u05D2\u05E8\u05EA \u05D9\u05E9\u05D9\u05D1\u05EA\u05D9\u05EA. \u05E9\u05D9\u05DC\u05D5\u05D1 \u05D1\u05D9\u05DF \u05D2\u05E9\u05DE\u05D9\u05D5\u05EA \u05DC\u05E8\u05D5\u05D7\u05E0\u05D9\u05D5\u05EA.",
   },
   {
     num: "03",
-    title: "המסלול האקסטרני",
-    body: "לבחורים שמעוניינים ללמוד בישיבה אך להמשיך להתגורר בבית. חברותות קבועות והשתתפות בחיי החברה.",
+    title:
+      "\u05D4\u05DE\u05E1\u05DC\u05D5\u05DC \u05D4\u05D0\u05E7\u05E1\u05D8\u05E8\u05E0\u05D9",
+    body:
+      "\u05DC\u05D1\u05D7\u05D5\u05E8\u05D9\u05DD \u05E9\u05DE\u05E2\u05D5\u05E0\u05D9\u05D9\u05E0\u05D9\u05DD \u05DC\u05DC\u05DE\u05D5\u05D3 \u05D1\u05D9\u05E9\u05D9\u05D1\u05D4 \u05D0\u05DA \u05DC\u05D4\u05DE\u05E9\u05D9\u05DA \u05DC\u05D4\u05EA\u05D2\u05D5\u05E8\u05E8 \u05D1\u05D1\u05D9\u05EA. \u05D7\u05D1\u05E8\u05D5\u05EA\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA \u05D5\u05D4\u05E9\u05EA\u05EA\u05E4\u05D5\u05EA \u05D1\u05D7\u05D9\u05D9 \u05D4\u05D7\u05D1\u05E8\u05D4.",
   },
   {
     num: "04",
-    title: "מסלול השלוחים",
-    body: "בחורים למדנים שהגיעו מ־770. ליווי אישי ולימוד עם הבחורים.",
+    title:
+      "\u05DE\u05E1\u05DC\u05D5\u05DC \u05D4\u05E9\u05DC\u05D5\u05D7\u05D9\u05DD",
+    body:
+      "\u05D1\u05D7\u05D5\u05E8\u05D9\u05DD \u05DC\u05DE\u05D3\u05E0\u05D9\u05DD \u05E9\u05D4\u05D2\u05D9\u05E2\u05D5 \u05DE\u05BE770. \u05DC\u05D9\u05D5\u05D5\u05D9 \u05D0\u05D9\u05E9\u05D9 \u05D5\u05DC\u05D9\u05DE\u05D5\u05D3 \u05E2\u05DD \u05D4\u05D1\u05D7\u05D5\u05E8\u05D9\u05DD.",
   },
 ];
 
-function TrackCard({ track, i }: { track: Track; i: number }) {
+function TrackCard(props: { track: Track; i: number }) {
   const [hot, setHot] = useState(false);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 1.2, ease: EASE, delay: (i % 2) * 0.08 }}
-      onHoverStart={() => setHot(true)}
-      onHoverEnd={() => setHot(false)}
+      viewport={{ once: true, amount: 0.15 }}transition={{ duration: 1.2, ease: EASE, delay: (props.i % 2) * 0.08 }}
+      onHoverStart={function () {
+        setHot(true);
+      }}
+      onHoverEnd={function () {
+        setHot(false);
+      }}
       whileHover={{ y: -5 }}
       className="group relative h-full overflow-hidden p-7 sm:p-9"
       style={{
-        background: hot ? "rgba(255,254,250,0.9)" : "rgba(255,254,250,0.62)",
-        backdropFilter: "blur(20px) saturate(150%)",
-        border: `1px solid ${hot ? GOLD.base + "66" : GOLD.base + "2E"}`,
+        borderRadius: R.card,
+        background: hot ? CARD.solid : CARD.glass,
+        border: hot ? BORDER_GOLD_CARD : BORDER_CARD_LINE,
         boxShadow: hot
-          ? "0 22px 56px rgba(59,47,20,0.12)"
-          : "0 8px 26px rgba(59,47,20,0.05)",
-        transition: "background 0.7s ease, border-color 0.7s ease, box-shadow 0.7s ease",
+          ? "0 26px 60px rgba(0,0,0,0.34)"
+          : "0 10px 30px rgba(0,0,0,0.2)",
+        transition:
+          "background 0.7s ease, border-color 0.7s ease, box-shadow 0.7s ease",
       }}
     >
-      {/* top gold sweep */}
       <motion.div
         animate={{ scaleX: hot ? 1 : 0 }}
         transition={{ duration: 0.8, ease: EASE }}
-        className="absolute inset-x-0 top-0 h-[2px]"
+        className="absolute inset-x-0 top-0 h-[3px]"
         style={{ background: GOLD_GRADIENT, originX: 1 }}
       />
 
@@ -938,151 +1143,48 @@ function TrackCard({ track, i }: { track: Track; i: number }) {
             backgroundClip: "text",
           }}
         >
-          {track.num}
+          {props.track.num}
         </span>
         <motion.span
-          animate={{ width: hot ? 40 : 22, opacity: hot ? 1 : 0.4 }}
+          animate={{ width: hot ? 40 : 22, opacity: hot ? 1 : 0.5 }}
           transition={{ duration: 0.7, ease: EASE }}
-          className="mt-4 h-[1px] shrink-0"
+          className="mt-4 h-px shrink-0"
           style={{ background: GOLD_GRADIENT }}
         />
       </div>
 
       <h3
         className="mt-6 text-[21px] leading-[1.28] sm:text-[26px]"
-        style={{ fontFamily: FONT_HEAD, color: GOLD.ink }}
+        style={{ fontFamily: FONT_HEAD, color: "#1E293B" }}
       >
-        {track.title}
+        {props.track.title}
       </h3>
 
       <p
         className="mt-4 text-[14px] leading-[1.9] sm:text-[15px]"
-        style={{ fontFamily: FONT_BODY, fontWeight: 400, color: `${GOLD.ink}A6` }}
+        style={{ fontFamily: FONT_BODY, fontWeight: 400, color: "#475569" }}
       >
-        {track.body}
+        {props.track.body}
       </p>
     </motion.div>
   );
 }
 
+const TRACKS_KICKER = "\u05D4\u05DE\u05E1\u05DC\u05D5\u05DC\u05D9\u05DD";
+const TRACKS_TITLE =
+  "\u05D3\u05E8\u05DA \u05D0\u05D9\u05E9\u05D9\u05EA \u05DC\u05DB\u05DC \u05D1\u05D7\u05D5\u05E8";
+
 function TracksSection() {
   return (
-    <section id="tracks" className="relative z-10 px-5 py-24 sm:px-10 sm:py-32 lg:px-16">
+    <section
+      id="tracks"
+      className="relative z-10 px-5 py-24 sm:px-10 sm:py-32 lg:px-16"
+    >
       <div className="mx-auto max-w-6xl">
-        <SectionLabel kicker="המסלולים" title="דרך אישית לכל בחור" />
+        <SectionLabel kicker={TRACKS_KICKER} title={TRACKS_TITLE} />
         <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
-          {TRACKS.map((t, i) => (
-            <TrackCard key={t.num} track={t} i={i} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ==================================================================
-   FAQ — gentle, glass panel
-================================================================== */
-const FAQS = [
-  {
-    q: "הקמפוס והפנימייה",
-    a: "פנימייה מרווחת, חדרים ממוזגים, מיטה וארון אישי. מקווה טהרה משופץ בקמפוס.",
-  },
-  { q: "שלוש ארוחות ביום", a: "טבח צמוד במקום. ארוחות מוגשות באופן מסודר." },
-  {
-    q: "החיים החסידיים",
-    a: "לימוד חסידות, התוועדויות, שבתות משותפות וקשר עם משפיעים.",
-  },
-];
-
-function FAQSection() {
-  const [open, setOpen] = useState<number | null>(0);
-
-  return (
-    <section id="faq" className="relative z-10 px-5 pb-24 sm:px-10 sm:pb-32 lg:px-16">
-      <div className="mx-auto max-w-4xl">
-        <SectionLabel kicker="שאלות ותשובות" title="מה שחשוב לדעת" />
-
-        <div
-          style={{
-            background: "rgba(255,254,250,0.62)",
-            backdropFilter: "blur(20px) saturate(150%)",
-            border: `1px solid ${GOLD.base}2E`,
-            boxShadow: "0 12px 40px rgba(59,47,20,0.06)",
-          }}
-        >
-          {FAQS.map((f, i) => {
-            const on = open === i;
-            return (
-              <motion.div
-                key={f.q}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 1.1, ease: EASE, delay: i * 0.06 }}
-                style={{
-                  borderBottom:
-                    i !== FAQS.length - 1 ? `1px solid ${GOLD.base}24` : "none",
-                }}
-              >
-                <button
-                  onClick={() => setOpen(on ? null : i)}
-                  aria-expanded={on}
-                  className="flex w-full items-center justify-between gap-5 px-6 py-6 text-right outline-none transition-colors duration-500 sm:px-9 sm:py-7"
-                  style={{ background: on ? `${GOLD.light}2E` : "transparent" }}
-                >
-                  <span
-                    className="text-[19px] leading-tight sm:text-[25px]"
-                    style={{ fontFamily: FONT_HEAD, color: on ? GOLD.deep : GOLD.ink }}
-                  >
-                    {f.q}
-                  </span>
-
-                  <motion.span
-                    animate={{ rotate: on ? 45 : 0 }}
-                    transition={{ duration: 0.65, ease: EASE }}
-                    className="grid h-9 w-9 shrink-0 place-items-center"
-                    style={{
-                      background: on ? GOLD_GRADIENT : `${GOLD.base}14`,
-                      border: `1px solid ${GOLD.base}${on ? "00" : "33"}`,
-                    }}
-                  >
-                    <Plus
-                      strokeWidth={2}
-                      className="h-4 w-4"
-                      style={{ color: on ? "#fff" : GOLD.deep }}
-                    />
-                  </motion.span>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {on && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{
-                        height: { duration: 0.7, ease: EASE },
-                        opacity: { duration: 0.55, ease: EASE },
-                      }}
-                      className="overflow-hidden"
-                    >
-                      <p
-                        className="px-6 pb-7 text-[15px] leading-[1.95] sm:px-9 sm:pb-8 sm:text-base"
-                        style={{
-                          fontFamily: FONT_BODY,
-                          fontWeight: 400,
-                          color: `${GOLD.ink}A6`,
-                          maxWidth: "62ch",
-                        }}
-                      >
-                        {f.a}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
+          {TRACKS.map(function (t, i) {
+            return <TrackCard key={t.num} track={t} i={i} />;
           })}
         </div>
       </div>
@@ -1091,73 +1193,52 @@ function FAQSection() {
 }
 
 /* ==================================================================
-   FORM — refined glass inputs
+   FAQ - clean card panel
 ================================================================== */
-function Field({
-  id,
-  label,
-  value,
-  onChange,
-  type = "text",
-  inputMode,
-  delay = 0,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  inputMode?: "text" | "numeric" | "tel";
-  delay?: number;
-}) {
-  const [focus, setFocus] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 1.1, ease: EASE, delay }}
-      className="relative"
-    >
-      <label
-        htmlFor={id}
-        className="mb-2.5 block text-[11px] tracking-[0.16em] transition-colors duration-500"
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          color: focus ? GOLD.deep : `${GOLD.ink}70`,
-        }}
-      >
-        {label}
-      </label>
-
-      <input
-        id={id}
-        name={id}Here is the remaining code, continuing exactly from where the `FAQS` array was cut off:
-
-```tsx
-    a: "לימוד חסידות, התוועדויות, שבתות משותפות וקשר עם משפיעים.",
+const FAQS = [
+  {
+    q: "\u05D4\u05E7\u05DE\u05E4\u05D5\u05E1 \u05D5\u05D4\u05E4\u05E0\u05D9\u05DE\u05D9\u05D9\u05D4",
+    a:
+      "\u05E4\u05E0\u05D9\u05DE\u05D9\u05D9\u05D4 \u05DE\u05E8\u05D5\u05D5\u05D7\u05EA, \u05D7\u05D3\u05E8\u05D9\u05DD \u05DE\u05DE\u05D5\u05D6\u05D2\u05D9\u05DD, \u05DE\u05D9\u05D8\u05D4 \u05D5\u05D0\u05E8\u05D5\u05DF \u05D0\u05D9\u05E9\u05D9. \u05DE\u05E7\u05D5\u05D5\u05D4 \u05D8\u05D4\u05E8\u05D4 \u05DE\u05E9\u05D5\u05E4\u05E6 \u05D1\u05E7\u05DE\u05E4\u05D5\u05E1.",
+  },
+  {
+    q: "\u05E9\u05DC\u05D5\u05E9 \u05D0\u05E8\u05D5\u05D7\u05D5\u05EA \u05D1\u05D9\u05D5\u05DD",
+    a:
+      "\u05D8\u05D1\u05D7 \u05E6\u05DE\u05D5\u05D3 \u05D1\u05DE\u05E7\u05D5\u05DD. \u05D0\u05E8\u05D5\u05D7\u05D5\u05EA \u05DE\u05D5\u05D2\u05E9\u05D5\u05EA \u05D1\u05D0\u05D5\u05E4\u05DF \u05DE\u05E1\u05D5\u05D3\u05E8.",
+  },
+  {
+    q: "\u05D4\u05D7\u05D9\u05D9\u05DD \u05D4\u05D7\u05E1\u05D9\u05D3\u05D9\u05D9\u05DD",
+    a:
+      "\u05DC\u05D9\u05DE\u05D5\u05D3 \u05D7\u05E1\u05D9\u05D3\u05D5\u05EA, \u05D4\u05EA\u05D5\u05D5\u05E2\u05D3\u05D5\u05D9\u05D5\u05EA, \u05E9\u05D1\u05EA\u05D5\u05EA \u05DE\u05E9\u05D5\u05EA\u05E4\u05D5\u05EA \u05D5\u05E7\u05E9\u05E8 \u05E2\u05DD \u05DE\u05E9\u05E4\u05D9\u05E2\u05D9\u05DD.",
   },
 ];
+
+const FAQ_KICKER =
+  "\u05E9\u05D0\u05DC\u05D5\u05EA \u05D5\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA";
+const FAQ_TITLE =
+  "\u05DE\u05D4 \u05E9\u05D7\u05E9\u05D5\u05D1 \u05DC\u05D3\u05E2\u05EA";
 
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="relative z-10 px-5 pb-24 sm:px-10 sm:pb-32 lg:px-16">
+    <section
+      id="faq"
+      className="relative z-10 px-5 pb-24 sm:px-10 sm:pb-32 lg:px-16"
+    >
       <div className="mx-auto max-w-4xl">
-        <SectionLabel kicker="שאלות ותשובות" title="מה שחשוב לדעת" />
+        <SectionLabel kicker={FAQ_KICKER} title={FAQ_TITLE} />
 
         <div
           className="overflow-hidden"
           style={{
-            background: NAVY_GRADIENT,
-            border: `1px solid ${NAVY.line}`,
-            boxShadow: "0 18px 50px rgba(10,20,40,0.22)",
+            borderRadius: R.card,
+            background: CARD.glass,
+            border: BORDER_CARD_LINE,
+            boxShadow: "0 18px 50px rgba(0,0,0,0.24)",
           }}
         >
-          {FAQS.map((f, i) => {
+          {FAQS.map(function (f, i) {
             const on = open === i;
             return (
               <motion.div
@@ -1168,20 +1249,22 @@ function FAQSection() {
                 transition={{ duration: 1.1, ease: EASE, delay: i * 0.06 }}
                 style={{
                   borderBottom:
-                    i !== FAQS.length - 1 ? `1px solid ${NAVY.line}` : "none",
+                    i !== FAQS.length - 1 ? BORDER_SLATE : "none",
                 }}
               >
                 <button
-                  onClick={() => setOpen(on ? null : i)}
+                  onClick={function () {
+                    setOpen(on ? null : i);
+                  }}
                   aria-expanded={on}
                   className="flex w-full items-center justify-between gap-5 px-6 py-6 text-right outline-none transition-colors duration-500 sm:px-9 sm:py-7"
-                  style={{ background: on ? "rgba(212,175,55,0.07)" : "transparent" }}
+                  style={{ background: on ? GOLD_A12 : "transparent" }}
                 >
                   <span
                     className="text-[19px] leading-tight transition-colors duration-500 sm:text-[25px]"
                     style={{
                       fontFamily: FONT_HEAD,
-                      color: on ? GOLD.light : NAVY.text,
+                      color: on ? GOLD.dark : "#1E293B",
                     }}
                   >
                     {f.q}
@@ -1192,14 +1275,15 @@ function FAQSection() {
                     transition={{ duration: 0.65, ease: EASE }}
                     className="grid h-9 w-9 shrink-0 place-items-center"
                     style={{
-                      background: on ? GOLD_GRADIENT : "rgba(212,175,55,0.1)",
-                      border: `1px solid ${on ? "transparent" : GOLD.base + "3D"}`,
+                      borderRadius: R.sm,
+                      background: on ? GOLD_GRADIENT : GOLD_A12,
+                      border: on ? BORDER_TRANSPARENT : BORDER_GOLD_STRONG,
                     }}
                   >
                     <Plus
                       strokeWidth={2}
                       className="h-4 w-4"
-                      style={{ color: on ? "#fff" : GOLD.base }}
+                      style={{ color: on ? "#ffffff" : GOLD.deep }}
                     />
                   </motion.span>
                 </button>
@@ -1221,7 +1305,7 @@ function FAQSection() {
                         style={{
                           fontFamily: FONT_BODY,
                           fontWeight: 400,
-                          color: NAVY.mute,
+                          color: "#475569",
                           maxWidth: "62ch",
                         }}
                       >
@@ -1240,17 +1324,9 @@ function FAQSection() {
 }
 
 /* ==================================================================
-   FORM — deep navy wrapper, glass inputs
+   FORM - clean card wrapper
 ================================================================== */
-function Field({
-  id,
-  label,
-  value,
-  onChange,
-  type = "text",
-  inputMode,
-  delay = 0,
-}: {
+function Field(props: {
   id: string;
   label: string;
   value: string;
@@ -1266,381 +1342,11 @@ function Field({
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 1.1, ease: EASE, delay }}
+      transition={{ duration: 1.1, ease: EASE, delay: props.delay || 0 }}
       className="relative"
     >
       <label
-        htmlFor={id}
-        className="mb-2.5 block text-[11px] tracking-[0.16em] transition-colors duration-500"
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          color: focus ? GOLD.base : NAVY.mute,
-        }}
-      >
-        {label}
-      </label>
-
-      <input
-        id={id}
-        name={id}
-        type={type}
-        inputMode={inputMode}
-        required
-        autoComplete="off"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        className="w-full px-4 py-3.5 outline-none sm:px-5 sm:py-4"
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 600,
-          fontSize: 17,
-          color: NAVY.text,
-          caretColor: GOLD.base,
-          background: focus ? "rgba(255,254,250,0.09)" : "rgba(255,254,250,0.05)",
-          backdropFilter: "blur(14px)",
-          border: `1px solid ${focus ? GOLD.base + "80" : NAVY.line}`,
-          boxShadow: focus
-            ? `0 8px 26px rgba(212,175,55,0.14)`
-            : "0 4px 16px rgba(10,20,40,0.14)",
-          transition:
-            "background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease",
-        }}
-      />
-
-      <motion.div
-        initial={false}
-        animate={{ scaleX: focus ? 1 : 0 }}
-        transition={{ duration: 0.8, ease: EASE }}
-        className="absolute bottom-0 inset-x-0 h-[2px]"
-        style={{ background: GOLD_GRADIENT, originX: 1 }}
-      />
-    </motion.div>
-  );
-}
-
-function FormSection() {
-  const [form, setForm] = useState({ name: "", age: "", phone: "" });
-  const [sent, setSent] = useState(false);
-
-  const set = (k: keyof typeof form) => (v: string) =>
-    setForm((p) => ({ ...p, [k]: v }));
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: connect to your API route / CRM
-    console.log("[YESHIVA_FORM]", form);
-    setSent(true);
-  };
-
-  return (
-    <section id="form" className="relative z-10 px-5 pb-44 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-4xl">
-        <div
-          className="relative overflow-hidden p-7 sm:p-12 lg:p-16"
-          style={{
-            background: NAVY_GRADIENT,
-            border: `1px solid ${NAVY.line}`,
-            boxShadow: "0 28px 76px rgba(10,20,40,0.3)",
-          }}
-        >
-          <div
-            className="absolute inset-x-0 top-0 h-[2px]"
-            style={{ background: GOLD_GRADIENT }}
-          />
-
-          <div
-            className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 blur-[100px]"
-            style={{ background: `${GOLD.base}26` }}
-          />
-          <div
-            className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 blur-[110px]"
-            style={{ background: `${GOLD.light}1A` }}
-          />
-
-          <Reveal>
-            <span
-              className="relative text-[11px] tracking-[0.32em]"
-              style={{ fontFamily: FONT_BODY, fontWeight: 700, color: GOLD.base }}
-            >
-              הרשמה
-            </span>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <h2
-              className="relative mt-4 max-w-[20ch] text-[30px] leading-[1.16] sm:text-5xl lg:text-[54px]"
-              style={{ fontFamily: FONT_HEAD, color: NAVY.text }}
-            >
-              המקום שלך לגדול,{" "}
-              <span
-                style={{
-                  background: GOLD_GRADIENT,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                להתקדם ולבנות
-              </span>{" "}
-              את העתיד שלך.
-            </h2>
-          </Reveal>
-
-          <div className="relative my-10 sm:my-12">
-            <GoldRule delay={0.2} w="100%" />
-          </div>
-
-          <AnimatePresence mode="wait">
-            {!sent ? (
-              <motion.form
-                key="form"
-                onSubmit={submit}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.6, ease: EASE }}
-                className="relative"
-              >
-                <div className="grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-3">
-                  <Field
-                    id="name"
-                    label="שם מלא"
-                    value={form.name}
-                    onChange={set("name")}
-                    delay={0}
-                  />
-                  <Field
-                    id="age"
-                    label="גיל"
-                    value={form.age}
-                    onChange={set("age")}
-                    inputMode="numeric"
-                    delay={0.08}
-                  />
-                  <Field
-                    id="phone"
-                    label="מספר טלפון"
-                    type="tel"
-                    inputMode="tel"
-                    value={form.phone}
-                    onChange={set("phone")}
-                    delay={0.16}
-                  />
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 1.1, ease: EASE, delay: 0.24 }}
-                  className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <motion.button
-                    type="submit"
-                    whileHover={{ y: -3 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: 0.5, ease: EASE }}
-                    className="group inline-flex w-full items-center justify-center gap-3 px-10 py-4 text-white sm:w-auto sm:px-14"
-                    style={{
-                      fontFamily: FONT_BODY,
-                      fontWeight: 700,
-                      fontSize: 16,
-                      background: GOLD_GRADIENT,
-                      boxShadow: `0 14px 38px ${GOLD.base}4D`,
-                    }}
-                  >
-                    שליחת פרטים
-                    <Send
-                      strokeWidth={2.2}
-                      className="h-4 w-4 transition-transform duration-500 group-hover:-translate-x-1"
-                    />
-                  </motion.button>
-
-                  <p
-                    className="max-w-[30ch] text-[12px] leading-relaxed"
-                    style={{ fontFamily: FONT_BODY, color: NAVY.mute }}
-                  >
-                    הפרטים נשמרים בסודיות. נחזור אליך בהקדם.
-                  </p>
-                </motion.div>
-              </motion.form>
-            ) : (
-              <motion.div
-                key="sent"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, ease: EASE }}
-                className="relative flex flex-col items-start gap-6 p-8 sm:flex-row sm:items-center sm:gap-8 sm:p-12"
-                style={{
-                  background: "rgba(212,175,55,0.08)",
-                  border: `1px solid ${GOLD.base}4D`,
-                }}
-              >
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.94 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1.1, ease: EASE, delay: 0.15 }}
-                  className="grid h-16 w-16 shrink-0 place-items-center sm:h-[74px] sm:w-[74px]"
-                  style={{
-                    background: GOLD_GRADIENT,
-                    boxShadow: `0 12px 32px ${GOLD.base}4D`,
-                  }}
-                >
-                  <Check strokeWidth={2.4} className="h-7 w-7 text-white sm:h-8 sm:w-8" />
-                </motion.div>
-
-                <div>
-                  <h3
-                    className="text-[24px] leading-tight sm:text-[34px]"
-                    style={{ fontFamily: FONT_HEAD, color: NAVY.text }}
-                  >
-                    הפרטים נשלחו בהצלחה
-                  </h3>
-                  <p
-                    className="mt-2 text-[14px] leading-relaxed sm:text-base"
-                    style={{ fontFamily: FONT_BODY, color: NAVY.mute }}
-                  >
-                    ניצור איתך קשר בקרוב. תודה שפנית אלינו.
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Single quiet line — NOT a footer, no logo / links / layout */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.4, ease: EASE }}
-          className="mt-12 text-center text-[11px] tracking-[0.22em]"
-          style={{ fontFamily: FONT_BODY, fontWeight: 600, color: `${GOLD.ink}59` }}
-        >
-          יחי אדונינו מורינו ורבינו מלך המשיח לעולם ועד
-        </motion.p>
-      </div>
-    </section>
-  );
-}
-
-/* ==================================================================
-   MAIN CONTENT — hero (navy) → clean cream body. No footer.
-================================================================== */
-function MainContent({ video }: { video?: WeeklyVideo }) {
-  return (
-    <main className="relative w-full" style={{ background: "#FFFEFA" }}>
-      <HeroSection video={video} />
-
-      <div
-        className="relative"
-        style={{
-          background:
-            "linear-gradient(180deg, #FFFEFA 0%, #FDFBF4 40%, #FBF7EC 74%, #FFFEFA 100%)",
-        }}
-      >
-        <ScrollMarquees />
-        <TracksSection />
-        <FAQSection />
-        <FormSection />
-      </div>
-    </main>
-  );
-}
-
-/* ==================================================================
-   PAGE — BottomDock is the absolute last element. Nothing below it.
-================================================================== */
-export default function Page() {
-  const { section, docked } = useScrollState();
-
-  // CMS hook-up point
-  const weeklyVideo: WeeklyVideo | undefined = useMemo(
-    () => ({
-      // src: "/videos/hero.mp4",
-      // poster: "/videos/hero-poster.jpg",
-      caption: "מתעדכן כל שבוע",
-    }),
-    []
-  );
-
-  return (
-    <div
-      dir="rtl"
-      lang="he"
-      className="min-h-screen antialiased"
-      style={{ fontFamily: FONT_BODY, color: GOLD.ink, background: "#FFFEFA" }}
-    >
-      <style>{`
-        ::selection { background: ${GOLD.base}40; color: ${GOLD.ink}; }
-        input::placeholder { color: ${NAVY.mute}80; }
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
-
-      <AmbientFloaters section={section} />
-      <TopHeader />
-
-      <SmoothScrollProvider>
-        <MainContent video={weeklyVideo} />
-      </SmoothScrollProvider>
-
-      {/* LayoutGroup enables the WhatsApp → dock morph via shared layoutId */}
-      <LayoutGroup>
-        <FloatingWhatsApp docked={docked} />
-        <BottomDock docked={docked} />
-      </LayoutGroup>
-    </div>
-  );
-}
-```
-
----
-
-## ✅ Complete. Stitch order:
-
-`PART 1` (imports → `HeroSection`) → `PART 2 block A` (`MarqueeBand` → `FAQS` array) → `PART 2 block B` (this message).
-
----
-
-### Notes on the five requests
-
-**#1 — Pinned video hero + Skip**
-`min-h-[300vh]` track with a `sticky top-0 h-[100svh]` stage inside. `scrollYProgress` (offset `start start → end end`) drives the scrim opacity and copy fade; the stage releases in the last 12%. The Skip button computes `window.scrollY + rect.bottom - innerHeight` and hands it to `fastScrollTo(target, 500)` — a `requestAnimationFrame` loop with `easeInOutCubic`, so it lands exactly past the track in 0.5s. The button itself fades out by 25% progress so it doesn't linger.
-
-> ⚠️ One thing to verify: `fastScrollTo` drives the **native** `window.scrollY`, which the `SmoothScrollProvider` spring then follows. On desktop you'll see a ~150ms tail as the spring catches up — it reads as intentional easing. If you want it perfectly exact, tell me and I'll expose a `jump()` escape hatch on the provider.
-
-**#2 — Footer nuked**
-No `<footer>`, no logo block, no link columns, no bottom layout. The only thing after `FormSection`'s form is one centered `<p>` line inside the same section. In `Page`, `BottomDock` is the final JSX node.
-
-**#3 — The morph**
-`layoutId="wa-morph"` (plus `layoutId="wa-morph-icon"` for the glyph) is shared between `FloatingWhatsApp` and dock slot 1. Both sit inside `<LayoutGroup>`. Because only one mounts at a time (`docked` from `scrollYProgress > 0.9`), Framer Motion FLIP-animates it across the viewport — 56px gold circle with glow → 34px transparent rounded square with a muted icon. Slot 1 holds a `34×34` reserved spacer while undocked, so nothing shifts. Dock order is exactly ייעוץ · מה קורה פה · **בית** (gold circle, `marginTop: -22` so it breaches the bar) · מהפעילות · חנות.
-
-**#4 — Deep navy**
-New `NAVY` token at `#0A1428` — deliberately darker and cooler than a logo blue. Applied to the hero backdrop, all four track cards, the FAQ panel, and the form wrapper. Cream `#FFFEFA` stays as the page background, so the navy blocks read as floating slabs.
-
-**Before deploy:** swap `972500000000` in `WA_HREF` for the real number, and uncomment `src`/`poster` in `weeklyVideo` once your footage exists.CRITICAL CORRECTIONS - Follow these instructions precisely. The user is frustrated with bugs from the last output. We are fixing `page.tsx`:
-
-1. Background & Cards: Change the global page background to a slightly lighter dark-blue (e.g., `#1e293b` or `bg-slate-800`). The Bento boxes (cards) themselves must be clean (e.g., white or slight glassmorphism) with slightly rounded corners (`rounded-[10px]` or `rounded-xl`).
-2. Hero Section Fix: Remove the duplicated text. Replace the Hero entirely with a clean 9:16 vertical video placeholder component.
-3. Bottom Dock & WhatsApp Fix: 
-   - The Bottom Dock must be `fixed bottom-0 w-full z-50` (strictly sticking to the bottom, not floating above it). 
-   - Delete the static green WhatsApp icon. 
-   - Make the floating WhatsApp button GOLD. 
-   - Use Framer Motion's `layoutId` so that when the user scrolls to the bottom, the floating Gold button seamlessly morphs directly into the very first slot of the bottom dock.
-4. Logo Typography: The text next to the logo ("ישיבת / המלך / המשיח") must be stacked, tall, match the logo's height, use a thinner/lighter font weight (`font-light`), and have slight line spacing to look premium.
-
-TOKEN LIMIT STRATEGY:
-Output the ENTIRE updated `page.tsx`. You MUST split the code into EXACTLY TWO distinct code blocks. 
-- Block 1: Imports, Constants, Dock, Floating WhatsApp, Hero.
-- Block 2: Marquee, BentoGrid, Form, and `export default Page`.
-Do not hallucinate. Do not add conversational filler.<label
-        htmlFor={id}
+        htmlFor={props.id}
         className="mb-2.5 block text-[11px] tracking-[0.16em] transition-colors duration-500"
         style={{
           fontFamily: FONT_BODY,
@@ -1648,20 +1354,26 @@ Do not hallucinate. Do not add conversational filler.<label
           color: focus ? GOLD.deep : "#64748B",
         }}
       >
-        {label}
+        {props.label}
       </label>
 
       <input
-        id={id}
-        name={id}
-        type={type}
-        inputMode={inputMode}
+        id={props.id}
+        name={props.id}
+        type={props.type || "text"}
+        inputMode={props.inputMode}
         required
         autoComplete="off"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
+        value={props.value}
+        onChange={function (e) {
+          props.onChange(e.target.value);
+        }}
+        onFocus={function () {
+          setFocus(true);
+        }}
+        onBlur={function () {
+          setFocus(false);
+        }}
         className="w-full px-4 py-3.5 outline-none sm:px-5 sm:py-4"
         style={{
           fontFamily: FONT_BODY,
@@ -1671,10 +1383,8 @@ Do not hallucinate. Do not add conversational filler.<label
           caretColor: GOLD.base,
           borderRadius: R.sm,
           background: focus ? "#FFFFFF" : "#F8FAFC",
-          border: `1px solid ${focus ? GOLD.base + "99" : "#E2E8F0"}`,
-          boxShadow: focus
-            ? `0 8px 26px rgba(212,175,55,0.18)`
-            : "0 2px 10px rgba(0,0,0,0.04)",
+          border: focus ? BORDER_INPUT_FOCUS : BORDER_INPUT,
+          boxShadow: focus ? SHADOW_INPUT_FOCUS : "0 2px 10px rgba(0,0,0,0.04)",
           transition:
             "background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease",
         }}
@@ -1691,17 +1401,36 @@ Do not hallucinate. Do not add conversational filler.<label
   );
 }
 
+const FORM_KICKER = "\u05D4\u05E8\u05E9\u05DE\u05D4";
+const FORM_H_1 = "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05DC\u05DA \u05DC\u05D2\u05D3\u05D5\u05DC, ";
+const FORM_H_GOLD =
+  "\u05DC\u05D4\u05EA\u05E7\u05D3\u05DD \u05D5\u05DC\u05D1\u05E0\u05D5\u05EA";
+const FORM_H_2 =
+  " \u05D0\u05EA \u05D4\u05E2\u05EA\u05D9\u05D3 \u05E9\u05DC\u05DA.";
+const LBL_NAME = "\u05E9\u05DD \u05DE\u05DC\u05D0";
+const LBL_AGE = "\u05D2\u05D9\u05DC";
+const LBL_PHONE = "\u05DE\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05DF";
+const BTN_SEND =
+  "\u05E9\u05DC\u05D9\u05D7\u05EA \u05E4\u05E8\u05D8\u05D9\u05DD";
+const NOTE_PRIVACY =
+  "\u05D4\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05E9\u05DE\u05E8\u05D9\u05DD \u05D1\u05E1\u05D5\u05D3\u05D9\u05D5\u05EA. \u05E0\u05D7\u05D6\u05D5\u05E8 \u05D0\u05DC\u05D9\u05DA \u05D1\u05D4\u05E7\u05D3\u05DD.";
+const SENT_TITLE =
+  "\u05D4\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05E9\u05DC\u05D7\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4";
+const SENT_BODY =
+  "\u05E0\u05D9\u05E6\u05D5\u05E8 \u05D0\u05D9\u05EA\u05DA \u05E7\u05E9\u05E8 \u05D1\u05E7\u05E8\u05D5\u05D1. \u05EA\u05D5\u05D3\u05D4 \u05E9\u05E4\u05E0\u05D9\u05EA \u05D0\u05DC\u05D9\u05E0\u05D5.";
+const SIGN_OFF =
+  "\u05D9\u05D7\u05D9 \u05D0\u05D3\u05D5\u05E0\u05D9\u05E0\u05D5 \u05DE\u05D5\u05E8\u05D9\u05E0\u05D5 \u05D5\u05E8\u05D1\u05D9\u05E0\u05D5 \u05DE\u05DC\u05DA \u05D4\u05DE\u05E9\u05D9\u05D7 \u05DC\u05E2\u05D5\u05DC\u05DD \u05D5\u05E2\u05D3";
+
 function FormSection() {
-  const [form, setForm] = useState({ name: "", age: "", phone: "" });
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [phone, setPhone] = useState("");
   const [sent, setSent] = useState(false);
 
-  const set = (k: keyof typeof form) => (v: string) =>
-    setForm((p) => ({ ...p, [k]: v }));
-
-  const submit = (e: React.FormEvent) => {
+  const submit = function (e: React.FormEvent) {
     e.preventDefault();
     // TODO: connect to your API route / CRM
-    console.log("[YESHIVA_FORM]", form);
+    console.log("FORM", { name: name, age: age, phone: phone });
     setSent(true);
   };
 
@@ -1713,7 +1442,7 @@ function FormSection() {
           style={{
             borderRadius: R.card,
             background: CARD.solid,
-            border: `1px solid ${CARD.glassLine}`,
+            border: BORDER_CARD_LINE,
             boxShadow: "0 28px 76px rgba(0,0,0,0.32)",
           }}
         >
@@ -1724,15 +1453,19 @@ function FormSection() {
 
           <div
             className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 blur-[100px]"
-            style={{ background: `${GOLD.base}1A` }}
+            style={{ background: GOLD_A18 }}
           />
 
           <Reveal>
             <span
               className="relative text-[11px] tracking-[0.32em]"
-              style={{ fontFamily: FONT_BODY, fontWeight: 700, color: GOLD.deep }}
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                color: GOLD.deep,
+              }}
             >
-              הרשמה
+              {FORM_KICKER}
             </span>
           </Reveal>
 
@@ -1741,7 +1474,7 @@ function FormSection() {
               className="relative mt-4 max-w-[20ch] text-[30px] leading-[1.16] sm:text-5xl lg:text-[54px]"
               style={{ fontFamily: FONT_HEAD, color: "#1E293B" }}
             >
-              המקום שלך לגדול,{" "}
+              {FORM_H_1}
               <span
                 style={{
                   background: GOLD_GRADIENT,
@@ -1750,9 +1483,9 @@ function FormSection() {
                   backgroundClip: "text",
                 }}
               >
-                להתקדם ולבנות
-              </span>{" "}
-              את העתיד שלך.
+                {FORM_H_GOLD}
+              </span>
+              {FORM_H_2}
             </h2>
           </Reveal>
 
@@ -1772,26 +1505,26 @@ function FormSection() {
                 <div className="grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-3">
                   <Field
                     id="name"
-                    label="שם מלא"
-                    value={form.name}
-                    onChange={set("name")}
+                    label={LBL_NAME}
+                    value={name}
+                    onChange={setName}
                     delay={0}
                   />
                   <Field
                     id="age"
-                    label="גיל"
-                    value={form.age}
-                    onChange={set("age")}
+                    label={LBL_AGE}
+                    value={age}
+                    onChange={setAge}
                     inputMode="numeric"
                     delay={0.08}
                   />
                   <Field
                     id="phone"
-                    label="מספר טלפון"
+                    label={LBL_PHONE}
                     type="tel"
                     inputMode="tel"
-                    value={form.phone}
-                    onChange={set("phone")}
+                    value={phone}
+                    onChange={setPhone}
                     delay={0.16}
                   />
                 </div>
@@ -1815,10 +1548,10 @@ function FormSection() {
                       fontSize: 16,
                       borderRadius: R.sm,
                       background: GOLD_GRADIENT,
-                      boxShadow: `0 14px 38px ${GOLD.base}4D`,
+                      boxShadow: SHADOW_GOLD_LG,
                     }}
                   >
-                    שליחת פרטים
+                    {BTN_SEND}
                     <Send
                       strokeWidth={2.2}
                       className="h-4 w-4 transition-transform duration-500 group-hover:-translate-x-1"
@@ -1829,7 +1562,7 @@ function FormSection() {
                     className="max-w-[30ch] text-[12px] leading-relaxed"
                     style={{ fontFamily: FONT_BODY, color: "#64748B" }}
                   >
-                    הפרטים נשמרים בסודיות. נחזור אליך בהקדם.
+                    {NOTE_PRIVACY}
                   </p>
                 </motion.div>
               </motion.form>
@@ -1842,8 +1575,8 @@ function FormSection() {
                 className="relative flex flex-col items-start gap-6 p-8 sm:flex-row sm:items-center sm:gap-8 sm:p-12"
                 style={{
                   borderRadius: R.card,
-                  background: "rgba(212,175,55,0.08)",
-                  border: `1px solid ${GOLD.base}4D`,
+                  background: GOLD_A12,
+                  border: BORDER_GOLD_STRONG,
                 }}
               >
                 <motion.div
@@ -1854,7 +1587,7 @@ function FormSection() {
                   style={{
                     borderRadius: R.pill,
                     background: GOLD_GRADIENT,
-                    boxShadow: `0 12px 32px ${GOLD.base}4D`,
+                    boxShadow: SHADOW_GOLD_MD,
                   }}
                 >
                   <Check
@@ -1868,13 +1601,13 @@ function FormSection() {
                     className="text-[24px] leading-tight sm:text-[34px]"
                     style={{ fontFamily: FONT_HEAD, color: "#1E293B" }}
                   >
-                    הפרטים נשלחו בהצלחה
+                    {SENT_TITLE}
                   </h3>
                   <p
                     className="mt-2 text-[14px] leading-relaxed sm:text-base"
                     style={{ fontFamily: FONT_BODY, color: "#475569" }}
                   >
-                    ניצור איתך קשר בקרוב. תודה שפנית אלינו.
+                    {SENT_BODY}
                   </p>
                 </div>
               </motion.div>
@@ -1882,16 +1615,19 @@ function FormSection() {
           </AnimatePresence>
         </div>
 
-        {/* Single quiet line — not a footer */}
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.4, ease: EASE }}
           className="mt-12 text-center text-[11px] tracking-[0.22em]"
-          style={{ fontFamily: FONT_BODY, fontWeight: 600, color: `${GOLD.light}80` }}
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            color: GOLD_LIGHT_A50,
+          }}
         >
-          יחי אדונינו מורינו ורבינו מלך המשיח לעולם ועד
+          {SIGN_OFF}
         </motion.p>
       </div>
     </section>
@@ -1901,10 +1637,10 @@ function FormSection() {
 /* ==================================================================
    MAIN CONTENT
 ================================================================== */
-function MainContent({ video }: { video?: WeeklyVideo }) {
+function MainContent(props: { video?: WeeklyVideo }) {
   return (
     <main className="relative w-full" style={{ background: BG.page }}>
-      <HeroSection video={video} />
+      <HeroSection video={props.video} />
       <ScrollMarquees />
       <TracksSection />
       <FAQSection />
@@ -1914,20 +1650,30 @@ function MainContent({ video }: { video?: WeeklyVideo }) {
 }
 
 /* ==================================================================
-   PAGE — BottomDock is the last element. Nothing below it.
+   GLOBAL CSS - built with concatenation, zero backticks
+================================================================== */
+const GLOBAL_CSS =
+  "html, body { background: " +
+  BG.page +
+  "; } " +
+  "::selection { background: rgba(212,175,55,0.25); color: #1E293B; } " +
+  "input::placeholder { color: #94A3B8; } " +
+  "@media (prefers-reduced-motion: reduce) { *, *::before, *::after { " +
+  "animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }";
+
+/* ==================================================================
+   PAGE - BottomDock is the last element. Nothing below it.
 ================================================================== */
 export default function Page() {
-  const { section, docked } = useScrollState();
+  const state = useScrollState();
 
-  // CMS hook-up point
-  const weeklyVideo: WeeklyVideo | undefined = useMemo(
-    () => ({
+  const weeklyVideo: WeeklyVideo = useMemo(function () {
+    return {
       // src: "/videos/hero.mp4",
       // poster: "/videos/hero-poster.jpg",
-      caption: "מתעדכן כל שבוע",
-    }),
-    []
-  );
+      caption: "weekly",
+    };
+  }, []);
 
   return (
     <div
@@ -1936,30 +1682,19 @@ export default function Page() {
       className="min-h-screen antialiased"
       style={{ fontFamily: FONT_BODY, color: BG.text, background: BG.page }}
     >
-      <style>{`
-        html, body { background: ${BG.page}; }
-        ::selection { background: ${GOLD.base}40; color: #1E293B; }
-        input::placeholder { color: #94A3B8; }
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
+      <style>{GLOBAL_CSS}</style>
 
-      <AmbientFloaters section={section} />
+      <AmbientFloaters section={state.section} />
       <TopHeader />
 
       <SmoothScrollProvider>
         <MainContent video={weeklyVideo} />
       </SmoothScrollProvider>
 
-      {/* LayoutGroup enables the gold WhatsApp → dock slot-1 morph */}
       <LayoutGroup>
-        <FloatingWhatsApp docked={docked} />
-        <BottomDock docked={docked} />
+        <FloatingWhatsApp docked={state.docked} />
+        <BottomDock docked={state.docked} />
       </LayoutGroup>
     </div>
   );
-}
+                }
