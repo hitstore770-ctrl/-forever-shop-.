@@ -1,152 +1,51 @@
-@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap");
 
-/*
-  Brand palette, art-directed as raw/brutalist collage with pure black
-  borders/shadows for hard contrast. Anchored to the logo's two brand
-  colors, exposed as scales so hovers/gradients/text all have room:
-  - navy   -> Royal Chabad Blue (#1A4A88 at 900) — dark sections, footer,
-              headline ink. 950 is a deeper royal for the darkest ink/bg;
-              800->600 lighten for gradients & secondary fills.
-  - copper -> Crown Gold (#E5B842 at 500) — CTAs, icons, highlights, ticker.
-              300/400 are lighter golds; 600/700 stay deep gold-brown so
-              they remain legible as accent TEXT on the cream background.
-  - cream  -> base background (soft off-white, easier on the eyes than pure white)
-  Exposed as Tailwind utilities via @theme, e.g. bg-navy-900, text-copper-500, bg-cream.
-*/
-@theme {
-  --color-navy-950: #12325c;
-  --color-navy-900: #1a4a88;
-  --color-navy-800: #24589c;
-  --color-navy-700: #2f69b4;
-  --color-navy-600: #3e7ac4;
-
-  --color-copper-300: #f5dc8c;
-  --color-copper-400: #edc95c;
-  --color-copper-500: #e5b842;
-  --color-copper-600: #9a7318;
-  --color-copper-700: #77590f;
-
-  --color-cream: #fbf6ec;
-  --color-cream-dark: #f1e7d4;
-
-  /* --- Light / "lux" surfaces (home-page redesign) -------------------
-     A brighter, softer surface set used by the redesigned home page.
-     Purely additive: every token above is untouched, so the brutalist
-     look of the other pages is unaffected. */
-  --color-pearl: #fdfcfa;
-  --color-pearl-dark: #f5f1ea;
-
-  --font-sans: var(--font-assistant);
-
-  --animate-marquee: marquee 22s linear infinite;
+@font-face {
+  font-family: "Bona Nova S";
+  src: local("Bona Nova SC");
+  font-weight: 400 700;
 }
 
-@keyframes marquee {
-  from {
-    transform: translateX(0%);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+:root {
+  --color-navy: #0f2545;
+  --color-navy-deep: #0a1a33;
+  --color-gold: #c9a24b;
+  --color-gold-light: #e4c976;
+  --color-cream: #faf7f0;
+  --color-cream-blue: #f5f7fb;
 }
 
-/* Hard-edged "brutalist" shadows — used instead of soft/blurred shadows on
-   cards, buttons, and collage media blocks to get the raw, notebook feel. */
-@utility shadow-brutal {
-  box-shadow: 6px 6px 0 0 #000;
-}
-@utility shadow-brutal-lg {
-  box-shadow: 10px 10px 0 0 #000;
-}
-@utility shadow-brutal-copper {
-  box-shadow: 6px 6px 0 0 var(--color-copper-500);
-}
-@utility shadow-brutal-none {
-  box-shadow: 0 0 0 0 #000;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* Soft, diffused shadows for the light/lux surfaces — the opposite of the
-   hard offsets above. Tinted with the brand navy rather than neutral grey so
-   the cards still read as part of the palette instead of generic Material. */
-@utility shadow-lux {
-  box-shadow:
-    0 1px 2px rgba(18, 50, 92, 0.04),
-    0 8px 24px -8px rgba(18, 50, 92, 0.12);
-}
-@utility shadow-lux-lg {
-  box-shadow:
-    0 2px 4px rgba(18, 50, 92, 0.04),
-    0 28px 64px -16px rgba(18, 50, 92, 0.18);
-}
-@utility shadow-lux-inset {
-  box-shadow: inset 0 0 0 1px rgba(18, 50, 92, 0.07);
-}
-
-/* Subtle grain texture layered over collage/media placeholders for a raw,
-   unpolished print feel instead of a flat gradient. */
-@utility bg-grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--color-cream);
-  color: var(--color-navy-900);
+  direction: rtl;
+  text-align: right;
+  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-cream-blue) 100%);
+  color: var(--color-navy);
+  font-family: "Assistant", sans-serif;
+  overflow-x: hidden;
 }
 
-/* Sitewide "printed paper" grain — a fixed, pointer-events-none overlay so it
-   sits above every section (including dark/photo blocks) without affecting
-   layout or intercepting clicks. Kept very low-opacity so it reads as paper
-   texture, not visible noise. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  pointer-events: none;
-  opacity: 0.09;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+h1, h2, h3, h4, h5 {
+  font-family: "Bona Nova S", serif;
 }
 
-/* --- Toast notifications (sonner), themed to the brutalist brand look ---
-   Applied via <BrandToaster>'s toastOptions.classNames. Cream card with a
-   thick black border + hard offset shadow, and a brand-color type accent:
-   Crown Gold for success, Chabad Blue for errors. */
-.brand-toast {
-  background: var(--color-cream) !important;
-  color: var(--color-navy-950) !important;
-  border: 3px solid #000 !important;
-  border-radius: 0 !important;
-  box-shadow: 6px 6px 0 0 #000 !important;
-  font-family: inherit !important;
-}
-.brand-toast-title {
-  font-weight: 600 !important;
-  color: var(--color-navy-950) !important;
-}
-.brand-toast-desc {
-  color: color-mix(in srgb, var(--color-navy-900) 70%, transparent) !important;
-}
-[data-sonner-toast][data-type="success"] {
-  border-inline-start-width: 10px !important;
-  border-inline-start-color: var(--color-copper-500) !important;
-}
-[data-sonner-toast][data-type="error"] {
-  border-inline-start-width: 10px !important;
-  border-inline-start-color: var(--color-navy-900) !important;
-}
-[data-sonner-toast][data-type="success"] [data-icon] {
-  color: var(--color-copper-600) !important;
-}
-[data-sonner-toast][data-type="error"] [data-icon] {
-  color: var(--color-navy-900) !important;
+.logo-text {
+  font-family: "Assistant", sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-/* The sitewide grain above is part of the brutalist "printed paper" look and
-   fights the clean light surfaces of the redesigned home page. Rather than
-   move the overlay into a component (which every other page would then have
-   to opt into), the home page marks itself with .lux-page and the grain is
-   dialled down to a barely-there sheen just for it. */
-body:has(.lux-page)::before {
-  opacity: 0.035;
+::selection {
+  background: var(--color-gold);
+  color: var(--color-navy-deep);
 }
