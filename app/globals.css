@@ -22,7 +22,19 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+}
+
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 body {
@@ -48,4 +60,23 @@ h1, h2, h3, h4, h5 {
 ::selection {
   background: var(--color-gold);
   color: var(--color-navy-deep);
+}
+
+/* Touch / Selection Optimization */
+img, .no-select-card {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+/* Prevent iOS auto-zoom on inputs */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
 }
