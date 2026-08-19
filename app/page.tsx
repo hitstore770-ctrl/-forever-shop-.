@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useScroll,
   useTransform,
   useMotionValue,
   useSpring,
+  useMotionTemplate,
   AnimatePresence,
 } from "framer-motion";
 import Lenis from "lenis";
@@ -14,7 +15,6 @@ import Lenis from "lenis";
 export default function Home() {
   const [isAtBottom, setIsAtBottom] = useState(false);
 
-  // ---- Lenis Smooth Scroll (Global) ----
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.1,
@@ -37,13 +37,26 @@ export default function Home() {
     };
   }, []);
 
-  // ---- Bottom detection for WhatsApp Morph ----
+  // ---- Reverse WhatsApp Morph: tracks bottom AND scroll direction ----
   useEffect(() => {
+    let lastY = window.scrollY;
+
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + window.innerHeight;
+      const currentY = window.scrollY;
+      const scrollPosition = currentY + window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       const threshold = 120;
-      setIsAtBottom(scrollPosition >= documentHeight - threshold);
+
+      const nearBottom = scrollPosition >= documentHeight - threshold;
+      const scrollingUp = currentY < lastY;
+
+      if (nearBottom) {
+        setIsAtBottom(true);
+      } else if (scrollingUp || currentY < documentHeight - threshold - 200) {
+        setIsAtBottom(false);
+      }
+
+      lastY = currentY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -52,10 +65,13 @@ export default function Home() {
   }, []);
 
   return (
-    <main dir="rtl" className="relative w-full">
+    <main dir="rtl" className="relative w-full select-none-strict" style={{ overscrollBehaviorY: "none" }}>
+      <NoiseOverlay />
+      <CustomCursor />
       <ScrollProgressBar />
       <FloatingLogo />
       <HeroSection />
+      <SectionDivider />
       <MarqueeSection />
       <BentoGridSection />
       <FaqSection />
@@ -68,7 +84,109 @@ export default function Home() {
 }
 
 /* ---------------------------------------------
-   SCROLL PROGRESS BAR (Gold, 2px, right edge)
+   NOISE TEXTURE OVERLAY
+--------------------------------------------- */
+function NoiseOverlay() {
+  return <div className="noise-overlay" aria-hidden="true" />;
+}
+
+/* ---------------------------------------------
+   SVG SECTION DIVIDER (Cream -> Navy wave transition)
+--------------------------------------------- */
+function SectionDivider() {
+  return (
+    <div className="relative w-full leading-[0]" style={{ marginTop: "-2px" }} aria-hidden="true">
+      <svg
+        viewBox="0 0 1440 120"
+        preserveAspectRatio="none"
+        className="w-full h-[70px] md:h-[110px]"
+        style={{ display: "block" }}
+      >
+        <path
+          d="M0,64 C240,120 480,0 720,32 C960,64 1200,120 1440,48 L1440,120 L0,120 Z"
+          fill="var(--color-navy)"
+        />
+      </svg>
+    </div>
+  );
+}
+
+/* ---------------------------------------------
+   CUSTOM CURSOR (Desktop only)
+--------------------------------------------- */
+function CustomCursor() {
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [isPointer, setIsPointer] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const dotX = useMotionValue(-100);
+  const dotY = useMotionValue(-100);
+  const ringX = useSpring(dotX, { stiffness: 260, damping: 22, mass: 0.4 });
+  const ringY = useSpring(dotY, { stiffness: 260, damping: 22, mass: 0.4 });
+
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    setIsDesktop(mq.matches);
+
+    const handleMove = (e: MouseEvent) => {
+      dotX.set(e.clientX - 5);
+      dotY.set(e.clientY - 5);
+      setIsVisible(true);
+
+      const target = e.target as HTMLElement;
+      const interactive = target.closest("a, button, [role='button'], input, select, textarea");
+      setIsPointer(!!interactive);
+    };
+
+    const handleLeave = () => setIsVisible(false);
+
+    if (mq.matches) {
+      window.addEventListener("mousemove", handleMove);
+      document.addEventListener("mouseleave", handleLeave);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseleave", handleLeave);
+    };
+  }, [dotX, dotY]);
+
+  if (!isDesktop) return null;
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <>
+          <motion.div
+            className="custom-cursor"
+            style={{ x: dotX, y: dotY }}
+            animate={{ scale: isPointer ? 1.8 : 1 }}
+            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+          />
+          <motion.div
+            className="custom-cursor-ring"
+            style={{
+              x: useMotionTemplate`calc(${ringX}px - 11px)`,
+              y: useMotionTemplate`calc(${ringY}px - 11px)`,
+            }}
+            animate={{
+              scale: isPointer ? 1.4 : 1,
+              borderColor: isPointer ? "rgba(201,162,75,0.6)" : "rgba(15,37,69,0.35)",
+            }}
+            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+          />
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ---------------------------------------------
+   SCROLL PROGRESS BAR
 --------------------------------------------- */
 function ScrollProgressBar() {
   const { scrollYProgress } = useScroll();
@@ -84,6 +202,7 @@ function ScrollProgressBar() {
       style={{ width: "2px" }}
     >
       <motion.div
+        className="motion-optimized"
         style={{
           scaleY,
           transformOrigin: "top",
@@ -97,7 +216,7 @@ function ScrollProgressBar() {
 }
 
 /* ---------------------------------------------
-   FLOATING GOLDEN PARTICLES (subtle, slow)
+   FLOATING GOLDEN PARTICLES
 --------------------------------------------- */
 function FloatingParticles({ count = 14 }: { count?: number }) {
   const particles = useMemo(() => {
@@ -142,7 +261,95 @@ function FloatingParticles({ count = 14 }: { count?: number }) {
 }
 
 /* ---------------------------------------------
-   FLOATING TOP-LEFT LOGO (Glassmorphism)
+   CONTEXTUAL FLOATING EMOJI
+--------------------------------------------- */
+function FloatingEmoji({
+  emoji,
+  top,
+  left,
+  size = 40,
+  duration = 8,
+  opacity = 0.12,
+}: {
+  emoji: string;
+  top: string;
+  left: string;
+  size?: number;
+  duration?: number;
+  opacity?: number;
+}) {
+  return (
+    <motion.div
+      className="floating-emoji"
+      style={{
+        top,
+        left,
+        fontSize: size + "px",
+        opacity,
+      }}
+      animate={{
+        y: [0, -18, 0],
+        rotate: [0, 6, 0, -6, 0],
+      }}
+      transition={{
+        duration,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+      aria-hidden="true"
+    >
+      {emoji}
+    </motion.div>
+  );
+}
+
+/* ---------------------------------------------
+   TEXT REVEAL
+--------------------------------------------- */
+function RevealText({
+  children,
+  as = "div",
+  delay = 0,
+  className = "",
+  style = {},
+  viewportOnce = true,
+  useInView = true,
+}: {
+  children: React.ReactNode;
+  as?: "div" | "h1" | "h2" | "h3" | "span";
+  delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  viewportOnce?: boolean;
+  useInView?: boolean;
+}) {
+  const Tag = motion[as as "div"];
+
+  const initialProps = useInView
+    ? { initial: "hidden", whileInView: "show", viewport: { once: viewportOnce } }
+    : { initial: "hidden", animate: "show" };
+
+  return (
+    <div className={className} style={{ overflow: "hidden", ...style }}>
+      <Tag
+        className="motion-optimized"
+        variants={{
+          hidden: { y: "110%" },
+          show: {
+            y: "0%",
+            transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
+          },
+        }}
+        {...initialProps}
+      >
+        {children}
+      </Tag>
+    </div>
+  );
+}
+
+/* ---------------------------------------------
+   FLOATING TOP-LEFT LOGO
 --------------------------------------------- */
 function FloatingLogo() {
   return (
@@ -150,7 +357,8 @@ function FloatingLogo() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="fixed top-5 left-5 z-[100] flex items-center gap-3 px-4 py-2 rounded-2xl no-select-card"
+      draggable="false"
+      className="fixed top-5 left-5 z-[100] flex items-center gap-3 px-4 py-2 rounded-2xl no-select-card select-none-strict"
       style={{
         background: "rgba(255, 255, 255, 0.15)",
         backdropFilter: "blur(14px)",
@@ -253,7 +461,58 @@ function Typewriter() {
 }
 
 /* ---------------------------------------------
-   HERO SECTION (video, ambilight, blur, mute btn)
+   MAGNETIC BUTTON
+--------------------------------------------- */
+function MagneticButton({
+  children,
+  className = "",
+  style = {},
+  ariaLabel,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  ariaLabel?: string;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.3 });
+  const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.3 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (window.matchMedia("(hover: none)").matches) return;
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    const relX = e.clientX - rect.left - rect.width / 2;
+    const relY = e.clientY - rect.top - rect.height / 2;
+    x.set(relX * 0.35);
+    y.set(relY * 0.35);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.button
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      whileTap={{ scale: 0.95 }}
+      draggable="false"
+      aria-label={ariaLabel}
+      style={{ x: springX, y: springY, ...style }}
+      className={"motion-optimized min-hitbox " + className}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+/* ---------------------------------------------
+   HERO SECTION
 --------------------------------------------- */
 function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -269,14 +528,11 @@ function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.45, 0.75]);
 
-  // Dynamic backdrop blur as user scrolls past the hero
   const blurAmount = useTransform(scrollYProgress, [0, 1], [0, 14]);
   const videoBackdropFilter = useTransform(blurAmount, (v) => "blur(" + v + "px)");
 
-  // Interactive text: soft scale-down as you scroll away
   const textScale = useTransform(scrollYProgress, [0, 1], [1, 0.88]);
 
-  // Parallax for ambilight glow behind video
   const glowY = useTransform(scrollYProgress, [0, 1], [0, 120]);
 
   const toggleMute = () => {
@@ -296,10 +552,9 @@ function HeroSection() {
           "radial-gradient(ellipse at 50% 30%, rgba(201,162,75,0.18) 0%, rgba(201,162,75,0) 60%), var(--color-navy-deep)",
       }}
     >
-      <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
-        {/* AMBILIGHT GLOW (parallax) */}
+      <div className="sticky top-0 min-h-[100dvh] h-[100dvh] w-full overflow-hidden">
         <motion.div
-          className="absolute inset-0 pointer-events-none z-0"
+          className="absolute inset-0 pointer-events-none z-0 motion-optimized"
           style={{
             y: glowY,
             background:
@@ -307,7 +562,6 @@ function HeroSection() {
           }}
         />
 
-        {/* VIDEO BACKGROUND - full screen, part of scroll flow, not a card */}
         <motion.video
           ref={videoRef}
           preload="auto"
@@ -315,33 +569,31 @@ function HeroSection() {
           muted
           loop
           playsInline
+          draggable="false"
           style={{ scale, backdropFilter: videoBackdropFilter, WebkitBackdropFilter: videoBackdropFilter }}
-          className="absolute inset-0 w-full h-full object-cover no-select-card z-[1]"
+          className="absolute inset-0 w-full h-full object-cover no-select-card select-none-strict z-[1] motion-optimized"
         >
           <source src="/hero-video.mp4" type="video/mp4" />
         </motion.video>
 
-        {/* Subtle 10% dark blue overlay (always on, constant) */}
         <div
           className="absolute inset-0 z-[2] pointer-events-none"
           style={{ background: "rgba(10, 26, 51, 0.1)" }}
         />
 
-        {/* DARK OVERLAY FOR CONTRAST (scroll-driven) */}
         <motion.div
-          className="absolute inset-0 z-[2]"
+          className="absolute inset-0 z-[2] motion-optimized"
           style={{
             opacity: overlayOpacity,
             background: "linear-gradient(180deg, rgba(10,26,51,0.55) 0%, rgba(10,26,51,0.75) 100%)",
           }}
         />
 
-        {/* CONTENT - directly over video, no card wrapper */}
         <motion.div
           style={{ opacity, scale: textScale }}
-          className="relative z-10 flex flex-col items-center justify-center h-full w-full px-6 text-center"
+          className="relative z-10 flex flex-col items-center justify-center h-full w-full px-6 text-center select-none-strict motion-optimized"
         >
-          <motion.span
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
@@ -355,25 +607,25 @@ function HeroSection() {
             }}
           >
             לבחורים בגילאי 20–35 | בלב ירושלים
-          </motion.span>
+          </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
-            className="text-white font-bold max-w-4xl text-3xl md:text-5xl lg:text-6xl leading-tight md:leading-tight"
+          <RevealText
+            as="h1"
+            delay={0.5}
+            useInView={false}
+            className="text-white font-bold max-w-4xl fluid-h1 leading-tight md:leading-tight tracking-tight"
             style={{
               fontFamily: "Bona Nova S, serif",
               textShadow: "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
             מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים
-          </motion.h1>
+          </RevealText>
 
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
+            transition={{ delay: 0.9, duration: 0.8, ease: "easeOut" }}
             className="mt-6 text-lg md:text-2xl text-white/90 max-w-2xl"
             style={{ textShadow: "0 1px 10px rgba(10,26,51,0.65)" }}
           >
@@ -384,22 +636,22 @@ function HeroSection() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.8, ease: "easeOut" }}
+            transition={{ delay: 1.1, duration: 0.8, ease: "easeOut" }}
             className="mt-10 flex flex-col sm:flex-row items-center gap-4"
           >
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold transition-transform hover:scale-105"
+            <MagneticButton
+              ariaLabel="הרשם עכשיו"
+              className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold"
               style={{
                 background: "var(--color-gold)",
                 color: "var(--color-navy-deep)",
               }}
             >
               [ הרשם עכשיו ]
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold border transition-all hover:bg-white/10"
+            </MagneticButton>
+            <MagneticButton
+              ariaLabel="מה מתאים לך"
+              className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold border"
               style={{
                 borderColor: "rgba(255,255,255,0.6)",
                 color: "#ffffff",
@@ -407,35 +659,34 @@ function HeroSection() {
               }}
             >
               [ מה מתאים לך? ]
-            </motion.button>
+            </MagneticButton>
           </motion.div>
         </motion.div>
 
-        {/* MUTE / UNMUTE BUTTON (glassmorphism, bottom-right of video) */}
         <motion.button
           onClick={toggleMute}
           whileTap={{ scale: 0.9 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          className="absolute bottom-8 right-6 z-20 w-10 h-10 rounded-full flex items-center justify-center"
+          aria-label={isMuted ? "הפעל קול" : "השתק קול"}
+          className="absolute bottom-8 right-6 z-20 min-hitbox rounded-full flex items-center justify-center"
           style={{
             background: "rgba(255,255,255,0.12)",
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
             border: "1px solid rgba(255,255,255,0.25)",
           }}
-          aria-label="Toggle mute"
         >
           {isMuted ? <MuteIcon /> : <UnmuteIcon />}
         </motion.button>
 
-        {/* SCROLL INDICATOR */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4, duration: 0.8 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+          aria-hidden="true"
         >
           <div
             className="w-6 h-10 rounded-full border-2 flex justify-center pt-2"
@@ -456,7 +707,7 @@ function HeroSection() {
 
 function MuteIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M4 9v6h4l5 5V4L8 9H4z" fill="#ffffff" />
       <path d="M17 8l5 8M22 8l-5 8" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
@@ -465,7 +716,7 @@ function MuteIcon() {
 
 function UnmuteIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M4 9v6h4l5 5V4L8 9H4z" fill="#ffffff" />
       <path
         d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"
@@ -485,17 +736,17 @@ function MarqueeSection() {
   const line2 = "תורה, חסידות וכלים לחיים — עד להקמת בית יהודי חסידי • להתעלות ולהתקדם • ";
 
   return (
-    <section className="relative w-full py-10 overflow-hidden" style={{ background: "var(--color-navy)" }}>
+    <section className="relative w-full py-10 overflow-hidden select-none-strict" style={{ background: "var(--color-navy)" }}>
       <div className="relative flex overflow-hidden mb-4">
         <motion.div
-          className="flex whitespace-nowrap"
+          className="flex whitespace-nowrap motion-optimized"
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         >
           {Array.from({ length: 4 }).map((_, i) => (
             <span
               key={i}
-              className="text-2xl md:text-4xl font-bold px-4"
+              className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
               style={{ fontFamily: "Bona Nova S, serif", color: "var(--color-gold-light)" }}
             >
               {line1}
@@ -506,14 +757,14 @@ function MarqueeSection() {
 
       <div className="relative flex overflow-hidden">
         <motion.div
-          className="flex whitespace-nowrap"
+          className="flex whitespace-nowrap motion-optimized"
           animate={{ x: ["-50%", "0%"] }}
           transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
         >
           {Array.from({ length: 4 }).map((_, i) => (
             <span
               key={i}
-              className="text-2xl md:text-4xl font-bold px-4"
+              className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
               style={{ fontFamily: "Bona Nova S, serif", color: "rgba(255,255,255,0.85)" }}
             >
               {line2}
@@ -526,13 +777,13 @@ function MarqueeSection() {
 }
 
 /* ---------------------------------------------
-   BENTO GRID SECTION (THE PATHS) - staggered, particles, parallax
+   BENTO GRID SECTION (with Read Time pill)
 --------------------------------------------- */
 const gridContainerVariants = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.15,
     },
   },
 };
@@ -546,7 +797,7 @@ const gridItemVariants = {
   },
 };
 
-function BentoGridSection() {
+const BentoGridSection = React.memo(function BentoGridSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -556,22 +807,22 @@ function BentoGridSection() {
 
   const cards = [
     {
-      number: "01",
+      number: 1,
       title: "המסלול הלימודי המלא – שנתיים",
       desc: "לימוד תורה וחסידות, עבודת ה', סדר יום ישיבתי, ליווי אישי והכנה מעשית ורוחנית להמשך החיים.",
     },
     {
-      number: "02",
+      number: 2,
       title: "חצי יום לימוד וחצי יום עבודה – 3 שנים",
       desc: "לשלב בין מסגרת ישיבתית משמעותית לחיים מעשיים. בניית אחריות אישית, יציבות והכנה לחיי נישואין.",
     },
     {
-      number: "03",
+      number: 3,
       title: "המסלול האקסטרני",
       desc: "ללמוד בישיבה ולהמשיך להתגורר בבית. חברותות קבועות, השתתפות בהתוועדויות ובחיי החברה החסידית.",
     },
     {
-      number: "04",
+      number: 4,
       title: "מסלול השלוחים",
       desc: "לימוד פרטני עם בחורים למדנים שהגיעו מ-770. ליווי אישי שעוזר להשתלב, להתקדם ולבנות הרגלי לימוד.",
     },
@@ -580,24 +831,41 @@ function BentoGridSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden"
+      className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden select-none-strict"
       style={{ background: "var(--color-cream)" }}
     >
-      <motion.div style={{ y: bgParallaxY }} className="absolute inset-0 z-0">
+      <motion.div style={{ y: bgParallaxY }} className="absolute inset-0 z-0 motion-optimized">
         <FloatingParticles count={12} />
+        <FloatingEmoji emoji="📖" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
+        <FloatingEmoji emoji="📚" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
       </motion.div>
 
-      <div className="relative z-10 max-w-6xl mx-auto text-center mb-16">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-3xl md:text-5xl font-bold mb-6"
+      <div className="relative z-10 max-w-6xl mx-auto text-center mb-10">
+        <RevealText
+          as="h2"
+          className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
           מסלול שמתאים לרמה, ליכולות ולמטרות שלך.
-        </motion.h2>
+        </RevealText>
+
+        {/* Read Time Pill */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm mb-6"
+          style={{
+            background: "rgba(201,162,75,0.12)",
+            color: "var(--color-navy)",
+            border: "1px solid rgba(201,162,75,0.35)",
+          }}
+        >
+          <span aria-hidden="true">⏱️</span>
+          <span>קריאה של דקה</span>
+        </motion.div>
+
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -623,24 +891,68 @@ function BentoGridSection() {
       </motion.div>
     </section>
   );
+});
+
+/* ---------------------------------------------
+   ANIMATED NUMBER COUNTER
+--------------------------------------------- */
+function NumberCounter({ target }: { target: number }) {
+  const [count, setCount] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasStarted) {
+          setHasStarted(true);
+          const duration = 1200;
+          const startTime = performance.now();
+
+          const step = (now: number) => {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.round(eased * target));
+            if (progress < 1) {
+              requestAnimationFrame(step);
+            }
+          };
+          requestAnimationFrame(step);
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [hasStarted, target]);
+
+  const display = count < 10 ? "0" + count : String(count);
+
+  return <span ref={ref}>{display}</span>;
 }
 
 /* ---------------------------------------------
-   3D TILT CARD (Spring Physics)
+   3D TILT CARD (Spring Physics + Spotlight)
 --------------------------------------------- */
-function TiltCard({
+const TiltCard = React.memo(function TiltCard({
   card,
 }: {
-  card: { number: string; title: string; desc: string };
+  card: { number: number; title: string; desc: string };
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
+  const spotX = useMotionValue(-999);
+  const spotY = useMotionValue(-999);
+
   const springConfig = { stiffness: 150, damping: 20, mass: 0.5 };
   const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), springConfig);
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), springConfig);
+
+  const spotlightBackground = useMotionTemplate`radial-gradient(220px circle at ${spotX}px ${spotY}px, rgba(228,201,118,0.18), transparent 75%)`;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
@@ -649,11 +961,15 @@ function TiltCard({
     const y = (e.clientY - rect.top) / rect.height - 0.5;
     mouseX.set(x);
     mouseY.set(y);
+    spotX.set(e.clientX - rect.left);
+    spotY.set(e.clientY - rect.top);
   };
 
   const handleMouseLeave = () => {
     mouseX.set(0);
     mouseY.set(0);
+    spotX.set(-999);
+    spotY.set(-999);
   };
 
   return (
@@ -663,13 +979,15 @@ function TiltCard({
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         whileTap={{ scale: 0.97 }}
+        draggable="false"
+        tabIndex={0}
         style={{
           rotateX,
           rotateY,
           transformStyle: "preserve-3d",
           background: "var(--color-navy)",
         }}
-        className="relative rounded-[10px] p-8 md:p-10 min-h-[280px] flex flex-col justify-between cursor-pointer overflow-hidden no-select-card"
+        className="relative rounded-[10px] p-8 md:p-10 min-h-[280px] flex flex-col justify-between cursor-pointer overflow-hidden no-select-card select-none-strict motion-optimized"
       >
         <div
           className="absolute -top-16 -left-16 w-48 h-48 rounded-full pointer-events-none"
@@ -679,17 +997,22 @@ function TiltCard({
         />
 
         <motion.div
+          className="absolute inset-0 pointer-events-none motion-optimized"
+          style={{ background: spotlightBackground }}
+        />
+
+        <motion.div
           style={{ transform: "translateZ(40px)", transformStyle: "preserve-3d" }}
           className="relative z-10"
         >
           <span
-            className="text-5xl md:text-6xl font-bold block mb-6"
+            className="text-5xl md:text-6xl font-bold block mb-6 tracking-tight"
             style={{ color: "var(--color-gold)", fontFamily: "Bona Nova S, serif" }}
           >
-            {card.number}
+            <NumberCounter target={card.number} />
           </span>
           <h3
-            className="text-xl md:text-2xl font-bold text-white mb-4"
+            className="text-xl md:text-2xl font-bold text-white mb-4 tracking-tight"
             style={{ fontFamily: "Bona Nova S, serif" }}
           >
             {card.title}
@@ -701,16 +1024,16 @@ function TiltCard({
       </motion.div>
     </motion.div>
   );
-}
+});
 
 /* ---------------------------------------------
-   FAQ SECTION - staggered, parallax container, particles
+   FAQ SECTION
 --------------------------------------------- */
 const faqContainerVariants = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.12,
     },
   },
 };
@@ -724,7 +1047,7 @@ const faqItemVariants = {
   },
 };
 
-function FaqSection() {
+const FaqSection = React.memo(function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -737,39 +1060,48 @@ function FaqSection() {
   const faqs = [
     {
       q: "איך נראית הפנימייה?",
-      a: "פנימייה מרווחת, חדרים ממוזגים, מיטה וארון אישי לכל בחור ליצירת מקום נעים וביתי. מקווה טהרה חדש ומשופץ נמצא ממש בתוך הקמפוס.",
+      a: "פנימייה מרווחת, חדרים ממוזגים, מיטה וארון אישי לכל בחור ליצירת מקום נעים וביתי. ",
+      highlight: "מקווה טהרה חדש ומשופץ",
+      rest: " נמצא ממש בתוך הקמפוס.",
     },
     {
       q: "מה לגבי ארוחות?",
-      a: "שלוש ארוחות מסודרות ביום. טבח צמוד מכין ארוחת בוקר עשירה, וארוחות צהריים וערב חמות ומבושלות, כדי שתהיה פנוי באמת ללימוד.",
+      a: "שלוש ארוחות מסודרות ביום. טבח צמוד מכין ארוחת בוקר עשירה, ו",
+      highlight: "ארוחות צהריים וערב חמות ומבושלות",
+      rest: ", כדי שתהיה פנוי באמת ללימוד.",
     },
     {
       q: "מה האווירה החברתית בישיבה?",
-      a: "אווירה חסידית, חיה ונושמת. התוועדויות, שבתות משותפות, יציאה למבצעים, וקשר אישי בגובה העיניים עם הצוות והשלוחים.",
+      a: "אווירה חסידית, חיה ונושמת. ",
+      highlight: "התוועדויות, שבתות משותפות, יציאה למבצעים",
+      rest: ", וקשר אישי בגובה העיניים עם הצוות והשלוחים.",
     },
   ];
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden"
+      className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden select-none-strict"
       style={{ background: "var(--color-cream-blue)" }}
     >
+      <span className="watermark-quote" style={{ top: "-2rem", right: "5%" }} aria-hidden="true">
+        &#8221;
+      </span>
+
       <div className="absolute inset-0 z-0">
         <FloatingParticles count={10} />
+        <FloatingEmoji emoji="❓" top="15%" left="85%" size={46} duration={8} opacity={0.1} />
+        <FloatingEmoji emoji="🧭" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
       </div>
 
-      <motion.div style={{ y: containerParallaxY }} className="relative z-10 max-w-3xl mx-auto">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-3xl md:text-5xl font-bold text-center mb-16"
+      <motion.div style={{ y: containerParallaxY }} className="relative z-10 max-w-3xl mx-auto motion-optimized">
+        <RevealText
+          as="h2"
+          className="fluid-h2 font-bold text-center mb-16 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
           מה שחשוב לדעת
-        </motion.h2>
+        </RevealText>
 
         <motion.div
           variants={faqContainerVariants}
@@ -790,21 +1122,21 @@ function FaqSection() {
       </motion.div>
     </section>
   );
-}
+});
 
 function FaqItem({
   item,
   isOpen,
   onClick,
 }: {
-  item: { q: string; a: string };
+  item: { q: string; a: string; highlight: string; rest: string };
   isOpen: boolean;
   onClick: () => void;
 }) {
   return (
     <motion.div
       variants={faqItemVariants}
-      className="rounded-[10px] overflow-hidden no-select-card"
+      className="rounded-[10px] overflow-hidden no-select-card select-none-strict"
       style={{
         boxShadow: "0 8px 30px rgba(15, 37, 69, 0.1)",
       }}
@@ -812,11 +1144,13 @@ function FaqItem({
       <motion.button
         onClick={onClick}
         whileTap={{ scale: 0.98 }}
-        className="w-full flex items-center justify-between gap-4 px-6 md:px-8 py-6 text-right"
+        aria-label={"שאלה: " + item.q}
+        aria-expanded={isOpen}
+        className="w-full min-hitbox flex items-center justify-between gap-4 px-6 md:px-8 py-6 text-right"
         style={{ background: "var(--color-navy)" }}
       >
         <span
-          className="text-lg md:text-xl font-bold text-white"
+          className="text-lg md:text-xl font-bold text-white tracking-tight"
           style={{ fontFamily: "Bona Nova S, serif" }}
         >
           {item.q}
@@ -824,7 +1158,8 @@ function FaqItem({
         <motion.span
           animate={{ rotate: isOpen ? 135 : 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xl font-bold"
+          aria-hidden="true"
+          className="flex-shrink-0 w-8 h-8 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-xl font-bold"
           style={{
             border: "1.5px solid var(--color-gold)",
             color: "var(--color-gold-light)",
@@ -846,10 +1181,12 @@ function FaqItem({
           >
             <div className="px-6 md:px-8 py-6">
               <p
-                className="text-base md:text-lg leading-relaxed"
+                className="drop-cap text-base md:text-lg leading-relaxed"
                 style={{ color: "var(--color-navy)" }}
               >
                 {item.a}
+                <span className="gold-highlight">{item.highlight}</span>
+                {item.rest}
               </p>
             </div>
           </motion.div>
@@ -860,7 +1197,100 @@ function FaqItem({
 }
 
 /* ---------------------------------------------
-   REGISTRATION SECTION (with auto-focus + checkmark)
+   CONFETTI BURST (Framer Motion)
+--------------------------------------------- */
+function ConfettiBurst() {
+  const pieces = useMemo(() => {
+    const colors = ["#c9a24b", "#e4c976", "#0f2545", "#ffffff", "#2e9e5b"];
+    return Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      x: (Math.random() - 0.5) * 500,
+      y: Math.random() * -400 - 100,
+      rotate: Math.random() * 720 - 360,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      delay: Math.random() * 0.3,
+      duration: 1.2 + Math.random() * 0.8,
+    }));
+  }, []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-20" aria-hidden="true">
+      {pieces.map((p) => (
+        <motion.span
+          key={p.id}
+          className="confetti-piece"
+          style={{ background: p.color }}
+          initial={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
+          animate={{
+            opacity: [1, 1, 0],
+            x: p.x,
+            y: [0, p.y, p.y + 300],
+            rotate: p.rotate,
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            ease: "easeOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ---------------------------------------------
+   THANK YOU SUCCESS COMPONENT
+--------------------------------------------- */
+function ThankYouState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative max-w-2xl mx-auto rounded-[10px] p-10 md:p-16 flex flex-col items-center text-center overflow-hidden"
+      style={{
+        background: "#ffffff",
+        boxShadow: "0 10px 40px rgba(201, 162, 75, 0.25)",
+        border: "1px solid rgba(201, 162, 75, 0.3)",
+      }}
+    >
+      <ConfettiBurst />
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.2 }}
+        className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+        style={{ background: "#2e9e5b" }}
+      >
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <motion.path
+            d="M4 12.5L9.5 18L20 6.5"
+            stroke="#ffffff"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+          />
+        </svg>
+      </motion.div>
+      <h3
+        className="text-2xl md:text-3xl font-bold mb-3 tracking-tight"
+        style={{ color: "var(--color-navy)", fontFamily: "Bona Nova S, serif" }}
+      >
+        תודה רבה!
+      </h3>
+      <p className="text-base md:text-lg" style={{ color: "rgba(15, 37, 69, 0.75)" }}>
+        הפרטים שלך התקבלו בהצלחה. נציג הישיבה יחזור אליך בהקדם האפשרי.
+      </p>
+    </motion.div>
+  );
+}
+
+/* ---------------------------------------------
+   REGISTRATION SECTION (floating labels, validation,
+   honeypot, localStorage draft, confetti success)
 --------------------------------------------- */
 function RegistrationSection() {
   const [formData, setFormData] = useState({
@@ -868,12 +1298,14 @@ function RegistrationSection() {
     age: "",
     phone: "",
     track: "",
+    website: "", // honeypot
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [phoneComplete, setPhoneComplete] = useState(false);
 
   const trackSelectRef = useRef<HTMLSelectElement>(null);
+  const hasLoadedDraft = useRef(false);
 
   const tracks = [
     "המסלול הלימודי המלא – שנתיים",
@@ -881,6 +1313,38 @@ function RegistrationSection() {
     "המסלול האקסטרני",
     "מסלול השלוחים",
   ];
+
+  // ---- Load draft from localStorage on mount ----
+  useEffect(() => {
+    if (hasLoadedDraft.current) return;
+    hasLoadedDraft.current = true;
+    try {
+      const savedName = window.localStorage.getItem("draft_fullName");
+      const savedPhone = window.localStorage.getItem("draft_phone");
+      if (savedName || savedPhone) {
+        setFormData((prev) => ({
+          ...prev,
+          fullName: savedName || "",
+          phone: savedPhone || "",
+        }));
+        if (savedPhone && savedPhone.replace(/\D/g, "").length === 10) {
+          setPhoneComplete(true);
+        }
+      }
+    } catch (err) {
+      // localStorage unavailable, silently ignore
+    }
+  }, []);
+
+  // ---- Save draft to localStorage as user types ----
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("draft_fullName", formData.fullName);
+      window.localStorage.setItem("draft_phone", formData.phone);
+    } catch (err) {
+      // localStorage unavailable, silently ignore
+    }
+  }, [formData.fullName, formData.phone]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -890,7 +1354,8 @@ function RegistrationSection() {
 
     if (name === "phone") {
       const digitsOnly = value.replace(/\D/g, "");
-      if (digitsOnly.length === 10) {
+      const isValidPhone = /^\d{10}$/.test(digitsOnly);
+      if (isValidPhone) {
         setPhoneComplete(true);
         setTimeout(() => {
           trackSelectRef.current?.focus();
@@ -903,17 +1368,24 @@ function RegistrationSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot check - if filled, silently reject (bot)
+    if (formData.website.trim() !== "") {
+      return;
+    }
+
     setIsSubmitting(true);
 
     setTimeout(() => {
       setIsSubmitting(false);
-      setShowToast(true);
-      setFormData({ fullName: "", age: "", phone: "", track: "" });
-      setPhoneComplete(false);
+      setIsSuccess(true);
 
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3500);
+      try {
+        window.localStorage.removeItem("draft_fullName");
+        window.localStorage.removeItem("draft_phone");
+      } catch (err) {
+        // ignore
+      }
     }, 1800);
   };
 
@@ -923,16 +1395,13 @@ function RegistrationSection() {
       style={{ background: "#fbf3df" }}
     >
       <div className="max-w-3xl mx-auto text-center mb-14">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-3xl md:text-5xl font-bold mb-6"
+        <RevealText
+          as="h2"
+          className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
           המקום שלך לפרוץ, להתקדם ולבנות את העתיד שלך.
-        </motion.h2>
+        </RevealText>
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -945,128 +1414,131 @@ function RegistrationSection() {
         </motion.p>
       </div>
 
-      <motion.form
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-        onSubmit={handleSubmit}
-        className="max-w-2xl mx-auto rounded-[10px] p-8 md:p-12 flex flex-col gap-6"
-        style={{
-          background: "#ffffff",
-          boxShadow: "0 10px 40px rgba(201, 162, 75, 0.25)",
-          border: "1px solid rgba(201, 162, 75, 0.3)",
-        }}
-      >
-        <FormField
-          label="שם מלא"
-          name="fullName"
-          value={formData.fullName}
-          onChange={handleChange}
-          type="text"
-          required
-        />
-        <FormField
-          label="גיל"
-          name="age"
-          value={formData.age}
-          onChange={handleChange}
-          type="number"
-          required
-        />
-        <FormField
-          label="מספר טלפון"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          type="tel"
-          required
-          showCheck={phoneComplete}
-        />
-
-        <div className="flex flex-col gap-2">
-          <label
-            className="text-sm md:text-base font-semibold"
-            style={{ color: "var(--color-navy)" }}
-          >
-            המסלול שמעניין אותך
-          </label>
-          <select
-            ref={trackSelectRef}
-            name="track"
-            value={formData.track}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-3 rounded-lg text-[16px] outline-none transition-colors"
+      <AnimatePresence mode="wait">
+        {isSuccess ? (
+          <ThankYouState key="thankyou" />
+        ) : (
+          <motion.form
+            key="form"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.3 } }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            onSubmit={handleSubmit}
+            className="max-w-2xl mx-auto rounded-[10px] p-8 md:p-12 flex flex-col gap-6"
             style={{
-              border: "2px solid var(--color-gold)",
-              color: "var(--color-navy)",
-              background: "#fffdf7",
+              background: "#ffffff",
+              boxShadow: "0 10px 40px rgba(201, 162, 75, 0.25)",
+              border: "1px solid rgba(201, 162, 75, 0.3)",
             }}
           >
-            <option value="" disabled>
-              בחר מסלול
-            </option>
-            {tracks.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <motion.button
-          type="submit"
-          disabled={isSubmitting}
-          whileTap={{ scale: 0.95 }}
-          className="mt-4 w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] disabled:opacity-80"
-          style={{
-            background: "var(--color-navy)",
-            color: "var(--color-gold-light)",
-          }}
-        >
-          {isSubmitting ? (
-            <>
-              <span
-                className="inline-block w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
-                style={{ borderColor: "var(--color-gold-light)", borderTopColor: "transparent" }}
-              />
-              שולח...
-            </>
-          ) : (
-            "[ שלח פרטים ]"
-          )}
-        </motion.button>
-      </motion.form>
-
-      <AnimatePresence>
-        {showToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 40, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
-            exit={{ opacity: 0, y: 40, x: "-50%" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="fixed bottom-28 left-1/2 z-[200] px-6 py-4 rounded-xl flex items-center gap-3"
-            style={{
-              background: "var(--color-navy)",
-              color: "var(--color-gold-light)",
-              boxShadow: "0 10px 40px rgba(15, 37, 69, 0.4)",
-              border: "1px solid var(--color-gold)",
-            }}
-          >
-            <span
-              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-              style={{ background: "var(--color-gold-light)" }}
+            {/* Honeypot field - hidden from real users, bots will fill it */}
+            <input
+              type="text"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              className="honeypot-field"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
             />
-            <span className="font-semibold text-base">הפרטים בדרך אלינו</span>
-          </motion.div>
+
+            <FloatingField
+              label="שם מלא"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              type="text"
+              required
+            />
+            <FloatingField
+              label="גיל"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              type="number"
+              required
+            />
+            <FloatingField
+              label="מספר טלפון"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              type="tel"
+              required
+              showCheck={phoneComplete}
+            />
+
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="track-select"
+                className="text-sm md:text-base font-semibold"
+                style={{ color: "var(--color-navy)" }}
+              >
+                המסלול שמעניין אותך
+              </label>
+              <select
+                id="track-select"
+                ref={trackSelectRef}
+                name="track"
+                value={formData.track}
+                onChange={handleChange}
+                required
+                aria-label="בחר מסלול לימוד"
+                className="w-full min-hitbox px-4 py-3 rounded-lg text-[16px] outline-none transition-colors"
+                style={{
+                  border: "2px solid var(--color-gold)",
+                  color: "var(--color-navy)",
+                  background: "#fffdf7",
+                }}
+              >
+                <option value="" disabled>
+                  בחר מסלול
+                </option>
+                {tracks.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={isSubmitting}
+              whileTap={{ scale: 0.95 }}
+              aria-label="שלח פרטי הרשמה"
+              className="mt-4 w-full min-hitbox py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] disabled:opacity-80"
+              style={{
+                background: "var(--color-navy)",
+                color: "var(--color-gold-light)",
+              }}
+            >
+              {isSubmitting ? (
+                <>
+                  <span
+                    className="inline-block w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
+                    style={{ borderColor: "var(--color-gold)", borderTopColor: "transparent" }}
+                  />
+                  שולח...
+                </>
+              ) : (
+                "[ שלח פרטים ]"
+              )}
+            </motion.button>
+          </motion.form>
         )}
       </AnimatePresence>
     </section>
   );
 }
 
-function FormField({
+/* ---------------------------------------------
+   FLOATING LABEL FIELD (with validation checkmark)
+--------------------------------------------- */
+function FloatingField({
   label,
   name,
   value,
@@ -1083,60 +1555,55 @@ function FormField({
   required?: boolean;
   showCheck?: boolean;
 }) {
+  const inputId = "field-" + name;
+  const hasValue = value.trim().length > 0;
+
   return (
-    <div className="flex flex-col gap-2">
-      <label
-        className="text-sm md:text-base font-semibold"
-        style={{ color: "var(--color-navy)" }}
-      >
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          type={type}
-          name={name}
-          value={value}
-          onChange={onChange}
-          required={required}
-          className="w-full px-4 py-3 rounded-lg text-[16px] outline-none transition-colors"
-          style={{
-            border: "2px solid var(--color-gold)",
-            color: "var(--color-navy)",
-            background: "#fffdf7",
-          }}
-        />
-        <AnimatePresence>
-          {showCheck && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.3 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.3 }}
-              transition={{ type: "spring", stiffness: 400, damping: 18 }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center"
-              style={{ background: "#2e9e5b" }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <motion.path
-                  d="M4 12.5L9.5 18L20 6.5"
-                  stroke="#ffffff"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                />
-              </svg>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+    <div className={"float-field" + (hasValue ? " has-value" : "")}>
+      <input
+        id={inputId}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        aria-label={label}
+        autoComplete="off"
+      />
+      <label htmlFor={inputId}>{label}</label>
+
+      <AnimatePresence>
+        {showCheck && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.3 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.3 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center"
+            style={{ background: "#2e9e5b" }}
+            aria-hidden="true"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <motion.path
+                d="M4 12.5L9.5 18L20 6.5"
+                stroke="#ffffff"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              />
+            </svg>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 /* ---------------------------------------------
-   FOOTER (minimal, sits above the Dock, not blocky)
+   FOOTER
 --------------------------------------------- */
 function Footer() {
   return (
@@ -1145,11 +1612,11 @@ function Footer() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative w-full pt-14 pb-32 px-6 text-center flex flex-col items-center gap-3"
+      className="relative w-full pt-14 pb-32 px-6 text-center flex flex-col items-center gap-3 select-none-strict"
       style={{ background: "var(--color-navy)" }}
     >
       <p
-        className="text-base md:text-lg font-semibold"
+        className="text-base md:text-lg font-semibold tracking-tight"
         style={{ color: "#ffffff", fontFamily: "Bona Nova S, serif" }}
       >
         ישיבת המלך המשיח – ירושלים © 2026
@@ -1165,7 +1632,7 @@ function Footer() {
 }
 
 /* ---------------------------------------------
-   WHATSAPP FLOATING BUTTON (Shared Layout Magic)
+   WHATSAPP FLOATING BUTTON (Reverse Shared Layout Magic)
 --------------------------------------------- */
 function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
   return (
@@ -1181,7 +1648,9 @@ function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
           exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.15 } }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
-          className="fixed z-[90] flex items-center justify-center rounded-full no-select-card"
+          draggable="false"
+          aria-label="צור קשר בוואטסאפ"
+          className="fixed z-[90] min-hitbox flex items-center justify-center rounded-full no-select-card select-none-strict"
           style={{
             bottom: "6rem",
             right: "1.5rem",
@@ -1200,7 +1669,7 @@ function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
 
 function WhatsAppIcon({ color }: { color: string }) {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.148-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"
         fill={color}
@@ -1214,7 +1683,7 @@ function WhatsAppIcon({ color }: { color: string }) {
 }
 
 /* ---------------------------------------------
-   BOTTOM DOCK (replaces standard footer)
+   BOTTOM DOCK
 --------------------------------------------- */
 function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
   const [bounce, setBounce] = useState(false);
@@ -1233,19 +1702,19 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
       className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-4 px-4"
+      aria-label="ניווט תחתון"
     >
       <div
-        className="flex items-center gap-1 md:gap-2 px-4 py-3 rounded-3xl w-full max-w-md justify-between no-select-card"
+        className="flex items-center gap-1 md:gap-2 px-4 py-3 rounded-3xl w-full max-w-md justify-between no-select-card select-none-strict"
         style={{
           background: "rgba(15, 37, 69, 0.55)",
-          backdropFilter: "blur(18px)",
-          WebkitBackdropFilter: "blur(18px)",
+          backdropFilter: "saturate(180%) blur(20px)",
+          WebkitBackdropFilter: "saturate(180%) blur(20px)",
           border: "1px solid rgba(255, 255, 255, 0.15)",
           boxShadow: "0 8px 32px rgba(15, 37, 69, 0.3)",
         }}
       >
-        {/* Item 1 (Rightmost): ייעוץ - WhatsApp morph target */}
-        <DockItem label="ייעוץ">
+        <DockItem label="ייעוץ" ariaLabel="ייעוץ אישי בוואטסאפ">
           <AnimatePresence>
             {isAtBottom && (
               <motion.div
@@ -1264,44 +1733,26 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
           )}
         </DockItem>
 
-        {/* Item 2: לגלות עוד - Compass, bounces every 10s */}
-        <DockItem label="לגלות עוד">
+        <DockItem label="לגלות עוד" ariaLabel="לגלות עוד תוכן">
           <motion.div
             animate={bounce ? { y: [0, -8, 0, -4, 0] } : { y: 0 }}
             transition={{ duration: 0.7, ease: "easeInOut" }}
             className="w-9 h-9 flex items-center justify-center text-2xl"
+            aria-hidden="true"
           >
             🧭
           </motion.div>
         </DockItem>
 
-        {/* Item 3 (Center): בית - Prominent Gold Circle */}
-        <div className="flex flex-col items-center gap-1 -mt-6">
-          <motion.div
-            whileTap={{ scale: 0.9 }}
-            className="w-14 h-14 rounded-full flex items-center justify-center cursor-pointer"
-            style={{
-              background: "var(--color-gold)",
-              boxShadow: "0 6px 20px rgba(201, 162, 75, 0.6)",
-              border: "3px solid var(--color-cream)",
-            }}
-          >
-            <HomeIcon color="var(--color-navy-deep)" />
-          </motion.div>
-          <span className="text-[11px] font-semibold" style={{ color: "var(--color-gold-light)" }}>
-            בית
-          </span>
-        </div>
+        <DockCenterItem />
 
-        {/* Item 4: מהפעילות */}
-        <DockItem label="מהפעילות">
+        <DockItem label="מהפעילות" ariaLabel="פעילויות הישיבה">
           <div className="w-9 h-9 flex items-center justify-center">
             <ActivityIcon />
           </div>
         </DockItem>
 
-        {/* Item 5 (Leftmost): חנות */}
-        <DockItem label="חנות">
+        <DockItem label="חנות" ariaLabel="חנות הישיבה">
           <div className="w-9 h-9 flex items-center justify-center">
             <ShopIcon />
           </div>
@@ -1313,16 +1764,47 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
 
 function DockItem({
   label,
+  ariaLabel,
   children,
 }: {
   label: string;
+  ariaLabel: string;
   children: React.ReactNode;
 }) {
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = btnRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    setRipples((prev) => [...prev, { id, x, y }]);
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== id));
+    }, 650);
+  };
+
   return (
     <motion.button
+      ref={btnRef}
+      onClick={handleClick}
       whileTap={{ scale: 0.95 }}
-      className="flex flex-col items-center gap-1 flex-1"
+      aria-label={ariaLabel}
+      className="relative flex flex-col items-center justify-center gap-1 flex-1 min-hitbox overflow-hidden rounded-2xl"
     >
+      {ripples.map((r) => (
+        <motion.span
+          key={r.id}
+          className="ripple-span"
+          style={{ left: r.x - 30, top: r.y - 30, width: 60, height: 60 }}
+          initial={{ scale: 0, opacity: 0.7 }}
+          animate={{ scale: 1.6, opacity: 0 }}
+          transition={{ duration: 0.65, ease: "easeOut" }}
+          aria-hidden="true"
+        />
+      ))}
       {children}
       <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>
         {label}
@@ -1331,12 +1813,79 @@ function DockItem({
   );
 }
 
+function DockCenterItem() {
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const btnRef = useRef<HTMLDivElement>(null);
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = btnRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    setRipples((prev) => [...prev, { id, x, y }]);
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== id));
+    }, 650);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-1 -mt-6">
+      <motion.div
+        ref={btnRef}
+        onClick={handleClick}
+        whileTap={{ scale: 0.9 }}
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{
+          scale: {
+            duration: 2,
+            repeat: Infinity,
+            repeatDelay: 3,
+            ease: "easeInOut",
+          },
+        }}
+        role="button"
+        aria-label="דף הבית"
+        tabIndex={0}
+        className="relative w-14 h-14 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer overflow-hidden motion-optimized"
+        style={{
+          background: "var(--color-gold)",
+          boxShadow: "0 6px 20px rgba(201, 162, 75, 0.6)",
+          border: "3px solid var(--color-cream)",
+        }}
+      >
+        {ripples.map((r) => (
+          <motion.span
+            key={r.id}
+            className="ripple-span"
+            style={{
+              left: r.x - 25,
+              top: r.y - 25,
+              width: 50,
+              height: 50,
+              background: "radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)",
+            }}
+            initial={{ scale: 0, opacity: 0.8 }}
+            animate={{ scale: 1.8, opacity: 0 }}
+            transition={{ duration: 0.65, ease: "easeOut" }}
+            aria-hidden="true"
+          />
+        ))}
+        <HomeIcon color="var(--color-navy-deep)" />
+      </motion.div>
+      <span className="text-[11px] font-semibold" style={{ color: "var(--color-gold-light)" }}>
+        בית
+      </span>
+    </div>
+  );
+}
+
 /* ---------------------------------------------
    DOCK ICONS
 --------------------------------------------- */
 function ChatIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"
         stroke="#ffffff"
@@ -1350,7 +1899,7 @@ function ChatIcon() {
 
 function HomeIcon({ color }: { color: string }) {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M3 11.5L12 4l9 7.5"
         stroke={color}
@@ -1372,7 +1921,7 @@ function HomeIcon({ color }: { color: string }) {
 
 function ActivityIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M22 12h-4l-3 9-6-18-3 9H2"
         stroke="#ffffff"
@@ -1386,7 +1935,7 @@ function ActivityIcon() {
 
 function ShopIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M3 9l1.5-5h15L21 9"
         stroke="#ffffff"
@@ -1404,4 +1953,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-                       }
+        }
