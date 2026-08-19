@@ -1,11 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap");
 
-@font-face {
-  font-family: "Bona Nova S";
-  src: local("Bona Nova SC");
-  font-weight: 400 700;
-}
-
 :root {
   --color-navy: #0f2545;
   --color-navy-deep: #0a1a33;
@@ -60,7 +54,7 @@ html, body {
 }
 
 h1, h2, h3, h4, h5 {
-  font-family: "Bona Nova S", serif;
+  font-family: "Assistant", sans-serif;
   letter-spacing: -0.02em;
 }
 
@@ -191,7 +185,7 @@ a:focus-visible {
 }
 
 .drop-cap::first-letter {
-  font-family: "Bona Nova S", serif;
+  font-family: "Assistant", sans-serif;
   font-size: 2.4em;
   font-weight: 700;
   color: var(--color-gold);
@@ -210,7 +204,7 @@ a:focus-visible {
 
 .watermark-quote {
   position: absolute;
-  font-family: "Bona Nova S", serif;
+  font-family: "Assistant", sans-serif;
   font-size: clamp(14rem, 30vw, 26rem);
   color: var(--color-gold);
   opacity: 0.05;

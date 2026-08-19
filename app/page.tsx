@@ -419,16 +419,16 @@ function FloatingLogo() {
           className="text-sm"
           style={{
             color: "var(--color-gold-light)",
-            fontFamily: "Bona Nova S, serif",
+            fontFamily: "Assistant, sans-serif",
           }}
         >
-          ×
+          מ
         </span>
       </div>
       <div className="logo-text text-xs" style={{ color: "var(--color-navy)" }}>
-        <div style={{ lineHeight: 1 }}>××©×××ª</div>
-        <div style={{ lineHeight: 1 }}>××××</div>
-        <div style={{ lineHeight: 1 }}>×××©××</div>
+        <div style={{ lineHeight: 1 }}>ישיבת</div>
+        <div style={{ lineHeight: 1 }}>המלך</div>
+        <div style={{ lineHeight: 1 }}>המשיח</div>
       </div>
     </motion.div>
   );
@@ -439,7 +439,7 @@ function FloatingLogo() {
 --------------------------------------------- */
 function Typewriter() {
   const [displayText, setDisplayText] = useState("");
-  const wordsRef = useRef(["××××¡×¡×ª", "××××§×©×ª"]);
+  const wordsRef = useRef(["מבוססת", "מבוקשת"]);
   const wordIndexRef = useRef(0);
 
   useEffect(() => {
@@ -663,7 +663,7 @@ function HeroSection() {
               textShadow: "0 1px 6px rgba(10,26,51,0.6)",
             }}
           >
-            ×××××¨×× ×××××× 20â35 | ××× ××¨××©×××
+            לבחורים בגילאי 20–35 | בלב ירושלים
           </motion.div>
 
           <RevealText
@@ -672,12 +672,12 @@ function HeroSection() {
             useInView={false}
             className="text-white font-bold max-w-4xl fluid-h1 leading-tight md:leading-tight tracking-tight"
             style={{
-              fontFamily: "Bona Nova S, serif",
+              fontFamily: "Assistant, sans-serif",
               textShadow:
                 "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
-            ××¡××× ×××©× ×××××¨×× ×©×¨××¦×× ×××××, ×××ª×××§ ×××××× ××ª ×××××
+            מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים
           </RevealText>
 
           <motion.p
@@ -687,8 +687,8 @@ function HeroSection() {
             className="mt-6 text-lg md:text-2xl text-white/90 max-w-2xl"
             style={{ textShadow: "0 1px 10px rgba(10,26,51,0.65)" }}
           >
-            ××××× ××¡×××, ×¢× ×××¨&apos;× ×××. ××©×××{" "}
-            <Typewriter /> ××× ××¨××©×××.
+            ללמוד בסבבה, עם חבר&apos;ה טוב. ישיבה{" "}
+            <Typewriter /> בלב ירושלים.
           </motion.p>
 
           <motion.div
@@ -698,17 +698,17 @@ function HeroSection() {
             className="mt-10 flex flex-col sm:flex-row items-center gap-4"
           >
             <MagneticButton
-              ariaLabel="××¨×©× ×¢××©××"
+              ariaLabel="הרשם עכשיו"
               className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold"
               style={{
                 background: "var(--color-gold)",
                 color: "var(--color-navy-deep)",
               }}
             >
-              [ ××¨×©× ×¢××©×× ]
+              [ הרשם עכשיו ]
             </MagneticButton>
             <MagneticButton
-              ariaLabel="×× ××ª××× ××"
+              ariaLabel="מה מתאים לך"
               className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold border"
               style={{
                 borderColor: "rgba(255,255,255,0.6)",
@@ -716,7 +716,7 @@ function HeroSection() {
                 background: "transparent",
               }}
             >
-              [ ×× ××ª××× ××? ]
+              [ מה מתאים לך? ]
             </MagneticButton>
           </motion.div>
         </motion.div>
@@ -728,7 +728,7 @@ function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          aria-label={isMuted ? "××¤×¢× ×§××" : "××©×ª×§ ×§××"}
+          aria-label={isMuted ? "הפעל קול" : "השתק קול"}
           className="absolute bottom-8 right-6 z-20 min-hitbox rounded-full flex items-center justify-center"
           style={{
             background: "rgba(255,255,255,0.12)",
@@ -797,9 +797,9 @@ function UnmuteIcon() {
 --------------------------------------------- */
 function MarqueeSection() {
   const line1 =
-    "××××× ××× ××¨××©××× â ××××©×¤××¢ ×¢× ×× ××¨××©××× â¢ ×××××× ×××××¨×× â¢ ";
+    "ללמוד בלב ירושלים – ולהשפיע על לב ירושלים • להוביל ולהמריא • ";
   const line2 =
-    "×ª××¨×, ××¡××××ª ××××× ××××× â ×¢× ×××§××ª ×××ª ××××× ××¡××× â¢ ×××ª×¢×××ª ××××ª×§×× â¢ ";
+    "תורה, חסידות וכלים לחיים — עד להקמת בית יהודי חסידי • להתעלות ולהתקדם • ";
 
   return (
     <section
@@ -817,7 +817,7 @@ function MarqueeSection() {
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
               style={{
-                fontFamily: "Bona Nova S, serif",
+                fontFamily: "Assistant, sans-serif",
                 color: "var(--color-gold-light)",
               }}
             >
@@ -838,7 +838,7 @@ function MarqueeSection() {
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
               style={{
-                fontFamily: "Bona Nova S, serif",
+                fontFamily: "Assistant, sans-serif",
                 color: "rgba(255,255,255,0.85)",
               }}
             >
@@ -879,23 +879,23 @@ const BentoGridSection = React.memo(function BentoGridSection() {
   const cards = [
     {
       number: 1,
-      title: "×××¡××× ××××××× ×××× â ×©× ×ª×××",
-      desc: "××××× ×ª××¨× ×××¡××××ª, ×¢××××ª ×', ×¡××¨ ××× ××©×××ª×, ××××× ×××©× ×××× × ××¢×©××ª ××¨××× ××ª ××××©× ×××××.",
+      title: "המסלול הלימודי המלא – שנתיים",
+      desc: "לימוד תורה וחסידות, עבודת ה', סדר יום ישיבתי, ליווי אישי והכנה מעשית ורוחנית להמשך החיים.",
     },
     {
       number: 2,
-      title: "××¦× ××× ××××× ×××¦× ××× ×¢×××× â 3 ×©× ××",
-      desc: "××©×× ××× ××¡××¨×ª ××©×××ª××ª ××©××¢××ª××ª ××××× ××¢×©×××. ×× ×××ª ×××¨×××ª ×××©××ª, ××¦××××ª ×××× × ×××× × ××©××××.",
+      title: "חצי יום לימוד וחצי יום עבודה – 3 שנים",
+      desc: "לשלב בין מסגרת ישיבתית משמעותית לחיים מעשיים. בניית אחריות אישית, יציבות והכנה לחיי נישואין.",
     },
     {
       number: 3,
-      title: "×××¡××× ×××§×¡××¨× ×",
-      desc: "××××× ×××©××× ×××××©×× ×××ª×××¨×¨ ××××ª. ×××¨××ª××ª ×§×××¢××ª, ××©×ª×ª×¤××ª ×××ª×××¢×××××ª ××××× ××××¨× ×××¡××××ª.",
+      title: "המסלול האקסטרני",
+      desc: "ללמוד בישיבה ולהמשיך להתגורר בבית. חברותות קבועות, השתתפות בהתוועדויות ובחיי החברה החסידית.",
     },
     {
       number: 4,
-      title: "××¡××× ××©×××××",
-      desc: "××××× ×¤×¨×× × ×¢× ××××¨×× ×××× ×× ×©××××¢× ×-770. ××××× ×××©× ×©×¢×××¨ ×××©×ª××, ×××ª×§×× ×××× ××ª ××¨××× ×××××.",
+      title: "מסלול השלוחים",
+      desc: "לימוד פרטני עם בחורים למדנים שהגיעו מ-770. ליווי אישי שעוזר להשתלב, להתקדם ולבנות הרגלי לימוד.",
     },
   ];
 
@@ -910,8 +910,8 @@ const BentoGridSection = React.memo(function BentoGridSection() {
         className="absolute inset-0 z-0 motion-optimized"
       >
         <FloatingParticles count={12} />
-        <FloatingEmoji emoji="ð" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
-        <FloatingEmoji emoji="ð" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
+        <FloatingEmoji emoji="📖" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
+        <FloatingEmoji emoji="📚" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
       </motion.div>
 
       <div className="relative z-10 max-w-6xl mx-auto text-center mb-10">
@@ -920,7 +920,7 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ××¡××× ×©××ª××× ××¨××, ×××××××ª ×××××¨××ª ×©××.
+          מסלול שמתאים לרמה, ליכולות ולמטרות שלך.
         </RevealText>
 
         {/* Read Time Pill */}
@@ -936,8 +936,8 @@ const BentoGridSection = React.memo(function BentoGridSection() {
             border: "1px solid rgba(201,162,75,0.35)",
           }}
         >
-          <span aria-hidden="true">â±ï¸</span>
-          <span>×§×¨××× ×©× ××§×</span>
+          <span aria-hidden="true">⏱️</span>
+          <span>קריאה של דקה</span>
         </motion.div>
 
         <motion.p
@@ -948,8 +948,8 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           className="text-lg md:text-xl max-w-2xl mx-auto"
           style={{ color: "rgba(15, 37, 69, 0.75)" }}
         >
-          ×¦×××ª ××× ××× ×× ××¡× ×××××× ×××©× ××××¨× ×××¨×. ××××× ×¤×¨×× × ××× ×¢× ××× ×¢×
-          ××××¨× ××©××××ª ×××´×.
+          צוות חינוכי מנוסה וליווי אישי לאורך הדרך. לימוד פרטני אחד על אחד עם
+          בוגרי ישיבות חב״ד.
         </motion.p>
       </div>
 
@@ -1090,13 +1090,13 @@ const TiltCard = React.memo(function TiltCard({
         >
           <span
             className="text-5xl md:text-6xl font-bold block mb-6 tracking-tight"
-            style={{ color: "var(--color-gold)", fontFamily: "Bona Nova S, serif" }}
+            style={{ color: "var(--color-gold)", fontFamily: "Assistant, sans-serif" }}
           >
             <NumberCounter target={card.number} />
           </span>
           <h3
             className="text-xl md:text-2xl font-bold text-white mb-4 tracking-tight"
-            style={{ fontFamily: "Bona Nova S, serif" }}
+            style={{ fontFamily: "Assistant, sans-serif" }}
           >
             {card.title}
           </h3>
@@ -1138,22 +1138,22 @@ const FaqSection = React.memo(function FaqSection() {
 
   const faqs = [
     {
-      q: "××× × ×¨×××ª ××¤× ×××××?",
-      a: "×¤× ××××× ××¨××××ª, ×××¨×× ×××××××, ×××× ×××¨×× ×××©× ××× ××××¨ ×××¦××¨×ª ××§×× × ×¢×× ××××ª×. ",
-      highlight: "××§××× ×××¨× ×××© ×××©××¤×¥",
-      rest: " × ××¦× ×××© ××ª×× ××§××¤××¡.",
+      q: "איך נראית הפנימייה?",
+      a: "פנימייה מרווחת, חדרים ממוזגים, מיטה וארון אישי לכל בחור ליצירת מקום נעים וביתי. ",
+      highlight: "מקווה טהרה חדש ומשופץ",
+      rest: " נמצא ממש בתוך הקמפוס.",
     },
     {
-      q: "×× ×××× ××¨××××ª?",
-      a: "×©×××© ××¨××××ª ××¡×××¨××ª ××××. ××× ×¦××× ×××× ××¨×××ª ×××§×¨ ×¢×©××¨×, ×",
-      highlight: "××¨××××ª ×¦××¨××× ××¢×¨× ××××ª ×××××©×××ª",
-      rest: ", ××× ×©×ª××× ×¤× ×× ××××ª ××××××.",
+      q: "מה לגבי ארוחות?",
+      a: "שלוש ארוחות מסודרות ביום. טבח צמוד מכין ארוחת בוקר עשירה, ו",
+      highlight: "ארוחות צהריים וערב חמות ומבושלות",
+      rest: ", כדי שתהיה פנוי באמת ללימוד.",
     },
     {
-      q: "×× ××××××¨× ××××¨×ª××ª ×××©×××?",
-      a: "×××××¨× ××¡××××ª, ××× ×× ××©××ª. ",
-      highlight: "××ª×××¢×××××ª, ×©××ª××ª ××©××ª×¤××ª, ××¦××× ××××¦×¢××",
-      rest: ", ××§×©×¨ ×××©× ××××× ××¢×× ××× ×¢× ××¦×××ª ×××©×××××.",
+      q: "מה האווירה החברתית בישיבה?",
+      a: "אווירה חסידית, חיה ונושמת. ",
+      highlight: "התוועדויות, שבתות משותפות, יציאה למבצעים",
+      rest: ", וקשר אישי בגובה העיניים עם הצוות והשלוחים.",
     },
   ];
 
@@ -1173,8 +1173,8 @@ const FaqSection = React.memo(function FaqSection() {
 
       <div className="absolute inset-0 z-0">
         <FloatingParticles count={10} />
-        <FloatingEmoji emoji="â" top="15%" left="85%" size={46} duration={8} opacity={0.1} />
-        <FloatingEmoji emoji="ð§­" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
+        <FloatingEmoji emoji="❓" top="15%" left="85%" size={46} duration={8} opacity={0.1} />
+        <FloatingEmoji emoji="🧭" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
       </div>
 
       <motion.div
@@ -1186,7 +1186,7 @@ const FaqSection = React.memo(function FaqSection() {
           className="fluid-h2 font-bold text-center mb-16 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ×× ×©××©×× ×××¢×ª
+          מה שחשוב לדעת
         </RevealText>
 
         <motion.div
@@ -1231,14 +1231,14 @@ function FaqItem({
         type="button"
         onClick={onClick}
         whileTap={{ scale: 0.98 }}
-        aria-label={"×©×××: " + item.q}
+        aria-label={"שאלה: " + item.q}
         aria-expanded={isOpen}
         className="w-full min-hitbox flex items-center justify-between gap-4 px-6 md:px-8 py-6 text-right"
         style={{ background: "var(--color-navy)" }}
       >
         <span
           className="text-lg md:text-xl font-bold text-white tracking-tight"
-          style={{ fontFamily: "Bona Nova S, serif" }}
+          style={{ fontFamily: "Assistant, sans-serif" }}
         >
           {item.q}
         </span>
@@ -1367,12 +1367,12 @@ function ThankYouState() {
       </motion.div>
       <h3
         className="text-2xl md:text-3xl font-bold mb-3 tracking-tight"
-        style={{ color: "var(--color-navy)", fontFamily: "Bona Nova S, serif" }}
+        style={{ color: "var(--color-navy)", fontFamily: "Assistant, sans-serif" }}
       >
-        ×ª××× ×¨××!
+        תודה רבה!
       </h3>
       <p className="text-base md:text-lg" style={{ color: "rgba(15, 37, 69, 0.75)" }}>
-        ××¤×¨××× ×©×× ××ª×§××× ×××¦×××. × ×¦×× ×××©××× ×××××¨ ×××× ×××§×× ×××¤×©×¨×.
+        הפרטים שלך התקבלו בהצלחה. נציג הישיבה יחזור אליך בהקדם האפשרי.
       </p>
     </motion.div>
   );
@@ -1398,10 +1398,10 @@ function RegistrationSection() {
   const hasLoadedDraft = useRef(false);
 
   const tracks = [
-    "×××¡××× ××××××× ×××× â ×©× ×ª×××",
-    "××¦× ××× ××××× ×××¦× ××× ×¢×××× â 3 ×©× ××",
-    "×××¡××× ×××§×¡××¨× ×",
-    "××¡××× ××©×××××",
+    "המסלול הלימודי המלא – שנתיים",
+    "חצי יום לימוד וחצי יום עבודה – 3 שנים",
+    "המסלול האקסטרני",
+    "מסלול השלוחים",
   ];
 
   // ---- Load draft from localStorage on mount ----
@@ -1492,7 +1492,7 @@ function RegistrationSection() {
           className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ×××§×× ×©×× ××¤×¨××¥, ×××ª×§×× ×××× ××ª ××ª ××¢×ª×× ×©××.
+          המקום שלך לפרוץ, להתקדם ולבנות את העתיד שלך.
         </RevealText>
         <motion.p
           initial={{ opacity: 0, y: 30 }}
@@ -1502,7 +1502,7 @@ function RegistrationSection() {
           className="text-lg md:text-xl"
           style={{ color: "rgba(15, 37, 69, 0.8)" }}
         >
-          ××©××¨ ×¤×¨××× ×× ××××§ ××× ×××× ××¡××× ××ª××× ×××××§ ×¢×××¨×.
+          השאר פרטים ונבדוק יחד איזה מסלול מתאים בדיוק עבורך.
         </motion.p>
       </div>
 
@@ -1538,7 +1538,7 @@ function RegistrationSection() {
             />
 
             <FloatingField
-              label="×©× ×××"
+              label="שם מלא"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
@@ -1546,7 +1546,7 @@ function RegistrationSection() {
               required
             />
             <FloatingField
-              label="×××"
+              label="גיל"
               name="age"
               value={formData.age}
               onChange={handleChange}
@@ -1554,7 +1554,7 @@ function RegistrationSection() {
               required
             />
             <FloatingField
-              label="××¡×¤×¨ ×××¤××"
+              label="מספר טלפון"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
@@ -1569,7 +1569,7 @@ function RegistrationSection() {
                 className="text-sm md:text-base font-semibold"
                 style={{ color: "var(--color-navy)" }}
               >
-                ×××¡××× ×©××¢× ××× ×××ª×
+                המסלול שמעניין אותך
               </label>
               <select
                 id="track-select"
@@ -1578,7 +1578,7 @@ function RegistrationSection() {
                 value={formData.track}
                 onChange={handleChange}
                 required
-                aria-label="×××¨ ××¡××× ×××××"
+                aria-label="בחר מסלול לימוד"
                 className="w-full min-hitbox px-4 py-3 rounded-lg text-[16px] outline-none transition-colors"
                 style={{
                   border: "2px solid var(--color-gold)",
@@ -1587,7 +1587,7 @@ function RegistrationSection() {
                 }}
               >
                 <option value="" disabled>
-                  ×××¨ ××¡×××
+                  בחר מסלול
                 </option>
                 {tracks.map((t) => (
                   <option key={t} value={t}>
@@ -1601,7 +1601,7 @@ function RegistrationSection() {
               type="submit"
               disabled={isSubmitting}
               whileTap={{ scale: 0.95 }}
-              aria-label="×©×× ×¤×¨×× ××¨×©××"
+              aria-label="שלח פרטי הרשמה"
               className="mt-4 w-full min-hitbox py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] disabled:opacity-80"
               style={{
                 background: "var(--color-navy)",
@@ -1617,10 +1617,10 @@ function RegistrationSection() {
                       borderTopColor: "transparent",
                     }}
                   />
-                  ×©×××...
+                  שולח...
                 </>
               ) : (
-                "[ ×©×× ×¤×¨××× ]"
+                "[ שלח פרטים ]"
               )}
             </motion.button>
           </motion.form>
@@ -1719,15 +1719,15 @@ function Footer() {
     >
       <p
         className="text-base md:text-lg font-semibold tracking-tight"
-        style={{ color: "#ffffff", fontFamily: "Bona Nova S, serif" }}
+        style={{ color: "#ffffff", fontFamily: "Assistant, sans-serif" }}
       >
-        ××©×××ª ×××× ×××©×× â ××¨××©××× Â© 2026
+        ישיבת המלך המשיח – ירושלים © 2026
       </p>
       <p
         className="text-sm md:text-base"
         style={{ color: "rgba(201, 162, 75, 0.65)" }}
       >
-        ××× ×××× ×× × ×××¨×× × ××¨××× × ××× ×××©×× ××¢××× ××¢×!
+        יחי אדונינו מורינו ורבינו מלך המשיח לעולם ועד!
       </p>
     </motion.footer>
   );
@@ -1752,7 +1752,7 @@ function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
           draggable="false"
-          aria-label="×¦××¨ ×§×©×¨ ××××××¡××¤"
+          aria-label="צור קשר בוואטסאפ"
           className="fixed z-[90] min-hitbox flex items-center justify-center rounded-full no-select-card select-none-strict"
           style={{
             bottom: "6rem",
@@ -1805,7 +1805,7 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
       className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-4 px-4"
-      aria-label="× ×××× ×ª××ª××"
+      aria-label="ניווט תחתון"
     >
       <div
         className="flex items-center gap-1 md:gap-2 px-4 py-3 rounded-3xl w-full max-w-md justify-between no-select-card select-none-strict"
@@ -1817,7 +1817,7 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
           boxShadow: "0 8px 32px rgba(15, 37, 69, 0.3)",
         }}
       >
-        <DockItem label="×××¢××¥" ariaLabel="×××¢××¥ ×××©× ××××××¡××¤">
+        <DockItem label="ייעוץ" ariaLabel="ייעוץ אישי בוואטסאפ">
           <AnimatePresence>
             {isAtBottom && (
               <motion.div
@@ -1836,26 +1836,26 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
           )}
         </DockItem>
 
-        <DockItem label="×××××ª ×¢××" ariaLabel="×××××ª ×¢×× ×ª×××">
+        <DockItem label="לגלות עוד" ariaLabel="לגלות עוד תוכן">
           <motion.div
             animate={bounce ? { y: [0, -8, 0, -4, 0] } : { y: 0 }}
             transition={{ duration: 0.7, ease: "easeInOut" }}
             className="w-9 h-9 flex items-center justify-center text-2xl"
             aria-hidden="true"
           >
-            ð§­
+            🧭
           </motion.div>
         </DockItem>
 
         <DockCenterItem />
 
-        <DockItem label="×××¤×¢××××ª" ariaLabel="×¤×¢××××××ª ×××©×××">
+        <DockItem label="מהפעילות" ariaLabel="פעילויות הישיבה">
           <div className="w-9 h-9 flex items-center justify-center">
             <ActivityIcon />
           </div>
         </DockItem>
 
-        <DockItem label="×× ××ª" ariaLabel="×× ××ª ×××©×××">
+        <DockItem label="חנות" ariaLabel="חנות הישיבה">
           <div className="w-9 h-9 flex items-center justify-center">
             <ShopIcon />
           </div>
@@ -1956,7 +1956,7 @@ function DockCenterItem() {
           },
         }}
         role="button"
-        aria-label="××£ ××××ª"
+        aria-label="דף הבית"
         tabIndex={0}
         className="relative w-14 h-14 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer overflow-hidden motion-optimized"
         style={{
@@ -1989,7 +1989,7 @@ function DockCenterItem() {
         className="text-[11px] font-semibold"
         style={{ color: "var(--color-gold-light)" }}
       >
-        ×××ª
+        בית
       </span>
     </div>
   );
