@@ -834,11 +834,7 @@ function MarqueeSection() {
     </section>
   );
 }
-
-/* ---------------------------------------------
-   BENTO GRID SECTION (with Read Time pill)
---------------------------------------------- */
-const gridContainerVariants = {
+const gridContainerVariants: Variants = {
   hidden: {},
   show: {
     transition: {
@@ -847,7 +843,7 @@ const gridContainerVariants = {
   },
 };
 
-const gridItemVariants = {
+const gridItemVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
