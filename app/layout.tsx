@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Assistant } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import GlobalDoodleField from "@/components/GlobalDoodleField";
 import BrandToaster from "@/components/ui/BrandToaster";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";

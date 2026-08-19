@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   motion,
   useScroll,
@@ -126,8 +126,22 @@ function SectionDivider() {
 /* ---------------------------------------------
    CUSTOM CURSOR (Desktop only)
 --------------------------------------------- */
+function subscribeToDesktopMediaQuery(onChange: () => void) {
+  const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
+}
+
+function getDesktopMediaQuerySnapshot() {
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
 function CustomCursor() {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const isDesktop = useSyncExternalStore(
+    subscribeToDesktopMediaQuery,
+    getDesktopMediaQuerySnapshot,
+    () => false,
+  );
   const [isPointer, setIsPointer] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -141,9 +155,6 @@ function CustomCursor() {
   const ringYPx = useMotionTemplate`calc(${ringY}px - 11px)`;
 
   useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setIsDesktop(mq.matches);
-
     const handleMove = (e: MouseEvent) => {
       dotX.set(e.clientX - 5);
       dotY.set(e.clientY - 5);
@@ -158,7 +169,7 @@ function CustomCursor() {
 
     const handleLeave = () => setIsVisible(false);
 
-    if (mq.matches) {
+    if (isDesktop) {
       window.addEventListener("mousemove", handleMove);
       document.addEventListener("mouseleave", handleLeave);
     }
@@ -168,7 +179,7 @@ function CustomCursor() {
       // FIX: added missing cleanup for mouseleave listener
       document.removeEventListener("mouseleave", handleLeave);
     };
-  }, [dotX, dotY]);
+  }, [dotX, dotY, isDesktop]);
 
   if (!isDesktop) return null;
 
@@ -240,16 +251,21 @@ function ScrollProgressBar() {
 /* ---------------------------------------------
    FLOATING GOLDEN PARTICLES
 --------------------------------------------- */
+function seededValue(index: number, salt: number) {
+  const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
+  return value - Math.floor(value);
+}
+
 function FloatingParticles({ count = 14 }: { count?: number }) {
   const particles = useMemo(() => {
     return Array.from({ length: count }).map((_, i) => ({
       id: i,
-      size: 4 + Math.random() * 10,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      duration: 18 + Math.random() * 22,
-      delay: Math.random() * 6,
-      driftX: (Math.random() - 0.5) * 60,
+      size: 4 + seededValue(i, 1) * 10,
+      left: seededValue(i, 2) * 100,
+      top: seededValue(i, 3) * 100,
+      duration: 18 + seededValue(i, 4) * 22,
+      delay: seededValue(i, 5) * 6,
+      driftX: (seededValue(i, 6) - 0.5) * 60,
     }));
   }, [count]);
 
@@ -1275,12 +1291,12 @@ function ConfettiBurst() {
     const colors = ["#c9a24b", "#e4c976", "#0f2545", "#ffffff", "#2e9e5b"];
     return Array.from({ length: 40 }).map((_, i) => ({
       id: i,
-      x: (Math.random() - 0.5) * 500,
-      y: Math.random() * -400 - 100,
-      rotate: Math.random() * 720 - 360,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 0.3,
-      duration: 1.2 + Math.random() * 0.8,
+      x: (seededValue(i, 10) - 0.5) * 500,
+      y: seededValue(i, 11) * -400 - 100,
+      rotate: seededValue(i, 12) * 720 - 360,
+      color: colors[Math.floor(seededValue(i, 13) * colors.length)],
+      delay: seededValue(i, 14) * 0.3,
+      duration: 1.2 + seededValue(i, 15) * 0.8,
     }));
   }, []);
 
@@ -1396,14 +1412,16 @@ function RegistrationSection() {
       const savedName = window.localStorage.getItem("draft_fullName");
       const savedPhone = window.localStorage.getItem("draft_phone");
       if (savedName || savedPhone) {
-        setFormData((prev) => ({
-          ...prev,
-          fullName: savedName || "",
-          phone: savedPhone || "",
-        }));
-        if (savedPhone && savedPhone.replace(/\D/g, "").length === 10) {
-          setPhoneComplete(true);
-        }
+        window.setTimeout(() => {
+          setFormData((prev) => ({
+            ...prev,
+            fullName: savedName || "",
+            phone: savedPhone || "",
+          }));
+          if (savedPhone && savedPhone.replace(/\D/g, "").length === 10) {
+            setPhoneComplete(true);
+          }
+        }, 0);
       }
     } catch {
       // localStorage unavailable, silently ignore
