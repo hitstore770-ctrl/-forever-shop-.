@@ -1,35 +1,98 @@
-{
-  "name": "yeshiva-website",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "lenis": "^1.1.14",
-    "browser-image-compression": "^2.0.2",
-    "firebase": "^12.15.0",
-    "firebase-admin": "^12.7.0",
-    "framer-motion": "^12.42.2",
-    "kosher-zmanim": "^0.9.0",
-    "lucide-react": "^1.23.0",
-    "next": "16.2.10",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "server-only": "^0.0.1",
-    "sonner": "^2.0.7"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.10",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap");
+
+@font-face {
+  font-family: "Bona Nova S";
+  src: local("Bona Nova SC");
+  font-weight: 400 700;
+}
+
+:root {
+  --color-navy: #0f2545;
+  --color-navy-deep: #0a1a33;
+  --color-gold: #c9a24b;
+  --color-gold-light: #e4c976;
+  --color-cream: #faf7f0;
+  --color-cream-blue: #f5f7fb;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+body {
+  direction: rtl;
+  text-align: right;
+  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-cream-blue) 100%);
+  color: var(--color-navy);
+  font-family: "Assistant", sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: "Bona Nova S", serif;
+}
+
+.logo-text {
+  font-family: "Assistant", sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-navy-deep);
+}
+
+img, .no-select-card {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ambilight golden radial glow behind hero video */
+.ambilight-bg {
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    rgba(201, 162, 75, 0.35) 0%,
+    rgba(15, 37, 69, 0.6) 55%,
+    rgba(10, 26, 51, 1) 100%
+  );
+}
+
+/* Floating gold particle */
+.gold-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 162, 75, 0.55) 0%, rgba(201, 162, 75, 0) 70%);
+  pointer-events: none;
 }
