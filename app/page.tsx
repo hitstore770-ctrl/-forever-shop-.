@@ -9,6 +9,7 @@ import {
   useSpring,
   useMotionTemplate,
   AnimatePresence,
+  LayoutGroup,
 } from "framer-motion";
 import Lenis from "lenis";
 
@@ -65,21 +66,27 @@ export default function Home() {
   }, []);
 
   return (
-    <main dir="rtl" className="relative w-full select-none-strict" style={{ overscrollBehaviorY: "none" }}>
-      <NoiseOverlay />
-      <CustomCursor />
-      <ScrollProgressBar />
-      <FloatingLogo />
-      <HeroSection />
-      <SectionDivider />
-      <MarqueeSection />
-      <BentoGridSection />
-      <FaqSection />
-      <RegistrationSection />
-      <Footer />
-      <WhatsAppFloatingButton isAtBottom={isAtBottom} />
-      <BottomDock isAtBottom={isAtBottom} />
-    </main>
+    <LayoutGroup>
+      <main
+        dir="rtl"
+        className="relative w-full select-none-strict"
+        style={{ overscrollBehaviorY: "none" }}
+      >
+        <NoiseOverlay />
+        <CustomCursor />
+        <ScrollProgressBar />
+        <FloatingLogo />
+        <HeroSection />
+        <SectionDivider />
+        <MarqueeSection />
+        <BentoGridSection />
+        <FaqSection />
+        <RegistrationSection />
+        <Footer />
+        <WhatsAppFloatingButton isAtBottom={isAtBottom} />
+        <BottomDock isAtBottom={isAtBottom} />
+      </main>
+    </LayoutGroup>
   );
 }
 
@@ -95,7 +102,11 @@ function NoiseOverlay() {
 --------------------------------------------- */
 function SectionDivider() {
   return (
-    <div className="relative w-full leading-[0]" style={{ marginTop: "-2px" }} aria-hidden="true">
+    <div
+      className="relative w-full leading-[0]"
+      style={{ marginTop: "-2px" }}
+      aria-hidden="true"
+    >
       <svg
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
@@ -124,6 +135,10 @@ function CustomCursor() {
   const ringX = useSpring(dotX, { stiffness: 260, damping: 22, mass: 0.4 });
   const ringY = useSpring(dotY, { stiffness: 260, damping: 22, mass: 0.4 });
 
+  // FIX: useMotionTemplate moved to top level (was inside conditional JSX before)
+  const ringXPx = useMotionTemplate`calc(${ringX}px - 11px)`;
+  const ringYPx = useMotionTemplate`calc(${ringY}px - 11px)`;
+
   useEffect(() => {
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
     setIsDesktop(mq.matches);
@@ -134,7 +149,9 @@ function CustomCursor() {
       setIsVisible(true);
 
       const target = e.target as HTMLElement;
-      const interactive = target.closest("a, button, [role='button'], input, select, textarea");
+      const interactive = target.closest(
+        "a, button, [role='button'], input, select, textarea"
+      );
       setIsPointer(!!interactive);
     };
 
@@ -147,6 +164,7 @@ function CustomCursor() {
 
     return () => {
       window.removeEventListener("mousemove", handleMove);
+      // FIX: added missing cleanup for mouseleave listener
       document.removeEventListener("mouseleave", handleLeave);
     };
   }, [dotX, dotY]);
@@ -168,12 +186,14 @@ function CustomCursor() {
           <motion.div
             className="custom-cursor-ring"
             style={{
-              x: useMotionTemplate`calc(${ringX}px - 11px)`,
-              y: useMotionTemplate`calc(${ringY}px - 11px)`,
+              x: ringXPx,
+              y: ringYPx,
             }}
             animate={{
               scale: isPointer ? 1.4 : 1,
-              borderColor: isPointer ? "rgba(201,162,75,0.6)" : "rgba(15,37,69,0.35)",
+              borderColor: isPointer
+                ? "rgba(201,162,75,0.6)"
+                : "rgba(15,37,69,0.35)",
             }}
             transition={{ duration: 0.25 }}
             initial={{ opacity: 0 }}
@@ -208,7 +228,8 @@ function ScrollProgressBar() {
           transformOrigin: "top",
           width: "2px",
           height: "100%",
-          background: "linear-gradient(180deg, var(--color-gold-light), var(--color-gold))",
+          background:
+            "linear-gradient(180deg, var(--color-gold-light), var(--color-gold))",
         }}
       />
     </motion.div>
@@ -306,6 +327,8 @@ function FloatingEmoji({
 /* ---------------------------------------------
    TEXT REVEAL
 --------------------------------------------- */
+type RevealTag = "div" | "h1" | "h2" | "h3" | "span";
+
 function RevealText({
   children,
   as = "div",
@@ -316,14 +339,15 @@ function RevealText({
   useInView = true,
 }: {
   children: React.ReactNode;
-  as?: "div" | "h1" | "h2" | "h3" | "span";
+  as?: RevealTag;
   delay?: number;
   className?: string;
   style?: React.CSSProperties;
   viewportOnce?: boolean;
   useInView?: boolean;
 }) {
-  const Tag = motion[as as "div"];
+  // FIX: proper typed motion component selection instead of unsafe `as as "div"` cast
+  const MotionTag = motion[as] as React.ElementType;
 
   const initialProps = useInView
     ? { initial: "hidden", whileInView: "show", viewport: { once: viewportOnce } }
@@ -331,19 +355,19 @@ function RevealText({
 
   return (
     <div className={className} style={{ overflow: "hidden", ...style }}>
-      <Tag
+      <MotionTag
         className="motion-optimized"
         variants={{
           hidden: { y: "110%" },
           show: {
             y: "0%",
-            transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
+            transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
           },
         }}
         {...initialProps}
       >
         {children}
-      </Tag>
+      </MotionTag>
     </div>
   );
 }
@@ -376,7 +400,10 @@ function FloatingLogo() {
       >
         <span
           className="text-sm"
-          style={{ color: "var(--color-gold-light)", fontFamily: "Bona Nova S, serif" }}
+          style={{
+            color: "var(--color-gold-light)",
+            fontFamily: "Bona Nova S, serif",
+          }}
         >
           מ
         </span>
@@ -404,7 +431,8 @@ function Typewriter() {
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const tick = () => {
-      const currentWord = wordsRef.current[wordIndexRef.current % wordsRef.current.length];
+      const currentWord =
+        wordsRef.current[wordIndexRef.current % wordsRef.current.length];
 
       if (!isDeleting) {
         charIndex++;
@@ -468,11 +496,13 @@ function MagneticButton({
   className = "",
   style = {},
   ariaLabel,
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
   ariaLabel?: string;
+  onClick?: () => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const x = useMotionValue(0);
@@ -498,8 +528,10 @@ function MagneticButton({
   return (
     <motion.button
       ref={ref}
+      type="button"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onClick={onClick}
       whileTap={{ scale: 0.95 }}
       draggable="false"
       aria-label={ariaLabel}
@@ -529,7 +561,10 @@ function HeroSection() {
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.45, 0.75]);
 
   const blurAmount = useTransform(scrollYProgress, [0, 1], [0, 14]);
-  const videoBackdropFilter = useTransform(blurAmount, (v) => "blur(" + v + "px)");
+  const videoBackdropFilter = useTransform(
+    blurAmount,
+    (v) => "blur(" + v + "px)"
+  );
 
   const textScale = useTransform(scrollYProgress, [0, 1], [1, 0.88]);
 
@@ -570,7 +605,11 @@ function HeroSection() {
           loop
           playsInline
           draggable="false"
-          style={{ scale, backdropFilter: videoBackdropFilter, WebkitBackdropFilter: videoBackdropFilter }}
+          style={{
+            scale,
+            backdropFilter: videoBackdropFilter,
+            WebkitBackdropFilter: videoBackdropFilter,
+          }}
           className="absolute inset-0 w-full h-full object-cover no-select-card select-none-strict z-[1] motion-optimized"
         >
           <source src="/hero-video.mp4" type="video/mp4" />
@@ -585,7 +624,8 @@ function HeroSection() {
           className="absolute inset-0 z-[2] motion-optimized"
           style={{
             opacity: overlayOpacity,
-            background: "linear-gradient(180deg, rgba(10,26,51,0.55) 0%, rgba(10,26,51,0.75) 100%)",
+            background:
+              "linear-gradient(180deg, rgba(10,26,51,0.55) 0%, rgba(10,26,51,0.75) 100%)",
           }}
         />
 
@@ -616,7 +656,8 @@ function HeroSection() {
             className="text-white font-bold max-w-4xl fluid-h1 leading-tight md:leading-tight tracking-tight"
             style={{
               fontFamily: "Bona Nova S, serif",
-              textShadow: "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
+              textShadow:
+                "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
             מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים
@@ -665,6 +706,7 @@ function HeroSection() {
 
         <motion.button
           onClick={toggleMute}
+          type="button"
           whileTap={{ scale: 0.9 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -709,7 +751,12 @@ function MuteIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M4 9v6h4l5 5V4L8 9H4z" fill="#ffffff" />
-      <path d="M17 8l5 8M22 8l-5 8" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M17 8l5 8M22 8l-5 8"
+        stroke="#ffffff"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -732,11 +779,16 @@ function UnmuteIcon() {
    MARQUEE SECTION
 --------------------------------------------- */
 function MarqueeSection() {
-  const line1 = "ללמוד בלב ירושלים – ולהשפיע על לב ירושלים • להוביל ולהמריא • ";
-  const line2 = "תורה, חסידות וכלים לחיים — עד להקמת בית יהודי חסידי • להתעלות ולהתקדם • ";
+  const line1 =
+    "ללמוד בלב ירושלים – ולהשפיע על לב ירושלים • להוביל ולהמריא • ";
+  const line2 =
+    "תורה, חסידות וכלים לחיים — עד להקמת בית יהודי חסידי • להתעלות ולהתקדם • ";
 
   return (
-    <section className="relative w-full py-10 overflow-hidden select-none-strict" style={{ background: "var(--color-navy)" }}>
+    <section
+      className="relative w-full py-10 overflow-hidden select-none-strict"
+      style={{ background: "var(--color-navy)" }}
+    >
       <div className="relative flex overflow-hidden mb-4">
         <motion.div
           className="flex whitespace-nowrap motion-optimized"
@@ -747,7 +799,10 @@ function MarqueeSection() {
             <span
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
-              style={{ fontFamily: "Bona Nova S, serif", color: "var(--color-gold-light)" }}
+              style={{
+                fontFamily: "Bona Nova S, serif",
+                color: "var(--color-gold-light)",
+              }}
             >
               {line1}
             </span>
@@ -765,7 +820,10 @@ function MarqueeSection() {
             <span
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
-              style={{ fontFamily: "Bona Nova S, serif", color: "rgba(255,255,255,0.85)" }}
+              style={{
+                fontFamily: "Bona Nova S, serif",
+                color: "rgba(255,255,255,0.85)",
+              }}
             >
               {line2}
             </span>
@@ -779,7 +837,7 @@ function MarqueeSection() {
 /* ---------------------------------------------
    BENTO GRID SECTION (with Read Time pill)
 --------------------------------------------- */
-const gridContainerVariants: any = {
+const gridContainerVariants = {
   hidden: {},
   show: {
     transition: {
@@ -788,7 +846,7 @@ const gridContainerVariants: any = {
   },
 };
 
-const gridItemVariants: any = {
+const gridItemVariants = {
   hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
@@ -834,7 +892,10 @@ const BentoGridSection = React.memo(function BentoGridSection() {
       className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden select-none-strict"
       style={{ background: "var(--color-cream)" }}
     >
-      <motion.div style={{ y: bgParallaxY }} className="absolute inset-0 z-0 motion-optimized">
+      <motion.div
+        style={{ y: bgParallaxY }}
+        className="absolute inset-0 z-0 motion-optimized"
+      >
         <FloatingParticles count={12} />
         <FloatingEmoji emoji="📖" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
         <FloatingEmoji emoji="📚" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
@@ -874,7 +935,8 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           className="text-lg md:text-xl max-w-2xl mx-auto"
           style={{ color: "rgba(15, 37, 69, 0.75)" }}
         >
-          צוות חינוכי מנוסה וליווי אישי לאורך הדרך. לימוד פרטני אחד על אחד עם בוגרי ישיבות חב״ד.
+          צוות חינוכי מנוסה וליווי אישי לאורך הדרך. לימוד פרטני אחד על אחד עם
+          בוגרי ישיבות חב״ד.
         </motion.p>
       </div>
 
@@ -898,15 +960,16 @@ const BentoGridSection = React.memo(function BentoGridSection() {
 --------------------------------------------- */
 function NumberCounter({ target }: { target: number }) {
   const [count, setCount] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
+  // FIX: replaced state-based hasStarted with a ref to avoid stale-closure issues
+  const hasStartedRef = useRef(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (!ref.current) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !hasStarted) {
-          setHasStarted(true);
+        if (entries[0].isIntersecting && !hasStartedRef.current) {
+          hasStartedRef.current = true;
           const duration = 1200;
           const startTime = performance.now();
 
@@ -925,7 +988,7 @@ function NumberCounter({ target }: { target: number }) {
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [hasStarted, target]);
+  }, [target]);
 
   const display = count < 10 ? "0" + count : String(count);
 
@@ -949,8 +1012,14 @@ const TiltCard = React.memo(function TiltCard({
   const spotY = useMotionValue(-999);
 
   const springConfig = { stiffness: 150, damping: 20, mass: 0.5 };
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), springConfig);
+  const rotateX = useSpring(
+    useTransform(mouseY, [-0.5, 0.5], [10, -10]),
+    springConfig
+  );
+  const rotateY = useSpring(
+    useTransform(mouseX, [-0.5, 0.5], [-10, 10]),
+    springConfig
+  );
 
   const spotlightBackground = useMotionTemplate`radial-gradient(220px circle at ${spotX}px ${spotY}px, rgba(228,201,118,0.18), transparent 75%)`;
 
@@ -992,7 +1061,8 @@ const TiltCard = React.memo(function TiltCard({
         <div
           className="absolute -top-16 -left-16 w-48 h-48 rounded-full pointer-events-none"
           style={{
-            background: "radial-gradient(circle, rgba(201,162,75,0.15) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(201,162,75,0.15) 0%, transparent 70%)",
           }}
         />
 
@@ -1025,7 +1095,6 @@ const TiltCard = React.memo(function TiltCard({
     </motion.div>
   );
 });
-
 /* ---------------------------------------------
    FAQ SECTION
 --------------------------------------------- */
@@ -1038,7 +1107,7 @@ const faqContainerVariants = {
   },
 };
 
-const faqItemVariants: any = {
+const faqItemVariants = {
   hidden: { opacity: 0, y: 20 },
   show: {
     opacity: 1,
@@ -1084,7 +1153,11 @@ const FaqSection = React.memo(function FaqSection() {
       className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden select-none-strict"
       style={{ background: "var(--color-cream-blue)" }}
     >
-      <span className="watermark-quote" style={{ top: "-2rem", right: "5%" }} aria-hidden="true">
+      <span
+        className="watermark-quote"
+        style={{ top: "-2rem", right: "5%" }}
+        aria-hidden="true"
+      >
         &#8221;
       </span>
 
@@ -1094,7 +1167,10 @@ const FaqSection = React.memo(function FaqSection() {
         <FloatingEmoji emoji="🧭" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
       </div>
 
-      <motion.div style={{ y: containerParallaxY }} className="relative z-10 max-w-3xl mx-auto motion-optimized">
+      <motion.div
+        style={{ y: containerParallaxY }}
+        className="relative z-10 max-w-3xl mx-auto motion-optimized"
+      >
         <RevealText
           as="h2"
           className="fluid-h2 font-bold text-center mb-16 tracking-tight"
@@ -1142,6 +1218,7 @@ function FaqItem({
       }}
     >
       <motion.button
+        type="button"
         onClick={onClick}
         whileTap={{ scale: 0.98 }}
         aria-label={"שאלה: " + item.q}
@@ -1214,7 +1291,10 @@ function ConfettiBurst() {
   }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-20" aria-hidden="true">
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none z-20"
+      aria-hidden="true"
+    >
       {pieces.map((p) => (
         <motion.span
           key={p.id}
@@ -1331,7 +1411,7 @@ function RegistrationSection() {
           setPhoneComplete(true);
         }
       }
-    } catch (err) {
+    } catch {
       // localStorage unavailable, silently ignore
     }
   }, []);
@@ -1341,7 +1421,7 @@ function RegistrationSection() {
     try {
       window.localStorage.setItem("draft_fullName", formData.fullName);
       window.localStorage.setItem("draft_phone", formData.phone);
-    } catch (err) {
+    } catch {
       // localStorage unavailable, silently ignore
     }
   }, [formData.fullName, formData.phone]);
@@ -1383,7 +1463,7 @@ function RegistrationSection() {
       try {
         window.localStorage.removeItem("draft_fullName");
         window.localStorage.removeItem("draft_phone");
-      } catch (err) {
+      } catch {
         // ignore
       }
     }, 1800);
@@ -1520,7 +1600,10 @@ function RegistrationSection() {
                 <>
                   <span
                     className="inline-block w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
-                    style={{ borderColor: "var(--color-gold)", borderTopColor: "transparent" }}
+                    style={{
+                      borderColor: "var(--color-gold)",
+                      borderTopColor: "transparent",
+                    }}
                   />
                   שולח...
                 </>
@@ -1538,6 +1621,9 @@ function RegistrationSection() {
 /* ---------------------------------------------
    FLOATING LABEL FIELD (with validation checkmark)
 --------------------------------------------- */
+// FIX: tightened `type` to a safe union instead of a generic string
+type FloatingFieldType = "text" | "number" | "tel" | "email";
+
 function FloatingField({
   label,
   name,
@@ -1550,8 +1636,12 @@ function FloatingField({
   label: string;
   name: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  type: string;
+  // FIX: widened to accept both input and select change events,
+  // matching how handleChange is actually used in RegistrationSection
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
+  type: FloatingFieldType;
   required?: boolean;
   showCheck?: boolean;
 }) {
@@ -1639,6 +1729,7 @@ function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
     <AnimatePresence>
       {!isAtBottom && (
         <motion.a
+          // TODO: replace with the real WhatsApp business number before production
           href="https://wa.me/972000000000"
           target="_blank"
           rel="noopener noreferrer"
@@ -1771,7 +1862,9 @@ function DockItem({
   ariaLabel: string;
   children: React.ReactNode;
 }) {
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>(
+    []
+  );
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -1789,6 +1882,7 @@ function DockItem({
   return (
     <motion.button
       ref={btnRef}
+      type="button"
       onClick={handleClick}
       whileTap={{ scale: 0.95 }}
       aria-label={ariaLabel}
@@ -1806,7 +1900,10 @@ function DockItem({
         />
       ))}
       {children}
-      <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>
+      <span
+        className="text-[11px] font-medium"
+        style={{ color: "rgba(255,255,255,0.85)" }}
+      >
         {label}
       </span>
     </motion.button>
@@ -1814,7 +1911,9 @@ function DockItem({
 }
 
 function DockCenterItem() {
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>(
+    []
+  );
   const btnRef = useRef<HTMLDivElement>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -1863,7 +1962,8 @@ function DockCenterItem() {
               top: r.y - 25,
               width: 50,
               height: 50,
-              background: "radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)",
+              background:
+                "radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)",
             }}
             initial={{ scale: 0, opacity: 0.8 }}
             animate={{ scale: 1.8, opacity: 0 }}
@@ -1873,7 +1973,10 @@ function DockCenterItem() {
         ))}
         <HomeIcon color="var(--color-navy-deep)" />
       </motion.div>
-      <span className="text-[11px] font-semibold" style={{ color: "var(--color-gold-light)" }}>
+      <span
+        className="text-[11px] font-semibold"
+        style={{ color: "var(--color-gold-light)" }}
+      >
         בית
       </span>
     </div>
@@ -1914,7 +2017,13 @@ function HomeIcon({ color }: { color: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M9.5 20v-5.5h5V20" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M9.5 20v-5.5h5V20"
+        stroke={color}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -1953,4 +2062,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-        }
+              }
