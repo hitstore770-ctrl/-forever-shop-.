@@ -23,6 +23,7 @@
 
 html {
   scroll-behavior: auto;
+  overscroll-behavior-y: none;
 }
 
 html.lenis {
@@ -44,10 +45,23 @@ body {
   color: var(--color-navy);
   font-family: "Assistant", sans-serif;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 h1, h2, h3, h4, h5 {
   font-family: "Bona Nova S", serif;
+  letter-spacing: -0.02em;
 }
 
 .logo-text {
@@ -62,17 +76,16 @@ h1, h2, h3, h4, h5 {
   color: var(--color-navy-deep);
 }
 
-/* Touch / Selection Optimization */
-img, .no-select-card {
+img, .no-select-card, .select-none-strict {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
   -webkit-user-drag: none;
   user-drag: none;
   -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent iOS auto-zoom on inputs */
 input, select, textarea {
   font-size: 16px !important;
 }
@@ -81,15 +94,44 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Golden Particles */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.45);
+  border-color: var(--color-gold) !important;
+}
+
+.min-hitbox {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.fluid-h1 {
+  font-size: clamp(2rem, 5vw + 1rem, 4.25rem);
+}
+.fluid-h2 {
+  font-size: clamp(1.75rem, 3.2vw + 1rem, 3.25rem);
+}
+
 .particle {
   position: absolute;
   border-radius: 9999px;
   background: radial-gradient(circle, rgba(201,162,75,0.55) 0%, rgba(201,162,75,0) 70%);
   pointer-events: none;
+  will-change: transform, opacity;
 }
 
-/* Global Noise Texture Overlay */
+.floating-emoji {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  filter: grayscale(0.15);
+  will-change: transform, opacity;
+}
+
 .noise-overlay {
   position: fixed;
   inset: 0;
@@ -100,7 +142,6 @@ button {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Custom Cursor - Desktop only */
 @media (hover: hover) and (pointer: fine) {
   body {
     cursor: none;
@@ -121,6 +162,7 @@ button {
   pointer-events: none;
   z-index: 9999;
   mix-blend-mode: normal;
+  will-change: transform;
 }
 
 .custom-cursor-ring {
@@ -133,66 +175,102 @@ button {
   border: 1.5px solid rgba(15, 37, 69, 0.35);
   pointer-events: none;
   z-index: 9999;
+  will-change: transform;
 }
 
-/* Dock Ripple */
 .ripple-span {
   position: absolute;
   border-radius: 9999px;
   background: radial-gradient(circle, rgba(228,201,118,0.55) 0%, rgba(228,201,118,0) 70%);
   transform: scale(0);
   pointer-events: none;
-}  pointer-events: none;
 }
 
-body {
-  direction: rtl;
-  text-align: right;
-  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-cream-blue) 100%);
-  color: var(--color-navy);
-  font-family: "Assistant", sans-serif;
-  overflow-x: hidden;
+.motion-optimized {
+  will-change: transform, opacity;
 }
 
-h1, h2, h3, h4, h5 {
+.drop-cap::first-letter {
   font-family: "Bona Nova S", serif;
-}
-
-.logo-text {
-  font-family: "Assistant", sans-serif;
+  font-size: 2.4em;
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  color: var(--color-gold);
+  float: right;
+  margin-left: 0.15em;
+  line-height: 0.8;
 }
 
-::selection {
-  background: var(--color-gold);
-  color: var(--color-navy-deep);
+.gold-highlight {
+  background-color: rgba(234, 179, 8, 0.1);
+  padding: 0 4px;
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
-/* Touch / Selection Optimization */
-img, .no-select-card {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  user-drag: none;
-  -webkit-touch-callout: none;
-}
-
-/* Prevent iOS auto-zoom on inputs */
-input, select, textarea {
-  font-size: 16px !important;
-}
-
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Golden Particles */
-.particle {
+.watermark-quote {
   position: absolute;
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(201,162,75,0.55) 0%, rgba(201,162,75,0) 70%);
+  font-family: "Bona Nova S", serif;
+  font-size: clamp(14rem, 30vw, 26rem);
+  color: var(--color-gold);
+  opacity: 0.05;
+  line-height: 0;
   pointer-events: none;
+  user-select: none;
+  z-index: 0;
 }
+
+/* Floating Label Inputs */
+.float-field {
+  position: relative;
+}
+.float-field input {
+  width: 100%;
+  padding: 22px 16px 8px 16px;
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background: #fffdf7;
+  border: 2px solid var(--color-gold);
+  color: var(--color-navy);
+}
+.float-field label {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: rgba(15, 37, 69, 0.55);
+  pointer-events: none;
+  transition: all 0.2s ease;
+  transform-origin: right top;
+}
+.float-field input:focus + label,
+.float-field.has-value label {
+  top: 10px;
+  transform: translateY(0) scale(0.72);
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+/* Honeypot */
+.honeypot-field {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  left: -9999px !important;
+}
+
+/* Confetti pieces */
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 8px;
+  height: 14px;
+  pointer-events: none;
+  }
