@@ -80,3 +80,11 @@ input, select, textarea {
 button {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Golden Particles */
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(201,162,75,0.55) 0%, rgba(201,162,75,0) 70%);
+  pointer-events: none;
+}
