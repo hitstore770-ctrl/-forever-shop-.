@@ -634,7 +634,6 @@ function HeroSection() {
           }}
           className="absolute inset-0 w-full h-full object-cover no-select-card select-none-strict z-[1] motion-optimized"
         >
-          <source src="/hero-video.mp4" type="video/mp4" />
         </motion.video>
 
         <div
