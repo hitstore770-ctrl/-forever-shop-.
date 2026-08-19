@@ -14,8 +14,15 @@ import Lenis from "lenis";
 
 export default function Home() {
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -37,8 +44,9 @@ export default function Home() {
     };
   }, []);
 
-  // ---- Reverse WhatsApp Morph: tracks bottom AND scroll direction ----
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     let lastY = window.scrollY;
 
     const handleScroll = () => {
@@ -63,6 +71,10 @@ export default function Home() {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (!mounted) {
+    return <div style={{ minHeight: "100vh", background: "#faf7f0" }} />;
+  }
 
   return (
     <main dir="rtl" className="relative w-full select-none-strict" style={{ overscrollBehaviorY: "none" }}>
@@ -91,7 +103,7 @@ function NoiseOverlay() {
 }
 
 /* ---------------------------------------------
-   SVG SECTION DIVIDER (Cream -> Navy wave transition)
+   SVG SECTION DIVIDER
 --------------------------------------------- */
 function SectionDivider() {
   return (
@@ -113,6 +125,8 @@ function SectionDivider() {
 
 /* ---------------------------------------------
    CUSTOM CURSOR (Desktop only)
+   FIX: useMotionTemplate hooks called unconditionally
+   at top level, never inside JSX attribute position.
 --------------------------------------------- */
 function CustomCursor() {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -124,7 +138,12 @@ function CustomCursor() {
   const ringX = useSpring(dotX, { stiffness: 260, damping: 22, mass: 0.4 });
   const ringY = useSpring(dotY, { stiffness: 260, damping: 22, mass: 0.4 });
 
+  const ringTranslateX = useMotionTemplate`calc(${ringX}px - 11px)`;
+  const ringTranslateY = useMotionTemplate`calc(${ringY}px - 11px)`;
+
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
     setIsDesktop(mq.matches);
 
@@ -134,7 +153,9 @@ function CustomCursor() {
       setIsVisible(true);
 
       const target = e.target as HTMLElement;
-      const interactive = target.closest("a, button, [role='button'], input, select, textarea");
+      const interactive = target.closest
+        ? target.closest("a, button, [role='button'], input, select, textarea")
+        : null;
       setIsPointer(!!interactive);
     };
 
@@ -168,8 +189,8 @@ function CustomCursor() {
           <motion.div
             className="custom-cursor-ring"
             style={{
-              x: useMotionTemplate`calc(${ringX}px - 11px)`,
-              y: useMotionTemplate`calc(${ringY}px - 11px)`,
+              x: ringTranslateX,
+              y: ringTranslateY,
             }}
             animate={{
               scale: isPointer ? 1.4 : 1,
@@ -217,9 +238,7 @@ function ScrollProgressBar() {
 
 /* ---------------------------------------------
    FLOATING GOLDEN PARTICLES
-   FIX: Math.random() moved into useEffect, only
-   renders after client mount to prevent hydration
-   mismatch.
+   FIX: Math.random() only runs client-side after mount.
 --------------------------------------------- */
 function FloatingParticles({ count = 14 }: { count?: number }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -325,6 +344,9 @@ function FloatingEmoji({
 
 /* ---------------------------------------------
    TEXT REVEAL
+   FIX: Removed dynamic `motion[as]` component lookup
+   (unsafe in production minified builds). Now uses
+   explicit switch-like mapping with fixed components.
 --------------------------------------------- */
 function RevealText({
   children,
@@ -343,27 +365,31 @@ function RevealText({
   viewportOnce?: boolean;
   useInView?: boolean;
 }) {
-  const Tag = motion[as as "div"];
+  const variants = {
+    hidden: { y: "110%" },
+    show: {
+      y: "0%",
+      transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
+    },
+  };
 
   const initialProps = useInView
     ? { initial: "hidden", whileInView: "show", viewport: { once: viewportOnce } }
     : { initial: "hidden", animate: "show" };
 
+  const commonProps = {
+    className: "motion-optimized",
+    variants,
+    ...initialProps,
+  };
+
   return (
     <div className={className} style={{ overflow: "hidden", ...style }}>
-      <Tag
-        className="motion-optimized"
-        variants={{
-          hidden: { y: "110%" },
-          show: {
-            y: "0%",
-            transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
-          },
-        }}
-        {...initialProps}
-      >
-        {children}
-      </Tag>
+      {as === "h1" && <motion.h1 {...commonProps}>{children}</motion.h1>}
+      {as === "h2" && <motion.h2 {...commonProps}>{children}</motion.h2>}
+      {as === "h3" && <motion.h3 {...commonProps}>{children}</motion.h3>}
+      {as === "span" && <motion.span {...commonProps}>{children}</motion.span>}
+      {as === "div" && <motion.div {...commonProps}>{children}</motion.div>}
     </div>
   );
 }
@@ -412,9 +438,6 @@ function FloatingLogo() {
 
 /* ---------------------------------------------
    TYPEWRITER COMPONENT
-   FIX: Removed <style jsx> block entirely.
-   Blinking cursor now uses a safe Framer Motion
-   animate={{ opacity: [1, 0] }} loop instead.
 --------------------------------------------- */
 function Typewriter() {
   const [displayText, setDisplayText] = useState("");
@@ -480,6 +503,7 @@ function Typewriter() {
 
 /* ---------------------------------------------
    MAGNETIC BUTTON
+   FIX: window.matchMedia guarded with typeof check
 --------------------------------------------- */
 function MagneticButton({
   children,
@@ -499,6 +523,7 @@ function MagneticButton({
   const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.3 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (typeof window === "undefined") return;
     if (window.matchMedia("(hover: none)").matches) return;
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
@@ -795,8 +820,7 @@ function MarqueeSection() {
 }
 
 /* ---------------------------------------------
-   BENTO GRID SECTION (with Read Time pill)
-   FIX: variants typed as any to bypass strict TS
+   BENTO GRID SECTION
 --------------------------------------------- */
 const gridContainerVariants: any = {
   hidden: {},
@@ -921,6 +945,10 @@ function NumberCounter({ target }: { target: number }) {
 
   useEffect(() => {
     if (!ref.current) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setCount(target);
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !hasStarted) {
@@ -951,7 +979,7 @@ function NumberCounter({ target }: { target: number }) {
 }
 
 /* ---------------------------------------------
-   3D TILT CARD (Spring Physics + Spotlight)
+   3D TILT CARD
 --------------------------------------------- */
 const TiltCard = React.memo(function TiltCard({
   card,
@@ -1046,7 +1074,6 @@ const TiltCard = React.memo(function TiltCard({
 
 /* ---------------------------------------------
    FAQ SECTION
-   FIX: variants typed as any to bypass strict TS
 --------------------------------------------- */
 const faqContainerVariants: any = {
   hidden: {},
@@ -1216,10 +1243,8 @@ function FaqItem({
 }
 
 /* ---------------------------------------------
-   CONFETTI BURST (Framer Motion)
-   FIX: Math.random() moved into useEffect, only
-   renders after client mount to prevent hydration
-   mismatch.
+   CONFETTI BURST
+   FIX: Math.random() only runs client-side after mount.
 --------------------------------------------- */
 function ConfettiBurst() {
   const [isMounted, setIsMounted] = useState(false);
@@ -1328,8 +1353,10 @@ function ThankYouState() {
 }
 
 /* ---------------------------------------------
-   REGISTRATION SECTION (floating labels, validation,
-   honeypot, localStorage draft, confetti success)
+   REGISTRATION SECTION
+   FIX: All localStorage/window access strictly
+   confined to useEffect / event handlers, guarded
+   with typeof window checks.
 --------------------------------------------- */
 function RegistrationSection() {
   const [formData, setFormData] = useState({
@@ -1337,7 +1364,7 @@ function RegistrationSection() {
     age: "",
     phone: "",
     track: "",
-    website: "", // honeypot
+    website: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -1353,8 +1380,8 @@ function RegistrationSection() {
     "מסלול השלוחים",
   ];
 
-  // ---- Load draft from localStorage on mount ----
   useEffect(() => {
+    if (typeof window === "undefined") return;
     if (hasLoadedDraft.current) return;
     hasLoadedDraft.current = true;
     try {
@@ -1375,8 +1402,8 @@ function RegistrationSection() {
     }
   }, []);
 
-  // ---- Save draft to localStorage as user types ----
   useEffect(() => {
+    if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem("draft_fullName", formData.fullName);
       window.localStorage.setItem("draft_phone", formData.phone);
@@ -1408,7 +1435,6 @@ function RegistrationSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Honeypot check - if filled, silently reject (bot)
     if (formData.website.trim() !== "") {
       return;
     }
@@ -1419,11 +1445,13 @@ function RegistrationSection() {
       setIsSubmitting(false);
       setIsSuccess(true);
 
-      try {
-        window.localStorage.removeItem("draft_fullName");
-        window.localStorage.removeItem("draft_phone");
-      } catch (err) {
-        // ignore
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.removeItem("draft_fullName");
+          window.localStorage.removeItem("draft_phone");
+        } catch (err) {
+          // ignore
+        }
       }
     }, 1800);
   };
@@ -1472,7 +1500,6 @@ function RegistrationSection() {
               border: "1px solid rgba(201, 162, 75, 0.3)",
             }}
           >
-            {/* Honeypot field - hidden from real users, bots will fill it */}
             <input
               type="text"
               name="website"
@@ -1575,7 +1602,7 @@ function RegistrationSection() {
 }
 
 /* ---------------------------------------------
-   FLOATING LABEL FIELD (with validation checkmark)
+   FLOATING LABEL FIELD
 --------------------------------------------- */
 function FloatingField({
   label,
@@ -1671,7 +1698,7 @@ function Footer() {
 }
 
 /* ---------------------------------------------
-   WHATSAPP FLOATING BUTTON (Reverse Shared Layout Magic)
+   WHATSAPP FLOATING BUTTON
 --------------------------------------------- */
 function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
   return (
@@ -1992,4 +2019,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-        }
+}
