@@ -264,12 +264,12 @@ function FloatingParticles({ count = 14 }: { count?: number }) {
   const particles = useMemo(() => {
     return Array.from({ length: count }).map((_, i) => ({
       id: i,
-      size: 4 + seededValue(i, 1) * 10,
-      left: seededValue(i, 2) * 100,
-      top: seededValue(i, 3) * 100,
-      duration: 18 + seededValue(i, 4) * 22,
-      delay: seededValue(i, 5) * 6,
-      driftX: (seededValue(i, 6) - 0.5) * 60,
+      size: Number((4 + seededValue(i, 1) * 10).toFixed(4)),
+      left: Number((seededValue(i, 2) * 100).toFixed(4)),
+      top: Number((seededValue(i, 3) * 100).toFixed(4)),
+      duration: Number((18 + seededValue(i, 4) * 22).toFixed(4)),
+      delay: Number((seededValue(i, 5) * 6).toFixed(4)),
+      driftX: Number(((seededValue(i, 6) - 0.5) * 60).toFixed(4)),
     }));
   }, [count]);
 
