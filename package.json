@@ -8,8 +8,6 @@
     "start": "next start",
     "lint": "eslint"
   },
-  "dependencies": {
-    
     "browser-image-compression": "^2.0.2",
     "firebase": "^12.15.0",
     "firebase-admin": "^12.7.0",
