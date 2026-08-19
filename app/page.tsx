@@ -216,26 +216,40 @@ function ScrollProgressBar() {
 }
 
 /* ---------------------------------------------
-   FLOATING GOLDEN PARTICLES (Fixed SSR)
+   FLOATING GOLDEN PARTICLES
+   FIX: Math.random() moved into useEffect, only
+   renders after client mount to prevent hydration
+   mismatch.
 --------------------------------------------- */
 function FloatingParticles({ count = 14 }: { count?: number }) {
-  const [particles, setParticles] = useState<any[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+  const [particles, setParticles] = useState<
+    {
+      id: number;
+      size: number;
+      left: number;
+      top: number;
+      duration: number;
+      delay: number;
+      driftX: number;
+    }[]
+  >([]);
 
   useEffect(() => {
-    setParticles(
-      Array.from({ length: count }).map((_, i) => ({
-        id: i,
-        size: 4 + Math.random() * 10,
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        duration: 18 + Math.random() * 22,
-        delay: Math.random() * 6,
-        driftX: (Math.random() - 0.5) * 60,
-      }))
-    );
+    setIsMounted(true);
+    const generated = Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      size: 4 + Math.random() * 10,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: 18 + Math.random() * 22,
+      delay: Math.random() * 6,
+      driftX: (Math.random() - 0.5) * 60,
+    }));
+    setParticles(generated);
   }, [count]);
 
-  if (particles.length === 0) return null;
+  if (!isMounted) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -397,7 +411,10 @@ function FloatingLogo() {
 }
 
 /* ---------------------------------------------
-   TYPEWRITER COMPONENT (Fixed Next.js)
+   TYPEWRITER COMPONENT
+   FIX: Removed <style jsx> block entirely.
+   Blinking cursor now uses a safe Framer Motion
+   animate={{ opacity: [1, 0] }} loop instead.
 --------------------------------------------- */
 function Typewriter() {
   const [displayText, setDisplayText] = useState("");
@@ -450,10 +467,12 @@ function Typewriter() {
     >
       {displayText}
       <motion.span
-        animate={{ opacity: [1, 1, 0, 0] }}
-        transition={{ duration: 0.9, repeat: Infinity, times: [0, 0.5, 0.51, 1] }}
+        animate={{ opacity: [1, 0] }}
+        transition={{ duration: 0.9, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
         className="inline-block w-[2px] h-[1em] ml-1"
-        style={{ background: "var(--color-gold-light)" }}
+        style={{
+          background: "var(--color-gold-light)",
+        }}
       />
     </span>
   );
@@ -777,6 +796,7 @@ function MarqueeSection() {
 
 /* ---------------------------------------------
    BENTO GRID SECTION (with Read Time pill)
+   FIX: variants typed as any to bypass strict TS
 --------------------------------------------- */
 const gridContainerVariants: any = {
   hidden: {},
@@ -848,7 +868,6 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           מסלול שמתאים לרמה, ליכולות ולמטרות שלך.
         </RevealText>
 
-        {/* Read Time Pill */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1027,6 +1046,7 @@ const TiltCard = React.memo(function TiltCard({
 
 /* ---------------------------------------------
    FAQ SECTION
+   FIX: variants typed as any to bypass strict TS
 --------------------------------------------- */
 const faqContainerVariants: any = {
   hidden: {},
@@ -1196,27 +1216,41 @@ function FaqItem({
 }
 
 /* ---------------------------------------------
-   CONFETTI BURST (Fixed SSR)
+   CONFETTI BURST (Framer Motion)
+   FIX: Math.random() moved into useEffect, only
+   renders after client mount to prevent hydration
+   mismatch.
 --------------------------------------------- */
 function ConfettiBurst() {
-  const [pieces, setPieces] = useState<any[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+  const [pieces, setPieces] = useState<
+    {
+      id: number;
+      x: number;
+      y: number;
+      rotate: number;
+      color: string;
+      delay: number;
+      duration: number;
+    }[]
+  >([]);
 
   useEffect(() => {
+    setIsMounted(true);
     const colors = ["#c9a24b", "#e4c976", "#0f2545", "#ffffff", "#2e9e5b"];
-    setPieces(
-      Array.from({ length: 40 }).map((_, i) => ({
-        id: i,
-        x: (Math.random() - 0.5) * 500,
-        y: Math.random() * -400 - 100,
-        rotate: Math.random() * 720 - 360,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        delay: Math.random() * 0.3,
-        duration: 1.2 + Math.random() * 0.8,
-      }))
-    );
+    const generated = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      x: (Math.random() - 0.5) * 500,
+      y: Math.random() * -400 - 100,
+      rotate: Math.random() * 720 - 360,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      delay: Math.random() * 0.3,
+      duration: 1.2 + Math.random() * 0.8,
+    }));
+    setPieces(generated);
   }, []);
 
-  if (pieces.length === 0) return null;
+  if (!isMounted) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-20" aria-hidden="true">
@@ -1294,7 +1328,8 @@ function ThankYouState() {
 }
 
 /* ---------------------------------------------
-   REGISTRATION SECTION
+   REGISTRATION SECTION (floating labels, validation,
+   honeypot, localStorage draft, confetti success)
 --------------------------------------------- */
 function RegistrationSection() {
   const [formData, setFormData] = useState({
@@ -1540,7 +1575,7 @@ function RegistrationSection() {
 }
 
 /* ---------------------------------------------
-   FLOATING LABEL FIELD
+   FLOATING LABEL FIELD (with validation checkmark)
 --------------------------------------------- */
 function FloatingField({
   label,
@@ -1636,7 +1671,7 @@ function Footer() {
 }
 
 /* ---------------------------------------------
-   WHATSAPP FLOATING BUTTON
+   WHATSAPP FLOATING BUTTON (Reverse Shared Layout Magic)
 --------------------------------------------- */
 function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
   return (
@@ -1957,4 +1992,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-            }
+        }
