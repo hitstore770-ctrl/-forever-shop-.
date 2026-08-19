@@ -9,15 +9,20 @@ import {
   useSpring,
   useMotionTemplate,
   AnimatePresence,
-  LayoutGroup,
-  Variants,
 } from "framer-motion";
 import Lenis from "lenis";
 
 export default function Home() {
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -39,8 +44,9 @@ export default function Home() {
     };
   }, []);
 
-  // ---- Reverse WhatsApp Morph: tracks bottom AND scroll direction ----
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     let lastY = window.scrollY;
 
     const handleScroll = () => {
@@ -66,28 +72,26 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (!mounted) {
+    return <div style={{ minHeight: "100vh", background: "#faf7f0" }} />;
+  }
+
   return (
-    <LayoutGroup>
-      <main
-        dir="rtl"
-        className="relative w-full select-none-strict"
-        style={{ overscrollBehaviorY: "none" }}
-      >
-        <NoiseOverlay />
-        <CustomCursor />
-        <ScrollProgressBar />
-        <FloatingLogo />
-        <HeroSection />
-        <SectionDivider />
-        <MarqueeSection />
-        <BentoGridSection />
-        <FaqSection />
-        <RegistrationSection />
-        <Footer />
-        <WhatsAppFloatingButton isAtBottom={isAtBottom} />
-        <BottomDock isAtBottom={isAtBottom} />
-      </main>
-    </LayoutGroup>
+    <main dir="rtl" className="relative w-full select-none-strict" style={{ overscrollBehaviorY: "none" }}>
+      <NoiseOverlay />
+      <CustomCursor />
+      <ScrollProgressBar />
+      <FloatingLogo />
+      <HeroSection />
+      <SectionDivider />
+      <MarqueeSection />
+      <BentoGridSection />
+      <FaqSection />
+      <RegistrationSection />
+      <Footer />
+      <WhatsAppFloatingButton isAtBottom={isAtBottom} />
+      <BottomDock isAtBottom={isAtBottom} />
+    </main>
   );
 }
 
@@ -99,15 +103,11 @@ function NoiseOverlay() {
 }
 
 /* ---------------------------------------------
-   SVG SECTION DIVIDER (Cream -> Navy wave transition)
+   SVG SECTION DIVIDER
 --------------------------------------------- */
 function SectionDivider() {
   return (
-    <div
-      className="relative w-full leading-[0]"
-      style={{ marginTop: "-2px" }}
-      aria-hidden="true"
-    >
+    <div className="relative w-full leading-[0]" style={{ marginTop: "-2px" }} aria-hidden="true">
       <svg
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
@@ -125,6 +125,8 @@ function SectionDivider() {
 
 /* ---------------------------------------------
    CUSTOM CURSOR (Desktop only)
+   FIX: useMotionTemplate hooks called unconditionally
+   at top level, never inside JSX attribute position.
 --------------------------------------------- */
 function CustomCursor() {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -136,11 +138,12 @@ function CustomCursor() {
   const ringX = useSpring(dotX, { stiffness: 260, damping: 22, mass: 0.4 });
   const ringY = useSpring(dotY, { stiffness: 260, damping: 22, mass: 0.4 });
 
-  // FIX: useMotionTemplate moved to top level (was inside conditional JSX before)
-  const ringXPx = useMotionTemplate`calc(${ringX}px - 11px)`;
-  const ringYPx = useMotionTemplate`calc(${ringY}px - 11px)`;
+  const ringTranslateX = useMotionTemplate`calc(${ringX}px - 11px)`;
+  const ringTranslateY = useMotionTemplate`calc(${ringY}px - 11px)`;
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
     setIsDesktop(mq.matches);
 
@@ -150,9 +153,9 @@ function CustomCursor() {
       setIsVisible(true);
 
       const target = e.target as HTMLElement;
-      const interactive = target.closest(
-        "a, button, [role='button'], input, select, textarea"
-      );
+      const interactive = target.closest
+        ? target.closest("a, button, [role='button'], input, select, textarea")
+        : null;
       setIsPointer(!!interactive);
     };
 
@@ -165,7 +168,6 @@ function CustomCursor() {
 
     return () => {
       window.removeEventListener("mousemove", handleMove);
-      // FIX: added missing cleanup for mouseleave listener
       document.removeEventListener("mouseleave", handleLeave);
     };
   }, [dotX, dotY]);
@@ -187,14 +189,12 @@ function CustomCursor() {
           <motion.div
             className="custom-cursor-ring"
             style={{
-              x: ringXPx,
-              y: ringYPx,
+              x: ringTranslateX,
+              y: ringTranslateY,
             }}
             animate={{
               scale: isPointer ? 1.4 : 1,
-              borderColor: isPointer
-                ? "rgba(201,162,75,0.6)"
-                : "rgba(15,37,69,0.35)",
+              borderColor: isPointer ? "rgba(201,162,75,0.6)" : "rgba(15,37,69,0.35)",
             }}
             transition={{ duration: 0.25 }}
             initial={{ opacity: 0 }}
@@ -229,8 +229,7 @@ function ScrollProgressBar() {
           transformOrigin: "top",
           width: "2px",
           height: "100%",
-          background:
-            "linear-gradient(180deg, var(--color-gold-light), var(--color-gold))",
+          background: "linear-gradient(180deg, var(--color-gold-light), var(--color-gold))",
         }}
       />
     </motion.div>
@@ -239,10 +238,25 @@ function ScrollProgressBar() {
 
 /* ---------------------------------------------
    FLOATING GOLDEN PARTICLES
+   FIX: Math.random() only runs client-side after mount.
 --------------------------------------------- */
 function FloatingParticles({ count = 14 }: { count?: number }) {
-  const particles = useMemo(() => {
-    return Array.from({ length: count }).map((_, i) => ({
+  const [isMounted, setIsMounted] = useState(false);
+  const [particles, setParticles] = useState<
+    {
+      id: number;
+      size: number;
+      left: number;
+      top: number;
+      duration: number;
+      delay: number;
+      driftX: number;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const generated = Array.from({ length: count }).map((_, i) => ({
       id: i,
       size: 4 + Math.random() * 10,
       left: Math.random() * 100,
@@ -251,7 +265,10 @@ function FloatingParticles({ count = 14 }: { count?: number }) {
       delay: Math.random() * 6,
       driftX: (Math.random() - 0.5) * 60,
     }));
+    setParticles(generated);
   }, [count]);
+
+  if (!isMounted) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -327,9 +344,10 @@ function FloatingEmoji({
 
 /* ---------------------------------------------
    TEXT REVEAL
+   FIX: Removed dynamic `motion[as]` component lookup
+   (unsafe in production minified builds). Now uses
+   explicit switch-like mapping with fixed components.
 --------------------------------------------- */
-type RevealTag = "div" | "h1" | "h2" | "h3" | "span";
-
 function RevealText({
   children,
   as = "div",
@@ -340,35 +358,38 @@ function RevealText({
   useInView = true,
 }: {
   children: React.ReactNode;
-  as?: RevealTag;
+  as?: "div" | "h1" | "h2" | "h3" | "span";
   delay?: number;
   className?: string;
   style?: React.CSSProperties;
   viewportOnce?: boolean;
   useInView?: boolean;
 }) {
-  // FIX: proper typed motion component selection instead of unsafe `as as "div"` cast
-  const MotionTag = motion[as] as React.ElementType;
+  const variants = {
+    hidden: { y: "110%" },
+    show: {
+      y: "0%",
+      transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
+    },
+  };
 
   const initialProps = useInView
     ? { initial: "hidden", whileInView: "show", viewport: { once: viewportOnce } }
     : { initial: "hidden", animate: "show" };
 
+  const commonProps = {
+    className: "motion-optimized",
+    variants,
+    ...initialProps,
+  };
+
   return (
     <div className={className} style={{ overflow: "hidden", ...style }}>
-      <MotionTag
-        className="motion-optimized"
-        variants={{
-          hidden: { y: "110%" },
-          show: {
-            y: "0%",
-            transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-          },
-        }}
-        {...initialProps}
-      >
-        {children}
-      </MotionTag>
+      {as === "h1" && <motion.h1 {...commonProps}>{children}</motion.h1>}
+      {as === "h2" && <motion.h2 {...commonProps}>{children}</motion.h2>}
+      {as === "h3" && <motion.h3 {...commonProps}>{children}</motion.h3>}
+      {as === "span" && <motion.span {...commonProps}>{children}</motion.span>}
+      {as === "div" && <motion.div {...commonProps}>{children}</motion.div>}
     </div>
   );
 }
@@ -401,18 +422,15 @@ function FloatingLogo() {
       >
         <span
           className="text-sm"
-          style={{
-            color: "var(--color-gold-light)",
-            fontFamily: "Bona Nova S, serif",
-          }}
+          style={{ color: "var(--color-gold-light)", fontFamily: "Bona Nova S, serif" }}
         >
-          ×
+          מ
         </span>
       </div>
       <div className="logo-text text-xs" style={{ color: "var(--color-navy)" }}>
-        <div style={{ lineHeight: 1 }}>××©×××ª</div>
-        <div style={{ lineHeight: 1 }}>××××</div>
-        <div style={{ lineHeight: 1 }}>×××©××</div>
+        <div style={{ lineHeight: 1 }}>ישיבת</div>
+        <div style={{ lineHeight: 1 }}>המלך</div>
+        <div style={{ lineHeight: 1 }}>המשיח</div>
       </div>
     </motion.div>
   );
@@ -423,7 +441,7 @@ function FloatingLogo() {
 --------------------------------------------- */
 function Typewriter() {
   const [displayText, setDisplayText] = useState("");
-  const wordsRef = useRef(["××××¡×¡×ª", "××××§×©×ª"]);
+  const wordsRef = useRef(["מבוססת", "מבוקשת"]);
   const wordIndexRef = useRef(0);
 
   useEffect(() => {
@@ -432,8 +450,7 @@ function Typewriter() {
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const tick = () => {
-      const currentWord =
-        wordsRef.current[wordIndexRef.current % wordsRef.current.length];
+      const currentWord = wordsRef.current[wordIndexRef.current % wordsRef.current.length];
 
       if (!isDeleting) {
         charIndex++;
@@ -472,38 +489,32 @@ function Typewriter() {
       style={{ color: "var(--color-gold-light)", fontWeight: 700 }}
     >
       {displayText}
-      <span
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ duration: 0.9, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
         className="inline-block w-[2px] h-[1em] ml-1"
         style={{
           background: "var(--color-gold-light)",
-          animation: "blink 0.9s steps(1) infinite",
         }}
       />
-      <style jsx>{`
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-      `}</style>
     </span>
   );
 }
 
 /* ---------------------------------------------
    MAGNETIC BUTTON
+   FIX: window.matchMedia guarded with typeof check
 --------------------------------------------- */
 function MagneticButton({
   children,
   className = "",
   style = {},
   ariaLabel,
-  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
   ariaLabel?: string;
-  onClick?: () => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const x = useMotionValue(0);
@@ -512,6 +523,7 @@ function MagneticButton({
   const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.3 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (typeof window === "undefined") return;
     if (window.matchMedia("(hover: none)").matches) return;
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
@@ -529,10 +541,8 @@ function MagneticButton({
   return (
     <motion.button
       ref={ref}
-      type="button"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onClick={onClick}
       whileTap={{ scale: 0.95 }}
       draggable="false"
       aria-label={ariaLabel}
@@ -562,10 +572,7 @@ function HeroSection() {
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.45, 0.75]);
 
   const blurAmount = useTransform(scrollYProgress, [0, 1], [0, 14]);
-  const videoBackdropFilter = useTransform(
-    blurAmount,
-    (v) => "blur(" + v + "px)"
-  );
+  const videoBackdropFilter = useTransform(blurAmount, (v) => "blur(" + v + "px)");
 
   const textScale = useTransform(scrollYProgress, [0, 1], [1, 0.88]);
 
@@ -606,11 +613,7 @@ function HeroSection() {
           loop
           playsInline
           draggable="false"
-          style={{
-            scale,
-            backdropFilter: videoBackdropFilter,
-            WebkitBackdropFilter: videoBackdropFilter,
-          }}
+          style={{ scale, backdropFilter: videoBackdropFilter, WebkitBackdropFilter: videoBackdropFilter }}
           className="absolute inset-0 w-full h-full object-cover no-select-card select-none-strict z-[1] motion-optimized"
         >
           <source src="/hero-video.mp4" type="video/mp4" />
@@ -625,8 +628,7 @@ function HeroSection() {
           className="absolute inset-0 z-[2] motion-optimized"
           style={{
             opacity: overlayOpacity,
-            background:
-              "linear-gradient(180deg, rgba(10,26,51,0.55) 0%, rgba(10,26,51,0.75) 100%)",
+            background: "linear-gradient(180deg, rgba(10,26,51,0.55) 0%, rgba(10,26,51,0.75) 100%)",
           }}
         />
 
@@ -647,7 +649,7 @@ function HeroSection() {
               textShadow: "0 1px 6px rgba(10,26,51,0.6)",
             }}
           >
-            ×××××¨×× ×××××× 20â35 | ××× ××¨××©×××
+            לבחורים בגילאי 20–35 | בלב ירושלים
           </motion.div>
 
           <RevealText
@@ -657,11 +659,10 @@ function HeroSection() {
             className="text-white font-bold max-w-4xl fluid-h1 leading-tight md:leading-tight tracking-tight"
             style={{
               fontFamily: "Bona Nova S, serif",
-              textShadow:
-                "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
+              textShadow: "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
-            ××¡××× ×××©× ×××××¨×× ×©×¨××¦×× ×××××, ×××ª×××§ ×××××× ××ª ×××××
+            מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים
           </RevealText>
 
           <motion.p
@@ -671,8 +672,8 @@ function HeroSection() {
             className="mt-6 text-lg md:text-2xl text-white/90 max-w-2xl"
             style={{ textShadow: "0 1px 10px rgba(10,26,51,0.65)" }}
           >
-            ××××× ××¡×××, ×¢× ×××¨&apos;× ×××. ××©×××{" "}
-            <Typewriter /> ××× ××¨××©×××.
+            ללמוד בסבבה, עם חבר&apos;ה טוב. ישיבה{" "}
+            <Typewriter /> בלב ירושלים.
           </motion.p>
 
           <motion.div
@@ -682,17 +683,17 @@ function HeroSection() {
             className="mt-10 flex flex-col sm:flex-row items-center gap-4"
           >
             <MagneticButton
-              ariaLabel="××¨×©× ×¢××©××"
+              ariaLabel="הרשם עכשיו"
               className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold"
               style={{
                 background: "var(--color-gold)",
                 color: "var(--color-navy-deep)",
               }}
             >
-              [ ××¨×©× ×¢××©×× ]
+              [ הרשם עכשיו ]
             </MagneticButton>
             <MagneticButton
-              ariaLabel="×× ××ª××× ××"
+              ariaLabel="מה מתאים לך"
               className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold border"
               style={{
                 borderColor: "rgba(255,255,255,0.6)",
@@ -700,19 +701,18 @@ function HeroSection() {
                 background: "transparent",
               }}
             >
-              [ ×× ××ª××× ××? ]
+              [ מה מתאים לך? ]
             </MagneticButton>
           </motion.div>
         </motion.div>
 
         <motion.button
           onClick={toggleMute}
-          type="button"
           whileTap={{ scale: 0.9 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          aria-label={isMuted ? "××¤×¢× ×§××" : "××©×ª×§ ×§××"}
+          aria-label={isMuted ? "הפעל קול" : "השתק קול"}
           className="absolute bottom-8 right-6 z-20 min-hitbox rounded-full flex items-center justify-center"
           style={{
             background: "rgba(255,255,255,0.12)",
@@ -752,12 +752,7 @@ function MuteIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M4 9v6h4l5 5V4L8 9H4z" fill="#ffffff" />
-      <path
-        d="M17 8l5 8M22 8l-5 8"
-        stroke="#ffffff"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M17 8l5 8M22 8l-5 8" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -780,16 +775,11 @@ function UnmuteIcon() {
    MARQUEE SECTION
 --------------------------------------------- */
 function MarqueeSection() {
-  const line1 =
-    "××××× ××× ××¨××©××× â ××××©×¤××¢ ×¢× ×× ××¨××©××× â¢ ×××××× ×××××¨×× â¢ ";
-  const line2 =
-    "×ª××¨×, ××¡××××ª ××××× ××××× â ×¢× ×××§××ª ×××ª ××××× ××¡××× â¢ ×××ª×¢×××ª ××××ª×§×× â¢ ";
+  const line1 = "ללמוד בלב ירושלים – ולהשפיע על לב ירושלים • להוביל ולהמריא • ";
+  const line2 = "תורה, חסידות וכלים לחיים — עד להקמת בית יהודי חסידי • להתעלות ולהתקדם • ";
 
   return (
-    <section
-      className="relative w-full py-10 overflow-hidden select-none-strict"
-      style={{ background: "var(--color-navy)" }}
-    >
+    <section className="relative w-full py-10 overflow-hidden select-none-strict" style={{ background: "var(--color-navy)" }}>
       <div className="relative flex overflow-hidden mb-4">
         <motion.div
           className="flex whitespace-nowrap motion-optimized"
@@ -800,10 +790,7 @@ function MarqueeSection() {
             <span
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
-              style={{
-                fontFamily: "Bona Nova S, serif",
-                color: "var(--color-gold-light)",
-              }}
+              style={{ fontFamily: "Bona Nova S, serif", color: "var(--color-gold-light)" }}
             >
               {line1}
             </span>
@@ -821,10 +808,7 @@ function MarqueeSection() {
             <span
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
-              style={{
-                fontFamily: "Bona Nova S, serif",
-                color: "rgba(255,255,255,0.85)",
-              }}
+              style={{ fontFamily: "Bona Nova S, serif", color: "rgba(255,255,255,0.85)" }}
             >
               {line2}
             </span>
@@ -834,7 +818,11 @@ function MarqueeSection() {
     </section>
   );
 }
-const gridContainerVariants: Variants = {
+
+/* ---------------------------------------------
+   BENTO GRID SECTION
+--------------------------------------------- */
+const gridContainerVariants: any = {
   hidden: {},
   show: {
     transition: {
@@ -843,7 +831,7 @@ const gridContainerVariants: Variants = {
   },
 };
 
-const gridItemVariants: Variants = {
+const gridItemVariants: any = {
   hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
@@ -863,23 +851,23 @@ const BentoGridSection = React.memo(function BentoGridSection() {
   const cards = [
     {
       number: 1,
-      title: "×××¡××× ××××××× ×××× â ×©× ×ª×××",
-      desc: "××××× ×ª××¨× ×××¡××××ª, ×¢××××ª ×', ×¡××¨ ××× ××©×××ª×, ××××× ×××©× ×××× × ××¢×©××ª ××¨××× ××ª ××××©× ×××××.",
+      title: "המסלול הלימודי המלא – שנתיים",
+      desc: "לימוד תורה וחסידות, עבודת ה', סדר יום ישיבתי, ליווי אישי והכנה מעשית ורוחנית להמשך החיים.",
     },
     {
       number: 2,
-      title: "××¦× ××× ××××× ×××¦× ××× ×¢×××× â 3 ×©× ××",
-      desc: "××©×× ××× ××¡××¨×ª ××©×××ª××ª ××©××¢××ª××ª ××××× ××¢×©×××. ×× ×××ª ×××¨×××ª ×××©××ª, ××¦××××ª ×××× × ×××× × ××©××××.",
+      title: "חצי יום לימוד וחצי יום עבודה – 3 שנים",
+      desc: "לשלב בין מסגרת ישיבתית משמעותית לחיים מעשיים. בניית אחריות אישית, יציבות והכנה לחיי נישואין.",
     },
     {
       number: 3,
-      title: "×××¡××× ×××§×¡××¨× ×",
-      desc: "××××× ×××©××× ×××××©×× ×××ª×××¨×¨ ××××ª. ×××¨××ª××ª ×§×××¢××ª, ××©×ª×ª×¤××ª ×××ª×××¢×××××ª ××××× ××××¨× ×××¡××××ª.",
+      title: "המסלול האקסטרני",
+      desc: "ללמוד בישיבה ולהמשיך להתגורר בבית. חברותות קבועות, השתתפות בהתוועדויות ובחיי החברה החסידית.",
     },
     {
       number: 4,
-      title: "××¡××× ××©×××××",
-      desc: "××××× ×¤×¨×× × ×¢× ××××¨×× ×××× ×× ×©××××¢× ×-770. ××××× ×××©× ×©×¢×××¨ ×××©×ª××, ×××ª×§×× ×××× ××ª ××¨××× ×××××.",
+      title: "מסלול השלוחים",
+      desc: "לימוד פרטני עם בחורים למדנים שהגיעו מ-770. ליווי אישי שעוזר להשתלב, להתקדם ולבנות הרגלי לימוד.",
     },
   ];
 
@@ -889,13 +877,10 @@ const BentoGridSection = React.memo(function BentoGridSection() {
       className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden select-none-strict"
       style={{ background: "var(--color-cream)" }}
     >
-      <motion.div
-        style={{ y: bgParallaxY }}
-        className="absolute inset-0 z-0 motion-optimized"
-      >
+      <motion.div style={{ y: bgParallaxY }} className="absolute inset-0 z-0 motion-optimized">
         <FloatingParticles count={12} />
-        <FloatingEmoji emoji="ð" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
-        <FloatingEmoji emoji="ð" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
+        <FloatingEmoji emoji="📖" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
+        <FloatingEmoji emoji="📚" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
       </motion.div>
 
       <div className="relative z-10 max-w-6xl mx-auto text-center mb-10">
@@ -904,10 +889,9 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ××¡××× ×©××ª××× ××¨××, ×××××××ª ×××××¨××ª ×©××.
+          מסלול שמתאים לרמה, ליכולות ולמטרות שלך.
         </RevealText>
 
-        {/* Read Time Pill */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -920,8 +904,8 @@ const BentoGridSection = React.memo(function BentoGridSection() {
             border: "1px solid rgba(201,162,75,0.35)",
           }}
         >
-          <span aria-hidden="true">â±ï¸</span>
-          <span>×§×¨××× ×©× ××§×</span>
+          <span aria-hidden="true">⏱️</span>
+          <span>קריאה של דקה</span>
         </motion.div>
 
         <motion.p
@@ -932,8 +916,7 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           className="text-lg md:text-xl max-w-2xl mx-auto"
           style={{ color: "rgba(15, 37, 69, 0.75)" }}
         >
-          ×¦×××ª ××× ××× ×× ××¡× ×××××× ×××©× ××××¨× ×××¨×. ××××× ×¤×¨×× × ××× ×¢× ××× ×¢×
-          ××××¨× ××©××××ª ×××´×.
+          צוות חינוכי מנוסה וליווי אישי לאורך הדרך. לימוד פרטני אחד על אחד עם בוגרי ישיבות חב״ד.
         </motion.p>
       </div>
 
@@ -957,16 +940,19 @@ const BentoGridSection = React.memo(function BentoGridSection() {
 --------------------------------------------- */
 function NumberCounter({ target }: { target: number }) {
   const [count, setCount] = useState(0);
-  // FIX: replaced state-based hasStarted with a ref to avoid stale-closure issues
-  const hasStartedRef = useRef(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (!ref.current) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setCount(target);
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !hasStartedRef.current) {
-          hasStartedRef.current = true;
+        if (entries[0].isIntersecting && !hasStarted) {
+          setHasStarted(true);
           const duration = 1200;
           const startTime = performance.now();
 
@@ -985,7 +971,7 @@ function NumberCounter({ target }: { target: number }) {
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [target]);
+  }, [hasStarted, target]);
 
   const display = count < 10 ? "0" + count : String(count);
 
@@ -993,7 +979,7 @@ function NumberCounter({ target }: { target: number }) {
 }
 
 /* ---------------------------------------------
-   3D TILT CARD (Spring Physics + Spotlight)
+   3D TILT CARD
 --------------------------------------------- */
 const TiltCard = React.memo(function TiltCard({
   card,
@@ -1009,14 +995,8 @@ const TiltCard = React.memo(function TiltCard({
   const spotY = useMotionValue(-999);
 
   const springConfig = { stiffness: 150, damping: 20, mass: 0.5 };
-  const rotateX = useSpring(
-    useTransform(mouseY, [-0.5, 0.5], [10, -10]),
-    springConfig
-  );
-  const rotateY = useSpring(
-    useTransform(mouseX, [-0.5, 0.5], [-10, 10]),
-    springConfig
-  );
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), springConfig);
 
   const spotlightBackground = useMotionTemplate`radial-gradient(220px circle at ${spotX}px ${spotY}px, rgba(228,201,118,0.18), transparent 75%)`;
 
@@ -1058,8 +1038,7 @@ const TiltCard = React.memo(function TiltCard({
         <div
           className="absolute -top-16 -left-16 w-48 h-48 rounded-full pointer-events-none"
           style={{
-            background:
-              "radial-gradient(circle, rgba(201,162,75,0.15) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(201,162,75,0.15) 0%, transparent 70%)",
           }}
         />
 
@@ -1092,7 +1071,11 @@ const TiltCard = React.memo(function TiltCard({
     </motion.div>
   );
 });
-const faqContainerVariants: Variants = {
+
+/* ---------------------------------------------
+   FAQ SECTION
+--------------------------------------------- */
+const faqContainerVariants: any = {
   hidden: {},
   show: {
     transition: {
@@ -1101,7 +1084,7 @@ const faqContainerVariants: Variants = {
   },
 };
 
-const faqItemVariants: Variants = {
+const faqItemVariants: any = {
   hidden: { opacity: 0, y: 20 },
   show: {
     opacity: 1,
@@ -1122,22 +1105,22 @@ const FaqSection = React.memo(function FaqSection() {
 
   const faqs = [
     {
-      q: "××× × ×¨×××ª ××¤× ×××××?",
-      a: "×¤× ××××× ××¨××××ª, ×××¨×× ×××××××, ×××× ×××¨×× ×××©× ××× ××××¨ ×××¦××¨×ª ××§×× × ×¢×× ××××ª×. ",
-      highlight: "××§××× ×××¨× ×××© ×××©××¤×¥",
-      rest: " × ××¦× ×××© ××ª×× ××§××¤××¡.",
+      q: "איך נראית הפנימייה?",
+      a: "פנימייה מרווחת, חדרים ממוזגים, מיטה וארון אישי לכל בחור ליצירת מקום נעים וביתי. ",
+      highlight: "מקווה טהרה חדש ומשופץ",
+      rest: " נמצא ממש בתוך הקמפוס.",
     },
     {
-      q: "×× ×××× ××¨××××ª?",
-      a: "×©×××© ××¨××××ª ××¡×××¨××ª ××××. ××× ×¦××× ×××× ××¨×××ª ×××§×¨ ×¢×©××¨×, ×",
-      highlight: "××¨××××ª ×¦××¨××× ××¢×¨× ××××ª ×××××©×××ª",
-      rest: ", ××× ×©×ª××× ×¤× ×× ××××ª ××××××.",
+      q: "מה לגבי ארוחות?",
+      a: "שלוש ארוחות מסודרות ביום. טבח צמוד מכין ארוחת בוקר עשירה, ו",
+      highlight: "ארוחות צהריים וערב חמות ומבושלות",
+      rest: ", כדי שתהיה פנוי באמת ללימוד.",
     },
     {
-      q: "×× ××××××¨× ××××¨×ª××ª ×××©×××?",
-      a: "×××××¨× ××¡××××ª, ××× ×× ××©××ª. ",
-      highlight: "××ª×××¢×××××ª, ×©××ª××ª ××©××ª×¤××ª, ××¦××× ××××¦×¢××",
-      rest: ", ××§×©×¨ ×××©× ××××× ××¢×× ××× ×¢× ××¦×××ª ×××©×××××.",
+      q: "מה האווירה החברתית בישיבה?",
+      a: "אווירה חסידית, חיה ונושמת. ",
+      highlight: "התוועדויות, שבתות משותפות, יציאה למבצעים",
+      rest: ", וקשר אישי בגובה העיניים עם הצוות והשלוחים.",
     },
   ];
 
@@ -1147,30 +1130,23 @@ const FaqSection = React.memo(function FaqSection() {
       className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden select-none-strict"
       style={{ background: "var(--color-cream-blue)" }}
     >
-      <span
-        className="watermark-quote"
-        style={{ top: "-2rem", right: "5%" }}
-        aria-hidden="true"
-      >
+      <span className="watermark-quote" style={{ top: "-2rem", right: "5%" }} aria-hidden="true">
         &#8221;
       </span>
 
       <div className="absolute inset-0 z-0">
         <FloatingParticles count={10} />
-        <FloatingEmoji emoji="â" top="15%" left="85%" size={46} duration={8} opacity={0.1} />
-        <FloatingEmoji emoji="ð§­" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
+        <FloatingEmoji emoji="❓" top="15%" left="85%" size={46} duration={8} opacity={0.1} />
+        <FloatingEmoji emoji="🧭" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
       </div>
 
-      <motion.div
-        style={{ y: containerParallaxY }}
-        className="relative z-10 max-w-3xl mx-auto motion-optimized"
-      >
+      <motion.div style={{ y: containerParallaxY }} className="relative z-10 max-w-3xl mx-auto motion-optimized">
         <RevealText
           as="h2"
           className="fluid-h2 font-bold text-center mb-16 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ×× ×©××©×× ×××¢×ª
+          מה שחשוב לדעת
         </RevealText>
 
         <motion.div
@@ -1212,10 +1188,9 @@ function FaqItem({
       }}
     >
       <motion.button
-        type="button"
         onClick={onClick}
         whileTap={{ scale: 0.98 }}
-        aria-label={"×©×××: " + item.q}
+        aria-label={"שאלה: " + item.q}
         aria-expanded={isOpen}
         className="w-full min-hitbox flex items-center justify-between gap-4 px-6 md:px-8 py-6 text-right"
         style={{ background: "var(--color-navy)" }}
@@ -1268,12 +1243,27 @@ function FaqItem({
 }
 
 /* ---------------------------------------------
-   CONFETTI BURST (Framer Motion)
+   CONFETTI BURST
+   FIX: Math.random() only runs client-side after mount.
 --------------------------------------------- */
 function ConfettiBurst() {
-  const pieces = useMemo(() => {
+  const [isMounted, setIsMounted] = useState(false);
+  const [pieces, setPieces] = useState<
+    {
+      id: number;
+      x: number;
+      y: number;
+      rotate: number;
+      color: string;
+      delay: number;
+      duration: number;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    setIsMounted(true);
     const colors = ["#c9a24b", "#e4c976", "#0f2545", "#ffffff", "#2e9e5b"];
-    return Array.from({ length: 40 }).map((_, i) => ({
+    const generated = Array.from({ length: 40 }).map((_, i) => ({
       id: i,
       x: (Math.random() - 0.5) * 500,
       y: Math.random() * -400 - 100,
@@ -1282,13 +1272,13 @@ function ConfettiBurst() {
       delay: Math.random() * 0.3,
       duration: 1.2 + Math.random() * 0.8,
     }));
+    setPieces(generated);
   }, []);
 
+  if (!isMounted) return null;
+
   return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none z-20"
-      aria-hidden="true"
-    >
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-20" aria-hidden="true">
       {pieces.map((p) => (
         <motion.span
           key={p.id}
@@ -1353,18 +1343,20 @@ function ThankYouState() {
         className="text-2xl md:text-3xl font-bold mb-3 tracking-tight"
         style={{ color: "var(--color-navy)", fontFamily: "Bona Nova S, serif" }}
       >
-        ×ª××× ×¨××!
+        תודה רבה!
       </h3>
       <p className="text-base md:text-lg" style={{ color: "rgba(15, 37, 69, 0.75)" }}>
-        ××¤×¨××× ×©×× ××ª×§××× ×××¦×××. × ×¦×× ×××©××× ×××××¨ ×××× ×××§×× ×××¤×©×¨×.
+        הפרטים שלך התקבלו בהצלחה. נציג הישיבה יחזור אליך בהקדם האפשרי.
       </p>
     </motion.div>
   );
 }
 
 /* ---------------------------------------------
-   REGISTRATION SECTION (floating labels, validation,
-   honeypot, localStorage draft, confetti success)
+   REGISTRATION SECTION
+   FIX: All localStorage/window access strictly
+   confined to useEffect / event handlers, guarded
+   with typeof window checks.
 --------------------------------------------- */
 function RegistrationSection() {
   const [formData, setFormData] = useState({
@@ -1372,7 +1364,7 @@ function RegistrationSection() {
     age: "",
     phone: "",
     track: "",
-    website: "", // honeypot
+    website: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -1382,14 +1374,14 @@ function RegistrationSection() {
   const hasLoadedDraft = useRef(false);
 
   const tracks = [
-    "×××¡××× ××××××× ×××× â ×©× ×ª×××",
-    "××¦× ××× ××××× ×××¦× ××× ×¢×××× â 3 ×©× ××",
-    "×××¡××× ×××§×¡××¨× ×",
-    "××¡××× ××©×××××",
+    "המסלול הלימודי המלא – שנתיים",
+    "חצי יום לימוד וחצי יום עבודה – 3 שנים",
+    "המסלול האקסטרני",
+    "מסלול השלוחים",
   ];
 
-  // ---- Load draft from localStorage on mount ----
   useEffect(() => {
+    if (typeof window === "undefined") return;
     if (hasLoadedDraft.current) return;
     hasLoadedDraft.current = true;
     try {
@@ -1405,17 +1397,17 @@ function RegistrationSection() {
           setPhoneComplete(true);
         }
       }
-    } catch {
+    } catch (err) {
       // localStorage unavailable, silently ignore
     }
   }, []);
 
-  // ---- Save draft to localStorage as user types ----
   useEffect(() => {
+    if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem("draft_fullName", formData.fullName);
       window.localStorage.setItem("draft_phone", formData.phone);
-    } catch {
+    } catch (err) {
       // localStorage unavailable, silently ignore
     }
   }, [formData.fullName, formData.phone]);
@@ -1443,7 +1435,6 @@ function RegistrationSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Honeypot check - if filled, silently reject (bot)
     if (formData.website.trim() !== "") {
       return;
     }
@@ -1454,11 +1445,13 @@ function RegistrationSection() {
       setIsSubmitting(false);
       setIsSuccess(true);
 
-      try {
-        window.localStorage.removeItem("draft_fullName");
-        window.localStorage.removeItem("draft_phone");
-      } catch {
-        // ignore
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.removeItem("draft_fullName");
+          window.localStorage.removeItem("draft_phone");
+        } catch (err) {
+          // ignore
+        }
       }
     }, 1800);
   };
@@ -1474,7 +1467,7 @@ function RegistrationSection() {
           className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ×××§×× ×©×× ××¤×¨××¥, ×××ª×§×× ×××× ××ª ××ª ××¢×ª×× ×©××.
+          המקום שלך לפרוץ, להתקדם ולבנות את העתיד שלך.
         </RevealText>
         <motion.p
           initial={{ opacity: 0, y: 30 }}
@@ -1484,7 +1477,7 @@ function RegistrationSection() {
           className="text-lg md:text-xl"
           style={{ color: "rgba(15, 37, 69, 0.8)" }}
         >
-          ××©××¨ ×¤×¨××× ×× ××××§ ××× ×××× ××¡××× ××ª××× ×××××§ ×¢×××¨×.
+          השאר פרטים ונבדוק יחד איזה מסלול מתאים בדיוק עבורך.
         </motion.p>
       </div>
 
@@ -1507,7 +1500,6 @@ function RegistrationSection() {
               border: "1px solid rgba(201, 162, 75, 0.3)",
             }}
           >
-            {/* Honeypot field - hidden from real users, bots will fill it */}
             <input
               type="text"
               name="website"
@@ -1520,7 +1512,7 @@ function RegistrationSection() {
             />
 
             <FloatingField
-              label="×©× ×××"
+              label="שם מלא"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
@@ -1528,7 +1520,7 @@ function RegistrationSection() {
               required
             />
             <FloatingField
-              label="×××"
+              label="גיל"
               name="age"
               value={formData.age}
               onChange={handleChange}
@@ -1536,7 +1528,7 @@ function RegistrationSection() {
               required
             />
             <FloatingField
-              label="××¡×¤×¨ ×××¤××"
+              label="מספר טלפון"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
@@ -1551,7 +1543,7 @@ function RegistrationSection() {
                 className="text-sm md:text-base font-semibold"
                 style={{ color: "var(--color-navy)" }}
               >
-                ×××¡××× ×©××¢× ××× ×××ª×
+                המסלול שמעניין אותך
               </label>
               <select
                 id="track-select"
@@ -1560,7 +1552,7 @@ function RegistrationSection() {
                 value={formData.track}
                 onChange={handleChange}
                 required
-                aria-label="×××¨ ××¡××× ×××××"
+                aria-label="בחר מסלול לימוד"
                 className="w-full min-hitbox px-4 py-3 rounded-lg text-[16px] outline-none transition-colors"
                 style={{
                   border: "2px solid var(--color-gold)",
@@ -1569,7 +1561,7 @@ function RegistrationSection() {
                 }}
               >
                 <option value="" disabled>
-                  ×××¨ ××¡×××
+                  בחר מסלול
                 </option>
                 {tracks.map((t) => (
                   <option key={t} value={t}>
@@ -1583,7 +1575,7 @@ function RegistrationSection() {
               type="submit"
               disabled={isSubmitting}
               whileTap={{ scale: 0.95 }}
-              aria-label="×©×× ×¤×¨×× ××¨×©××"
+              aria-label="שלח פרטי הרשמה"
               className="mt-4 w-full min-hitbox py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] disabled:opacity-80"
               style={{
                 background: "var(--color-navy)",
@@ -1594,15 +1586,12 @@ function RegistrationSection() {
                 <>
                   <span
                     className="inline-block w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
-                    style={{
-                      borderColor: "var(--color-gold)",
-                      borderTopColor: "transparent",
-                    }}
+                    style={{ borderColor: "var(--color-gold)", borderTopColor: "transparent" }}
                   />
-                  ×©×××...
+                  שולח...
                 </>
               ) : (
-                "[ ×©×× ×¤×¨××× ]"
+                "[ שלח פרטים ]"
               )}
             </motion.button>
           </motion.form>
@@ -1613,11 +1602,8 @@ function RegistrationSection() {
 }
 
 /* ---------------------------------------------
-   FLOATING LABEL FIELD (with validation checkmark)
+   FLOATING LABEL FIELD
 --------------------------------------------- */
-// FIX: tightened `type` to a safe union instead of a generic string
-type FloatingFieldType = "text" | "number" | "tel" | "email";
-
 function FloatingField({
   label,
   name,
@@ -1630,12 +1616,8 @@ function FloatingField({
   label: string;
   name: string;
   value: string;
-  // FIX: widened to accept both input and select change events,
-  // matching how handleChange is actually used in RegistrationSection
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => void;
-  type: FloatingFieldType;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type: string;
   required?: boolean;
   showCheck?: boolean;
 }) {
@@ -1703,27 +1685,26 @@ function Footer() {
         className="text-base md:text-lg font-semibold tracking-tight"
         style={{ color: "#ffffff", fontFamily: "Bona Nova S, serif" }}
       >
-        ××©×××ª ×××× ×××©×× â ××¨××©××× Â© 2026
+        ישיבת המלך המשיח – ירושלים © 2026
       </p>
       <p
         className="text-sm md:text-base"
         style={{ color: "rgba(201, 162, 75, 0.65)" }}
       >
-        ××× ×××× ×× × ×××¨×× × ××¨××× × ××× ×××©×× ××¢××× ××¢×!
+        יחי אדונינו מורינו ורבינו מלך המשיח לעולם ועד!
       </p>
     </motion.footer>
   );
 }
 
 /* ---------------------------------------------
-   WHATSAPP FLOATING BUTTON (Reverse Shared Layout Magic)
+   WHATSAPP FLOATING BUTTON
 --------------------------------------------- */
 function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
   return (
     <AnimatePresence>
       {!isAtBottom && (
         <motion.a
-          // TODO: replace with the real WhatsApp business number before production
           href="https://wa.me/972000000000"
           target="_blank"
           rel="noopener noreferrer"
@@ -1734,7 +1715,7 @@ function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
           draggable="false"
-          aria-label="×¦××¨ ×§×©×¨ ××××××¡××¤"
+          aria-label="צור קשר בוואטסאפ"
           className="fixed z-[90] min-hitbox flex items-center justify-center rounded-full no-select-card select-none-strict"
           style={{
             bottom: "6rem",
@@ -1787,7 +1768,7 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
       className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-4 px-4"
-      aria-label="× ×××× ×ª××ª××"
+      aria-label="ניווט תחתון"
     >
       <div
         className="flex items-center gap-1 md:gap-2 px-4 py-3 rounded-3xl w-full max-w-md justify-between no-select-card select-none-strict"
@@ -1799,7 +1780,7 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
           boxShadow: "0 8px 32px rgba(15, 37, 69, 0.3)",
         }}
       >
-        <DockItem label="×××¢××¥" ariaLabel="×××¢××¥ ×××©× ××××××¡××¤">
+        <DockItem label="ייעוץ" ariaLabel="ייעוץ אישי בוואטסאפ">
           <AnimatePresence>
             {isAtBottom && (
               <motion.div
@@ -1818,26 +1799,26 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
           )}
         </DockItem>
 
-        <DockItem label="×××××ª ×¢××" ariaLabel="×××××ª ×¢×× ×ª×××">
+        <DockItem label="לגלות עוד" ariaLabel="לגלות עוד תוכן">
           <motion.div
             animate={bounce ? { y: [0, -8, 0, -4, 0] } : { y: 0 }}
             transition={{ duration: 0.7, ease: "easeInOut" }}
             className="w-9 h-9 flex items-center justify-center text-2xl"
             aria-hidden="true"
           >
-            ð§­
+            🧭
           </motion.div>
         </DockItem>
 
         <DockCenterItem />
 
-        <DockItem label="×××¤×¢××××ª" ariaLabel="×¤×¢××××××ª ×××©×××">
+        <DockItem label="מהפעילות" ariaLabel="פעילויות הישיבה">
           <div className="w-9 h-9 flex items-center justify-center">
             <ActivityIcon />
           </div>
         </DockItem>
 
-        <DockItem label="×× ××ª" ariaLabel="×× ××ª ×××©×××">
+        <DockItem label="חנות" ariaLabel="חנות הישיבה">
           <div className="w-9 h-9 flex items-center justify-center">
             <ShopIcon />
           </div>
@@ -1856,9 +1837,7 @@ function DockItem({
   ariaLabel: string;
   children: React.ReactNode;
 }) {
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>(
-    []
-  );
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -1876,7 +1855,6 @@ function DockItem({
   return (
     <motion.button
       ref={btnRef}
-      type="button"
       onClick={handleClick}
       whileTap={{ scale: 0.95 }}
       aria-label={ariaLabel}
@@ -1894,10 +1872,7 @@ function DockItem({
         />
       ))}
       {children}
-      <span
-        className="text-[11px] font-medium"
-        style={{ color: "rgba(255,255,255,0.85)" }}
-      >
+      <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.85)" }}>
         {label}
       </span>
     </motion.button>
@@ -1905,9 +1880,7 @@ function DockItem({
 }
 
 function DockCenterItem() {
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>(
-    []
-  );
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
   const btnRef = useRef<HTMLDivElement>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -1938,7 +1911,7 @@ function DockCenterItem() {
           },
         }}
         role="button"
-        aria-label="××£ ××××ª"
+        aria-label="דף הבית"
         tabIndex={0}
         className="relative w-14 h-14 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer overflow-hidden motion-optimized"
         style={{
@@ -1956,8 +1929,7 @@ function DockCenterItem() {
               top: r.y - 25,
               width: 50,
               height: 50,
-              background:
-                "radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)",
+              background: "radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)",
             }}
             initial={{ scale: 0, opacity: 0.8 }}
             animate={{ scale: 1.8, opacity: 0 }}
@@ -1967,11 +1939,8 @@ function DockCenterItem() {
         ))}
         <HomeIcon color="var(--color-navy-deep)" />
       </motion.div>
-      <span
-        className="text-[11px] font-semibold"
-        style={{ color: "var(--color-gold-light)" }}
-      >
-        ×××ª
+      <span className="text-[11px] font-semibold" style={{ color: "var(--color-gold-light)" }}>
+        בית
       </span>
     </div>
   );
@@ -2011,13 +1980,7 @@ function HomeIcon({ color }: { color: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M9.5 20v-5.5h5V20"
-        stroke={color}
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M9.5 20v-5.5h5V20" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -2056,4 +2019,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-              }
+      }
