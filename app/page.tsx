@@ -1092,10 +1092,7 @@ const TiltCard = React.memo(function TiltCard({
     </motion.div>
   );
 });
-/* ---------------------------------------------
-   FAQ SECTION
---------------------------------------------- */
-const faqContainerVariants = {
+const faqContainerVariants: Variants = {
   hidden: {},
   show: {
     transition: {
@@ -1104,7 +1101,7 @@ const faqContainerVariants = {
   },
 };
 
-const faqItemVariants = {
+const faqItemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: {
     opacity: 1,
