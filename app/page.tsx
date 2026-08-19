@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -93,6 +93,51 @@ function ScrollProgressBar() {
         }}
       />
     </motion.div>
+  );
+}
+
+/* ---------------------------------------------
+   FLOATING GOLDEN PARTICLES (subtle, slow)
+--------------------------------------------- */
+function FloatingParticles({ count = 14 }: { count?: number }) {
+  const particles = useMemo(() => {
+    return Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      size: 4 + Math.random() * 10,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: 18 + Math.random() * 22,
+      delay: Math.random() * 6,
+      driftX: (Math.random() - 0.5) * 60,
+    }));
+  }, [count]);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="particle"
+          style={{
+            width: p.size + "px",
+            height: p.size + "px",
+            left: p.left + "%",
+            top: p.top + "%",
+          }}
+          animate={{
+            y: [0, -40, 0],
+            x: [0, p.driftX, 0],
+            opacity: [0.15, 0.5, 0.15],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -208,10 +253,13 @@ function Typewriter() {
 }
 
 /* ---------------------------------------------
-   HERO SECTION (video NOT in a card, full flow)
+   HERO SECTION (video, ambilight, blur, mute btn)
 --------------------------------------------- */
 function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(true);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -221,28 +269,67 @@ function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.45, 0.75]);
 
-  // Dynamic blur as the user scrolls past the hero video
-  const blurValue = useTransform(scrollYProgress, [0, 1], [0, 12]);
-  const videoFilter = useTransform(blurValue, (v) => "blur(" + v + "px)");
+  // Dynamic backdrop blur as user scrolls past the hero
+  const blurAmount = useTransform(scrollYProgress, [0, 1], [0, 14]);
+  const videoBackdropFilter = useTransform(blurAmount, (v) => "blur(" + v + "px)");
+
+  // Interactive text: soft scale-down as you scroll away
+  const textScale = useTransform(scrollYProgress, [0, 1], [1, 0.88]);
+
+  // Parallax for ambilight glow behind video
+  const glowY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
 
   return (
-    <section ref={sectionRef} className="relative" style={{ height: "180vh" }}>
+    <section
+      ref={sectionRef}
+      className="relative"
+      style={{
+        height: "180vh",
+        background:
+          "radial-gradient(ellipse at 50% 30%, rgba(201,162,75,0.18) 0%, rgba(201,162,75,0) 60%), var(--color-navy-deep)",
+      }}
+    >
       <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
+        {/* AMBILIGHT GLOW (parallax) */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{
+            y: glowY,
+            background:
+              "radial-gradient(circle at 50% 40%, rgba(228,201,118,0.25) 0%, rgba(228,201,118,0) 55%)",
+          }}
+        />
+
         {/* VIDEO BACKGROUND - full screen, part of scroll flow, not a card */}
         <motion.video
+          ref={videoRef}
+          preload="auto"
           autoPlay
           muted
           loop
           playsInline
-          style={{ scale, filter: videoFilter }}
-          className="absolute inset-0 w-full h-full object-cover no-select-card"
+          style={{ scale, backdropFilter: videoBackdropFilter, WebkitBackdropFilter: videoBackdropFilter }}
+          className="absolute inset-0 w-full h-full object-cover no-select-card z-[1]"
         >
           <source src="/hero-video.mp4" type="video/mp4" />
         </motion.video>
 
-        {/* DARK OVERLAY FOR CONTRAST */}
+        {/* Subtle 10% dark blue overlay (always on, constant) */}
+        <div
+          className="absolute inset-0 z-[2] pointer-events-none"
+          style={{ background: "rgba(10, 26, 51, 0.1)" }}
+        />
+
+        {/* DARK OVERLAY FOR CONTRAST (scroll-driven) */}
         <motion.div
-          className="absolute inset-0"
+          className="absolute inset-0 z-[2]"
           style={{
             opacity: overlayOpacity,
             background: "linear-gradient(180deg, rgba(10,26,51,0.55) 0%, rgba(10,26,51,0.75) 100%)",
@@ -251,7 +338,7 @@ function HeroSection() {
 
         {/* CONTENT - directly over video, no card wrapper */}
         <motion.div
-          style={{ opacity }}
+          style={{ opacity, scale: textScale }}
           className="relative z-10 flex flex-col items-center justify-center h-full w-full px-6 text-center"
         >
           <motion.span
@@ -264,6 +351,7 @@ function HeroSection() {
               border: "1px solid rgba(228, 201, 118, 0.4)",
               background: "rgba(255,255,255,0.08)",
               backdropFilter: "blur(8px)",
+              textShadow: "0 1px 6px rgba(10,26,51,0.6)",
             }}
           >
             לבחורים בגילאי 20–35 | בלב ירושלים
@@ -274,7 +362,10 @@ function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
             className="text-white font-bold max-w-4xl text-3xl md:text-5xl lg:text-6xl leading-tight md:leading-tight"
-            style={{ fontFamily: "Bona Nova S, serif" }}
+            style={{
+              fontFamily: "Bona Nova S, serif",
+              textShadow: "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
+            }}
           >
             מסלול אישי לבחורים שרוצים ללמוד, להתחזק ולהיבנות לחיים
           </motion.h1>
@@ -284,6 +375,7 @@ function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
             className="mt-6 text-lg md:text-2xl text-white/90 max-w-2xl"
+            style={{ textShadow: "0 1px 10px rgba(10,26,51,0.65)" }}
           >
             ללמוד בסבבה, עם חבר&apos;ה טוב. ישיבה{" "}
             <Typewriter /> בלב ירושלים.
@@ -319,6 +411,25 @@ function HeroSection() {
           </motion.div>
         </motion.div>
 
+        {/* MUTE / UNMUTE BUTTON (glassmorphism, bottom-right of video) */}
+        <motion.button
+          onClick={toggleMute}
+          whileTap={{ scale: 0.9 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="absolute bottom-8 right-6 z-20 w-10 h-10 rounded-full flex items-center justify-center"
+          style={{
+            background: "rgba(255,255,255,0.12)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+          }}
+          aria-label="Toggle mute"
+        >
+          {isMuted ? <MuteIcon /> : <UnmuteIcon />}
+        </motion.button>
+
         {/* SCROLL INDICATOR */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -340,6 +451,29 @@ function HeroSection() {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function MuteIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M4 9v6h4l5 5V4L8 9H4z" fill="#ffffff" />
+      <path d="M17 8l5 8M22 8l-5 8" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function UnmuteIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M4 9v6h4l5 5V4L8 9H4z" fill="#ffffff" />
+      <path
+        d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"
+        stroke="#ffffff"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
@@ -392,7 +526,7 @@ function MarqueeSection() {
 }
 
 /* ---------------------------------------------
-   BENTO GRID SECTION (THE PATHS) - staggered
+   BENTO GRID SECTION (THE PATHS) - staggered, particles, parallax
 --------------------------------------------- */
 const gridContainerVariants = {
   hidden: {},
@@ -413,6 +547,13 @@ const gridItemVariants = {
 };
 
 function BentoGridSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const bgParallaxY = useTransform(scrollYProgress, [0, 1], [-40, 40]);
+
   const cards = [
     {
       number: "01",
@@ -438,10 +579,15 @@ function BentoGridSection() {
 
   return (
     <section
-      className="relative w-full py-24 md:py-32 px-6 md:px-12"
+      ref={sectionRef}
+      className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden"
       style={{ background: "var(--color-cream)" }}
     >
-      <div className="max-w-6xl mx-auto text-center mb-16">
+      <motion.div style={{ y: bgParallaxY }} className="absolute inset-0 z-0">
+        <FloatingParticles count={12} />
+      </motion.div>
+
+      <div className="relative z-10 max-w-6xl mx-auto text-center mb-16">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -469,7 +615,7 @@ function BentoGridSection() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
-        className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         {cards.map((card) => (
           <TiltCard key={card.number} card={card} />
@@ -558,7 +704,7 @@ function TiltCard({
 }
 
 /* ---------------------------------------------
-   FAQ SECTION - staggered
+   FAQ SECTION - staggered, parallax container, particles
 --------------------------------------------- */
 const faqContainerVariants = {
   hidden: {},
@@ -580,6 +726,13 @@ const faqItemVariants = {
 
 function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const containerParallaxY = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
   const faqs = [
     {
@@ -598,10 +751,15 @@ function FaqSection() {
 
   return (
     <section
-      className="relative w-full py-24 md:py-32 px-6 md:px-12"
+      ref={sectionRef}
+      className="relative w-full py-24 md:py-32 px-6 md:px-12 overflow-hidden"
       style={{ background: "var(--color-cream-blue)" }}
     >
-      <div className="max-w-3xl mx-auto">
+      <div className="absolute inset-0 z-0">
+        <FloatingParticles count={10} />
+      </div>
+
+      <motion.div style={{ y: containerParallaxY }} className="relative z-10 max-w-3xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -629,7 +787,7 @@ function FaqSection() {
             />
           ))}
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -734,7 +892,6 @@ function RegistrationSection() {
       const digitsOnly = value.replace(/\D/g, "");
       if (digitsOnly.length === 10) {
         setPhoneComplete(true);
-        // Auto-focus the next field (track select)
         setTimeout(() => {
           trackSelectRef.current?.focus();
         }, 350);
@@ -1247,4 +1404,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-            }
+                       }
