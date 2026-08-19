@@ -88,3 +88,111 @@ button {
   background: radial-gradient(circle, rgba(201,162,75,0.55) 0%, rgba(201,162,75,0) 70%);
   pointer-events: none;
 }
+
+/* Global Noise Texture Overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.02;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Custom Cursor - Desktop only */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  a, button, [role="button"] {
+    cursor: none;
+  }
+}
+
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: normal;
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(15, 37, 69, 0.35);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Dock Ripple */
+.ripple-span {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(228,201,118,0.55) 0%, rgba(228,201,118,0) 70%);
+  transform: scale(0);
+  pointer-events: none;
+}  pointer-events: none;
+}
+
+body {
+  direction: rtl;
+  text-align: right;
+  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-cream-blue) 100%);
+  color: var(--color-navy);
+  font-family: "Assistant", sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: "Bona Nova S", serif;
+}
+
+.logo-text {
+  font-family: "Assistant", sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-navy-deep);
+}
+
+/* Touch / Selection Optimization */
+img, .no-select-card {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+/* Prevent iOS auto-zoom on inputs */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Golden Particles */
+.particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(201,162,75,0.55) 0%, rgba(201,162,75,0) 70%);
+  pointer-events: none;
+}
