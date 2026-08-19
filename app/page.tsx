@@ -14,15 +14,8 @@ import Lenis from "lenis";
 
 export default function Home() {
   const [isAtBottom, setIsAtBottom] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -44,9 +37,8 @@ export default function Home() {
     };
   }, []);
 
+  // ---- Reverse WhatsApp Morph: tracks bottom AND scroll direction ----
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     let lastY = window.scrollY;
 
     const handleScroll = () => {
@@ -71,10 +63,6 @@ export default function Home() {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  if (!mounted) {
-    return <div style={{ minHeight: "100vh", background: "#faf7f0" }} />;
-  }
 
   return (
     <main dir="rtl" className="relative w-full select-none-strict" style={{ overscrollBehaviorY: "none" }}>
@@ -103,7 +91,7 @@ function NoiseOverlay() {
 }
 
 /* ---------------------------------------------
-   SVG SECTION DIVIDER
+   SVG SECTION DIVIDER (Cream -> Navy wave transition)
 --------------------------------------------- */
 function SectionDivider() {
   return (
@@ -125,8 +113,6 @@ function SectionDivider() {
 
 /* ---------------------------------------------
    CUSTOM CURSOR (Desktop only)
-   FIX: useMotionTemplate hooks called unconditionally
-   at top level, never inside JSX attribute position.
 --------------------------------------------- */
 function CustomCursor() {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -138,12 +124,7 @@ function CustomCursor() {
   const ringX = useSpring(dotX, { stiffness: 260, damping: 22, mass: 0.4 });
   const ringY = useSpring(dotY, { stiffness: 260, damping: 22, mass: 0.4 });
 
-  const ringTranslateX = useMotionTemplate`calc(${ringX}px - 11px)`;
-  const ringTranslateY = useMotionTemplate`calc(${ringY}px - 11px)`;
-
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
     setIsDesktop(mq.matches);
 
@@ -153,9 +134,7 @@ function CustomCursor() {
       setIsVisible(true);
 
       const target = e.target as HTMLElement;
-      const interactive = target.closest
-        ? target.closest("a, button, [role='button'], input, select, textarea")
-        : null;
+      const interactive = target.closest("a, button, [role='button'], input, select, textarea");
       setIsPointer(!!interactive);
     };
 
@@ -189,8 +168,8 @@ function CustomCursor() {
           <motion.div
             className="custom-cursor-ring"
             style={{
-              x: ringTranslateX,
-              y: ringTranslateY,
+              x: useMotionTemplate`calc(${ringX}px - 11px)`,
+              y: useMotionTemplate`calc(${ringY}px - 11px)`,
             }}
             animate={{
               scale: isPointer ? 1.4 : 1,
@@ -238,25 +217,10 @@ function ScrollProgressBar() {
 
 /* ---------------------------------------------
    FLOATING GOLDEN PARTICLES
-   FIX: Math.random() only runs client-side after mount.
 --------------------------------------------- */
 function FloatingParticles({ count = 14 }: { count?: number }) {
-  const [isMounted, setIsMounted] = useState(false);
-  const [particles, setParticles] = useState<
-    {
-      id: number;
-      size: number;
-      left: number;
-      top: number;
-      duration: number;
-      delay: number;
-      driftX: number;
-    }[]
-  >([]);
-
-  useEffect(() => {
-    setIsMounted(true);
-    const generated = Array.from({ length: count }).map((_, i) => ({
+  const particles = useMemo(() => {
+    return Array.from({ length: count }).map((_, i) => ({
       id: i,
       size: 4 + Math.random() * 10,
       left: Math.random() * 100,
@@ -265,10 +229,7 @@ function FloatingParticles({ count = 14 }: { count?: number }) {
       delay: Math.random() * 6,
       driftX: (Math.random() - 0.5) * 60,
     }));
-    setParticles(generated);
   }, [count]);
-
-  if (!isMounted) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -344,9 +305,6 @@ function FloatingEmoji({
 
 /* ---------------------------------------------
    TEXT REVEAL
-   FIX: Removed dynamic `motion[as]` component lookup
-   (unsafe in production minified builds). Now uses
-   explicit switch-like mapping with fixed components.
 --------------------------------------------- */
 function RevealText({
   children,
@@ -365,31 +323,27 @@ function RevealText({
   viewportOnce?: boolean;
   useInView?: boolean;
 }) {
-  const variants = {
-    hidden: { y: "110%" },
-    show: {
-      y: "0%",
-      transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
+  const Tag = motion[as as "div"];
 
   const initialProps = useInView
     ? { initial: "hidden", whileInView: "show", viewport: { once: viewportOnce } }
     : { initial: "hidden", animate: "show" };
 
-  const commonProps = {
-    className: "motion-optimized",
-    variants,
-    ...initialProps,
-  };
-
   return (
     <div className={className} style={{ overflow: "hidden", ...style }}>
-      {as === "h1" && <motion.h1 {...commonProps}>{children}</motion.h1>}
-      {as === "h2" && <motion.h2 {...commonProps}>{children}</motion.h2>}
-      {as === "h3" && <motion.h3 {...commonProps}>{children}</motion.h3>}
-      {as === "span" && <motion.span {...commonProps}>{children}</motion.span>}
-      {as === "div" && <motion.div {...commonProps}>{children}</motion.div>}
+      <Tag
+        className="motion-optimized"
+        variants={{
+          hidden: { y: "110%" },
+          show: {
+            y: "0%",
+            transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
+          },
+        }}
+        {...initialProps}
+      >
+        {children}
+      </Tag>
     </div>
   );
 }
@@ -489,21 +443,25 @@ function Typewriter() {
       style={{ color: "var(--color-gold-light)", fontWeight: 700 }}
     >
       {displayText}
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.9, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
+      <span
         className="inline-block w-[2px] h-[1em] ml-1"
         style={{
           background: "var(--color-gold-light)",
+          animation: "blink 0.9s steps(1) infinite",
         }}
       />
+      <style jsx>{`
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+      `}</style>
     </span>
   );
 }
 
 /* ---------------------------------------------
    MAGNETIC BUTTON
-   FIX: window.matchMedia guarded with typeof check
 --------------------------------------------- */
 function MagneticButton({
   children,
@@ -523,7 +481,6 @@ function MagneticButton({
   const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.3 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (typeof window === "undefined") return;
     if (window.matchMedia("(hover: none)").matches) return;
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
@@ -820,7 +777,7 @@ function MarqueeSection() {
 }
 
 /* ---------------------------------------------
-   BENTO GRID SECTION
+   BENTO GRID SECTION (with Read Time pill)
 --------------------------------------------- */
 const gridContainerVariants: any = {
   hidden: {},
@@ -892,6 +849,7 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           מסלול שמתאים לרמה, ליכולות ולמטרות שלך.
         </RevealText>
 
+        {/* Read Time Pill */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -945,10 +903,6 @@ function NumberCounter({ target }: { target: number }) {
 
   useEffect(() => {
     if (!ref.current) return;
-    if (typeof IntersectionObserver === "undefined") {
-      setCount(target);
-      return;
-    }
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !hasStarted) {
@@ -979,7 +933,7 @@ function NumberCounter({ target }: { target: number }) {
 }
 
 /* ---------------------------------------------
-   3D TILT CARD
+   3D TILT CARD (Spring Physics + Spotlight)
 --------------------------------------------- */
 const TiltCard = React.memo(function TiltCard({
   card,
@@ -1075,7 +1029,7 @@ const TiltCard = React.memo(function TiltCard({
 /* ---------------------------------------------
    FAQ SECTION
 --------------------------------------------- */
-const faqContainerVariants: any = {
+const faqContainerVariants = {
   hidden: {},
   show: {
     transition: {
@@ -1243,27 +1197,12 @@ function FaqItem({
 }
 
 /* ---------------------------------------------
-   CONFETTI BURST
-   FIX: Math.random() only runs client-side after mount.
+   CONFETTI BURST (Framer Motion)
 --------------------------------------------- */
 function ConfettiBurst() {
-  const [isMounted, setIsMounted] = useState(false);
-  const [pieces, setPieces] = useState<
-    {
-      id: number;
-      x: number;
-      y: number;
-      rotate: number;
-      color: string;
-      delay: number;
-      duration: number;
-    }[]
-  >([]);
-
-  useEffect(() => {
-    setIsMounted(true);
+  const pieces = useMemo(() => {
     const colors = ["#c9a24b", "#e4c976", "#0f2545", "#ffffff", "#2e9e5b"];
-    const generated = Array.from({ length: 40 }).map((_, i) => ({
+    return Array.from({ length: 40 }).map((_, i) => ({
       id: i,
       x: (Math.random() - 0.5) * 500,
       y: Math.random() * -400 - 100,
@@ -1272,10 +1211,7 @@ function ConfettiBurst() {
       delay: Math.random() * 0.3,
       duration: 1.2 + Math.random() * 0.8,
     }));
-    setPieces(generated);
   }, []);
-
-  if (!isMounted) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-20" aria-hidden="true">
@@ -1353,10 +1289,8 @@ function ThankYouState() {
 }
 
 /* ---------------------------------------------
-   REGISTRATION SECTION
-   FIX: All localStorage/window access strictly
-   confined to useEffect / event handlers, guarded
-   with typeof window checks.
+   REGISTRATION SECTION (floating labels, validation,
+   honeypot, localStorage draft, confetti success)
 --------------------------------------------- */
 function RegistrationSection() {
   const [formData, setFormData] = useState({
@@ -1364,7 +1298,7 @@ function RegistrationSection() {
     age: "",
     phone: "",
     track: "",
-    website: "",
+    website: "", // honeypot
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -1380,8 +1314,8 @@ function RegistrationSection() {
     "מסלול השלוחים",
   ];
 
+  // ---- Load draft from localStorage on mount ----
   useEffect(() => {
-    if (typeof window === "undefined") return;
     if (hasLoadedDraft.current) return;
     hasLoadedDraft.current = true;
     try {
@@ -1402,8 +1336,8 @@ function RegistrationSection() {
     }
   }, []);
 
+  // ---- Save draft to localStorage as user types ----
   useEffect(() => {
-    if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem("draft_fullName", formData.fullName);
       window.localStorage.setItem("draft_phone", formData.phone);
@@ -1435,6 +1369,7 @@ function RegistrationSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Honeypot check - if filled, silently reject (bot)
     if (formData.website.trim() !== "") {
       return;
     }
@@ -1445,13 +1380,11 @@ function RegistrationSection() {
       setIsSubmitting(false);
       setIsSuccess(true);
 
-      if (typeof window !== "undefined") {
-        try {
-          window.localStorage.removeItem("draft_fullName");
-          window.localStorage.removeItem("draft_phone");
-        } catch (err) {
-          // ignore
-        }
+      try {
+        window.localStorage.removeItem("draft_fullName");
+        window.localStorage.removeItem("draft_phone");
+      } catch (err) {
+        // ignore
       }
     }, 1800);
   };
@@ -1500,6 +1433,7 @@ function RegistrationSection() {
               border: "1px solid rgba(201, 162, 75, 0.3)",
             }}
           >
+            {/* Honeypot field - hidden from real users, bots will fill it */}
             <input
               type="text"
               name="website"
@@ -1602,7 +1536,7 @@ function RegistrationSection() {
 }
 
 /* ---------------------------------------------
-   FLOATING LABEL FIELD
+   FLOATING LABEL FIELD (with validation checkmark)
 --------------------------------------------- */
 function FloatingField({
   label,
@@ -1698,7 +1632,7 @@ function Footer() {
 }
 
 /* ---------------------------------------------
-   WHATSAPP FLOATING BUTTON
+   WHATSAPP FLOATING BUTTON (Reverse Shared Layout Magic)
 --------------------------------------------- */
 function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
   return (
@@ -2019,4 +1953,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-}
+        }
