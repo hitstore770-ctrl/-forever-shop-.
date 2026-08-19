@@ -216,7 +216,7 @@ function ScrollProgressBar() {
 }
 
 /* ---------------------------------------------
-   FLOATING GOLDEN PARTICLES (Fixed for SSR)
+   FLOATING GOLDEN PARTICLES (Fixed SSR)
 --------------------------------------------- */
 function FloatingParticles({ count = 14 }: { count?: number }) {
   const [particles, setParticles] = useState<any[]>([]);
@@ -397,7 +397,7 @@ function FloatingLogo() {
 }
 
 /* ---------------------------------------------
-   TYPEWRITER COMPONENT (Fixed for Next.js 15)
+   TYPEWRITER COMPONENT (Fixed Next.js)
 --------------------------------------------- */
 function Typewriter() {
   const [displayText, setDisplayText] = useState("");
@@ -1196,7 +1196,7 @@ function FaqItem({
 }
 
 /* ---------------------------------------------
-   CONFETTI BURST (Framer Motion - Fixed for SSR)
+   CONFETTI BURST (Fixed SSR)
 --------------------------------------------- */
 function ConfettiBurst() {
   const [pieces, setPieces] = useState<any[]>([]);
@@ -1957,4 +1957,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-          }
+            }
