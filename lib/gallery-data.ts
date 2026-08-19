@@ -1,5 +1,4 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "@/lib/firebase";
+import { getPublicCollection, isFirebaseAdminConfigured } from "@/lib/firebase-admin";
 
 // The yeshiva's photo gallery (גלריה). Reads come from the Firestore "gallery"
 // collection via the client SDK (public read); writes (image upload + create/
@@ -35,14 +34,12 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
 // Reads the gallery from Firestore, newest first. Falls back to the seed list
 // if Firebase isn't configured, the collection is empty, or the read fails.
 export async function getGalleryPhotos(): Promise<GalleryPhoto[]> {
-  if (!isFirebaseConfigured || !db) {
-    return GALLERY_PHOTOS;
-  }
+  if (!isFirebaseAdminConfigured) return GALLERY_PHOTOS;
 
   try {
-    const snapshot = await getDocs(query(collection(db, "gallery"), orderBy("order", "desc")));
-    if (snapshot.empty) return GALLERY_PHOTOS;
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as GalleryPhoto);
+    const documents = await getPublicCollection<GalleryPhoto>("gallery", "order", "desc");
+    if (!documents.length) return GALLERY_PHOTOS;
+    return documents.map(({ id, data }) => ({ ...data, id }));
   } catch (error) {
     console.warn("Failed to load gallery from Firestore, using seed data.", error);
     return GALLERY_PHOTOS;

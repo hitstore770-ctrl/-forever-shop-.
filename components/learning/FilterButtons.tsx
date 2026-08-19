@@ -1,4 +1,4 @@
-import { LEARNING_CATEGORIES, type KuntresCategory } from "@/lib/learning-data";
+import { LEARNING_CATEGORIES, type KuntresCategory } from "@/lib/learning-constants";
 
 export default function FilterButtons({
   active,

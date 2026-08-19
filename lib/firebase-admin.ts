@@ -44,6 +44,16 @@ if (hasAllEnvVars) {
 export const isFirebaseAdminConfigured = Boolean(app);
 export const adminDb: Firestore | null = app ? getFirestore(app) : null;
 
+export async function getPublicCollection<T>(
+  collectionName: string,
+  orderField: string,
+  direction: "asc" | "desc" = "asc",
+): Promise<Array<{ id: string; data: T }>> {
+  if (!adminDb) return [];
+  const snapshot = await adminDb.collection(collectionName).orderBy(orderField, direction).get();
+  return snapshot.docs.map((document) => ({ id: document.id, data: document.data() as T }));
+}
+
 // The default Storage bucket, or null if either the Admin SDK isn't configured
 // or no bucket name was provided. getStorage().bucket() only throws lazily on
 // use when unnamed, so we gate on `storageBucket` here to keep it null-safe.

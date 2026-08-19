@@ -1,15 +1,13 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "@/lib/firebase";
+import { getPublicCollection, isFirebaseAdminConfigured } from "@/lib/firebase-admin";
+import { LEARNING_CATEGORIES, type KuntresCategory } from "@/lib/learning-constants";
+
+export { LEARNING_CATEGORIES, type KuntresCategory };
 
 // Placeholder Kuntres (booklet/shiur) data for the learning area — used as a
 // fallback when Firebase isn't configured yet, and as the shape Firestore
 // documents in the "kuntresim" collection are expected to match.
 // TODO: Storage still needs wiring up for the actual PDF/audio files once a
 // document also carries a fileUrl/audioUrl field.
-
-export type KuntresCategory = "נגלה" | "חסידות" | "הלכה" | "מועדים";
-
-export const LEARNING_CATEGORIES: KuntresCategory[] = ["נגלה", "חסידות", "הלכה", "מועדים"];
 
 export type Kuntres = {
   id: string;
@@ -34,13 +32,12 @@ export const KUNTRES_ITEMS: Kuntres[] = [
 // Falls back to the local placeholder list if Firebase isn't configured, or
 // if the read fails for any reason (e.g. security rules not set up yet).
 export async function getKuntresim(): Promise<Kuntres[]> {
-  if (!isFirebaseConfigured || !db) {
-    return KUNTRES_ITEMS;
-  }
+  if (!isFirebaseAdminConfigured) return KUNTRES_ITEMS;
 
   try {
-    const snapshot = await getDocs(query(collection(db, "kuntresim"), orderBy("date", "desc")));
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Kuntres);
+    const documents = await getPublicCollection<Kuntres>("kuntresim", "date", "desc");
+    if (!documents.length) return KUNTRES_ITEMS;
+    return documents.map(({ id, data }) => ({ ...data, id }));
   } catch (error) {
     console.warn("Failed to load kuntresim from Firestore, using mock data.", error);
     return KUNTRES_ITEMS;

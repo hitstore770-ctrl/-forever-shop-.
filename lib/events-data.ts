@@ -1,5 +1,4 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "@/lib/firebase";
+import { getPublicCollection, isFirebaseAdminConfigured } from "@/lib/firebase-admin";
 
 // Upcoming events / gatherings (אירועים). Reads come from the Firestore
 // "events" collection via the client SDK (public read); writes (create/edit/
@@ -36,14 +35,12 @@ export const UPCOMING_EVENTS: UpcomingEvent[] = [
 // list if Firebase isn't configured, the collection is empty, or the read
 // fails.
 export async function getEvents(): Promise<UpcomingEvent[]> {
-  if (!isFirebaseConfigured || !db) {
-    return UPCOMING_EVENTS;
-  }
+  if (!isFirebaseAdminConfigured) return UPCOMING_EVENTS;
 
   try {
-    const snapshot = await getDocs(query(collection(db, "events"), orderBy("order", "asc")));
-    if (snapshot.empty) return UPCOMING_EVENTS;
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as UpcomingEvent);
+    const documents = await getPublicCollection<UpcomingEvent>("events", "order", "asc");
+    if (!documents.length) return UPCOMING_EVENTS;
+    return documents.map(({ id, data }) => ({ ...data, id }));
   } catch (error) {
     console.warn("Failed to load events from Firestore, using seed data.", error);
     return UPCOMING_EVENTS;

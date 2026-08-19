@@ -1,5 +1,4 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "@/lib/firebase";
+import { getPublicCollection, isFirebaseAdminConfigured } from "@/lib/firebase-admin";
 
 // The yeshiva's history timeline (ציר הזמן / ארכיון). Reads come from the
 // Firestore "history" collection via the client SDK (public read); writes
@@ -55,14 +54,12 @@ export const HISTORY_MILESTONES: HistoryMilestone[] = [
 // to the seed list if Firebase isn't configured, the collection is empty, or
 // the read fails.
 export async function getMilestones(): Promise<HistoryMilestone[]> {
-  if (!isFirebaseConfigured || !db) {
-    return HISTORY_MILESTONES;
-  }
+  if (!isFirebaseAdminConfigured) return HISTORY_MILESTONES;
 
   try {
-    const snapshot = await getDocs(query(collection(db, "history"), orderBy("order", "asc")));
-    if (snapshot.empty) return HISTORY_MILESTONES;
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as HistoryMilestone);
+    const documents = await getPublicCollection<HistoryMilestone>("history", "order", "asc");
+    if (!documents.length) return HISTORY_MILESTONES;
+    return documents.map(({ id, data }) => ({ ...data, id }));
   } catch (error) {
     console.warn("Failed to load history from Firestore, using seed data.", error);
     return HISTORY_MILESTONES;

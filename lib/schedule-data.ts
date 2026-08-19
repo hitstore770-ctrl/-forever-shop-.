@@ -1,5 +1,4 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "@/lib/firebase";
+import { getPublicCollection, isFirebaseAdminConfigured } from "@/lib/firebase-admin";
 
 // The yeshiva's daily schedule (סדר היום). Reads come from the Firestore
 // "schedule" collection via the client SDK (public read); writes happen
@@ -30,14 +29,12 @@ export const SCHEDULE_SEED: ScheduleItem[] = [
 // Reads the schedule from Firestore, ordered by the `order` field. Falls
 // back to the seed list if Firebase isn't configured or the read fails.
 export async function getSchedule(): Promise<ScheduleItem[]> {
-  if (!isFirebaseConfigured || !db) {
-    return SCHEDULE_SEED;
-  }
+  if (!isFirebaseAdminConfigured) return SCHEDULE_SEED;
 
   try {
-    const snapshot = await getDocs(query(collection(db, "schedule"), orderBy("order", "asc")));
-    if (snapshot.empty) return SCHEDULE_SEED;
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as ScheduleItem);
+    const documents = await getPublicCollection<ScheduleItem>("schedule", "order", "asc");
+    if (!documents.length) return SCHEDULE_SEED;
+    return documents.map(({ id, data }) => ({ ...data, id }));
   } catch (error) {
     console.warn("Failed to load schedule from Firestore, using seed data.", error);
     return SCHEDULE_SEED;

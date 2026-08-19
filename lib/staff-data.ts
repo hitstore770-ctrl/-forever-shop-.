@@ -1,5 +1,4 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "@/lib/firebase";
+import { getPublicCollection, isFirebaseAdminConfigured } from "@/lib/firebase-admin";
 
 // The yeshiva's team & rabbis (צוות הישיבה). Reads come from the Firestore
 // "staff" collection via the client SDK (public read); writes happen
@@ -54,14 +53,12 @@ export const STAFF_SEED: StaffMember[] = [
 // Reads the staff from Firestore, ordered by `order`. Falls back to the
 // seed list if Firebase isn't configured or the read fails.
 export async function getStaff(): Promise<StaffMember[]> {
-  if (!isFirebaseConfigured || !db) {
-    return STAFF_SEED;
-  }
+  if (!isFirebaseAdminConfigured) return STAFF_SEED;
 
   try {
-    const snapshot = await getDocs(query(collection(db, "staff"), orderBy("order", "asc")));
-    if (snapshot.empty) return STAFF_SEED;
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as StaffMember);
+    const documents = await getPublicCollection<StaffMember>("staff", "order", "asc");
+    if (!documents.length) return STAFF_SEED;
+    return documents.map(({ id, data }) => ({ ...data, id }));
   } catch (error) {
     console.warn("Failed to load staff from Firestore, using seed data.", error);
     return STAFF_SEED;
