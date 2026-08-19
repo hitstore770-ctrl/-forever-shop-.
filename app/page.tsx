@@ -8,6 +8,7 @@ import {
   useMotionValue,
   useSpring,
   useMotionTemplate,
+  useReducedMotion,
   AnimatePresence,
   LayoutGroup,
   Variants,
@@ -16,8 +17,11 @@ import Lenis from "lenis";
 
 export default function Home() {
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (prefersReducedMotion) return;
+
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -37,7 +41,7 @@ export default function Home() {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   // ---- Reverse WhatsApp Morph: tracks bottom AND scroll direction ----
   useEffect(() => {
@@ -419,7 +423,7 @@ function FloatingLogo() {
           className="text-sm"
           style={{
             color: "var(--color-gold-light)",
-            fontFamily: "Assistant, sans-serif",
+            fontFamily: "var(--font-assistant), sans-serif",
           }}
         >
           מ
@@ -622,6 +626,7 @@ function HeroSection() {
           loop
           playsInline
           draggable="false"
+          poster="/hero-poster.png"
           style={{
             scale,
             backdropFilter: videoBackdropFilter,
@@ -672,7 +677,7 @@ function HeroSection() {
             useInView={false}
             className="text-white font-bold max-w-4xl fluid-h1 leading-tight md:leading-tight tracking-tight"
             style={{
-              fontFamily: "Assistant, sans-serif",
+              fontFamily: "var(--font-assistant), sans-serif",
               textShadow:
                 "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
             }}
@@ -817,7 +822,7 @@ function MarqueeSection() {
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
               style={{
-                fontFamily: "Assistant, sans-serif",
+                fontFamily: "var(--font-assistant), sans-serif",
                 color: "var(--color-gold-light)",
               }}
             >
@@ -838,7 +843,7 @@ function MarqueeSection() {
               key={i}
               className="text-2xl md:text-4xl font-bold px-4 tracking-tight"
               style={{
-                fontFamily: "Assistant, sans-serif",
+                fontFamily: "var(--font-assistant), sans-serif",
                 color: "rgba(255,255,255,0.85)",
               }}
             >
@@ -1090,13 +1095,13 @@ const TiltCard = React.memo(function TiltCard({
         >
           <span
             className="text-5xl md:text-6xl font-bold block mb-6 tracking-tight"
-            style={{ color: "var(--color-gold)", fontFamily: "Assistant, sans-serif" }}
+            style={{ color: "var(--color-gold)", fontFamily: "var(--font-assistant), sans-serif" }}
           >
             <NumberCounter target={card.number} />
           </span>
           <h3
             className="text-xl md:text-2xl font-bold text-white mb-4 tracking-tight"
-            style={{ fontFamily: "Assistant, sans-serif" }}
+            style={{ fontFamily: "var(--font-assistant), sans-serif" }}
           >
             {card.title}
           </h3>
@@ -1238,7 +1243,7 @@ function FaqItem({
       >
         <span
           className="text-lg md:text-xl font-bold text-white tracking-tight"
-          style={{ fontFamily: "Assistant, sans-serif" }}
+          style={{ fontFamily: "var(--font-assistant), sans-serif" }}
         >
           {item.q}
         </span>
@@ -1367,7 +1372,7 @@ function ThankYouState() {
       </motion.div>
       <h3
         className="text-2xl md:text-3xl font-bold mb-3 tracking-tight"
-        style={{ color: "var(--color-navy)", fontFamily: "Assistant, sans-serif" }}
+        style={{ color: "var(--color-navy)", fontFamily: "var(--font-assistant), sans-serif" }}
       >
         תודה רבה!
       </h3>
@@ -1719,7 +1724,7 @@ function Footer() {
     >
       <p
         className="text-base md:text-lg font-semibold tracking-tight"
-        style={{ color: "#ffffff", fontFamily: "Assistant, sans-serif" }}
+        style={{ color: "#ffffff", fontFamily: "var(--font-assistant), sans-serif" }}
       >
         ישיבת המלך המשיח – ירושלים © 2026
       </p>
