@@ -10,6 +10,7 @@ import {
   useMotionTemplate,
   AnimatePresence,
   LayoutGroup,
+  Variants,
 } from "framer-motion";
 import Lenis from "lenis";
 
