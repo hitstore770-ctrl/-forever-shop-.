@@ -216,20 +216,26 @@ function ScrollProgressBar() {
 }
 
 /* ---------------------------------------------
-   FLOATING GOLDEN PARTICLES
+   FLOATING GOLDEN PARTICLES (Fixed for SSR)
 --------------------------------------------- */
 function FloatingParticles({ count = 14 }: { count?: number }) {
-  const particles = useMemo(() => {
-    return Array.from({ length: count }).map((_, i) => ({
-      id: i,
-      size: 4 + Math.random() * 10,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      duration: 18 + Math.random() * 22,
-      delay: Math.random() * 6,
-      driftX: (Math.random() - 0.5) * 60,
-    }));
+  const [particles, setParticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: count }).map((_, i) => ({
+        id: i,
+        size: 4 + Math.random() * 10,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: 18 + Math.random() * 22,
+        delay: Math.random() * 6,
+        driftX: (Math.random() - 0.5) * 60,
+      }))
+    );
   }, [count]);
+
+  if (particles.length === 0) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -391,7 +397,7 @@ function FloatingLogo() {
 }
 
 /* ---------------------------------------------
-   TYPEWRITER COMPONENT
+   TYPEWRITER COMPONENT (Fixed for Next.js 15)
 --------------------------------------------- */
 function Typewriter() {
   const [displayText, setDisplayText] = useState("");
@@ -443,19 +449,12 @@ function Typewriter() {
       style={{ color: "var(--color-gold-light)", fontWeight: 700 }}
     >
       {displayText}
-      <span
+      <motion.span
+        animate={{ opacity: [1, 1, 0, 0] }}
+        transition={{ duration: 0.9, repeat: Infinity, times: [0, 0.5, 0.51, 1] }}
         className="inline-block w-[2px] h-[1em] ml-1"
-        style={{
-          background: "var(--color-gold-light)",
-          animation: "blink 0.9s steps(1) infinite",
-        }}
+        style={{ background: "var(--color-gold-light)" }}
       />
-      <style jsx>{`
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-      `}</style>
     </span>
   );
 }
@@ -1029,7 +1028,7 @@ const TiltCard = React.memo(function TiltCard({
 /* ---------------------------------------------
    FAQ SECTION
 --------------------------------------------- */
-const faqContainerVariants = {
+const faqContainerVariants: any = {
   hidden: {},
   show: {
     transition: {
@@ -1197,21 +1196,27 @@ function FaqItem({
 }
 
 /* ---------------------------------------------
-   CONFETTI BURST (Framer Motion)
+   CONFETTI BURST (Framer Motion - Fixed for SSR)
 --------------------------------------------- */
 function ConfettiBurst() {
-  const pieces = useMemo(() => {
+  const [pieces, setPieces] = useState<any[]>([]);
+
+  useEffect(() => {
     const colors = ["#c9a24b", "#e4c976", "#0f2545", "#ffffff", "#2e9e5b"];
-    return Array.from({ length: 40 }).map((_, i) => ({
-      id: i,
-      x: (Math.random() - 0.5) * 500,
-      y: Math.random() * -400 - 100,
-      rotate: Math.random() * 720 - 360,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 0.3,
-      duration: 1.2 + Math.random() * 0.8,
-    }));
+    setPieces(
+      Array.from({ length: 40 }).map((_, i) => ({
+        id: i,
+        x: (Math.random() - 0.5) * 500,
+        y: Math.random() * -400 - 100,
+        rotate: Math.random() * 720 - 360,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        delay: Math.random() * 0.3,
+        duration: 1.2 + Math.random() * 0.8,
+      }))
+    );
   }, []);
+
+  if (pieces.length === 0) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-20" aria-hidden="true">
@@ -1289,8 +1294,7 @@ function ThankYouState() {
 }
 
 /* ---------------------------------------------
-   REGISTRATION SECTION (floating labels, validation,
-   honeypot, localStorage draft, confetti success)
+   REGISTRATION SECTION
 --------------------------------------------- */
 function RegistrationSection() {
   const [formData, setFormData] = useState({
@@ -1536,7 +1540,7 @@ function RegistrationSection() {
 }
 
 /* ---------------------------------------------
-   FLOATING LABEL FIELD (with validation checkmark)
+   FLOATING LABEL FIELD
 --------------------------------------------- */
 function FloatingField({
   label,
@@ -1632,7 +1636,7 @@ function Footer() {
 }
 
 /* ---------------------------------------------
-   WHATSAPP FLOATING BUTTON (Reverse Shared Layout Magic)
+   WHATSAPP FLOATING BUTTON
 --------------------------------------------- */
 function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
   return (
@@ -1953,4 +1957,4 @@ function ShopIcon() {
       <path d="M9 13a3 3 0 006 0" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
-        }
+          }
