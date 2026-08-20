@@ -1,12 +1,12 @@
-// Yeshivat HaMelech HaMoshiach — offline service worker.
+// Yeshivat HaMelech HaMoshiach â offline service worker.
 // Hand-written (no build-tool plugin) so it's robust across Next.js/Turbopack
 // versions. Strategy:
-//   • navigations (pages): network-first, fall back to the cached page, then
-//     to an offline page — so once a student has opened /join (schedule) or
+//   â¢ navigations (pages): network-first, fall back to the cached page, then
+//     to an offline page â so once a student has opened /join (schedule) or
 //     /learning (kuntresim) online, they stay available with no signal.
-//   • static assets (_next/static, icons, fonts, images): cache-first.
-//   • /api/* and cross-origin (Firebase): always network (never cached).
-const CACHE = "ymm-cache-v1";
+//   â¢ static assets (_next/static, icons, fonts, images): cache-first.
+//   â¢ /api/* and cross-origin (Firebase): always network (never cached).
+const CACHE = "ymm-cache-v2";
 const OFFLINE_URL = "/offline";
 const PRECACHE = ["/offline", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png"];
 
@@ -34,7 +34,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return; // Firebase, external images, etc.
-  if (url.pathname.startsWith("/api/")) return; // live data (zmanim, sessions) — always network.
+  if (url.pathname.startsWith("/api/")) return; // live data (zmanim, sessions) â always network.
 
   // Page navigations: network-first, then cache, then the offline page.
   if (request.mode === "navigate") {
