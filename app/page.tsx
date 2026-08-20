@@ -14,11 +14,6 @@ import Lenis from "lenis";
 
 export default function Home() {
   const [isAtBottom, setIsAtBottom] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -71,10 +66,6 @@ export default function Home() {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  if (!mounted) {
-    return <div style={{ minHeight: "100vh", background: "#faf7f0" }} />;
-  }
 
   return (
     <main dir="rtl" className="relative w-full select-none-strict" style={{ overscrollBehaviorY: "none" }}>
@@ -424,13 +415,13 @@ function FloatingLogo() {
           className="text-sm"
           style={{ color: "var(--color-gold-light)", fontFamily: "Bona Nova S, serif" }}
         >
-          ×
+          ÃÂ
         </span>
       </div>
       <div className="logo-text text-xs" style={{ color: "var(--color-navy)" }}>
-        <div style={{ lineHeight: 1 }}>××©×××ª</div>
-        <div style={{ lineHeight: 1 }}>××××</div>
-        <div style={{ lineHeight: 1 }}>×××©××</div>
+        <div style={{ lineHeight: 1 }}>ÃÂÃÂ©ÃÂÃÂÃÂª</div>
+        <div style={{ lineHeight: 1 }}>ÃÂÃÂÃÂÃÂ</div>
+        <div style={{ lineHeight: 1 }}>ÃÂÃÂÃÂ©ÃÂÃÂ</div>
       </div>
     </motion.div>
   );
@@ -441,7 +432,7 @@ function FloatingLogo() {
 --------------------------------------------- */
 function Typewriter() {
   const [displayText, setDisplayText] = useState("");
-  const wordsRef = useRef(["××××¡×¡×ª", "××××§×©×ª"]);
+  const wordsRef = useRef(["ÃÂÃÂÃÂÃÂ¡ÃÂ¡ÃÂª", "ÃÂÃÂÃÂÃÂ§ÃÂ©ÃÂª"]);
   const wordIndexRef = useRef(0);
 
   useEffect(() => {
@@ -649,7 +640,7 @@ function HeroSection() {
               textShadow: "0 1px 6px rgba(10,26,51,0.6)",
             }}
           >
-            ×××××¨×× ×××××× 20â35 | ××× ××¨××©×××
+            ÃÂÃÂÃÂÃÂÃÂ¨ÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ 20Ã¢ÂÂ35 | ÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ©ÃÂÃÂÃÂ
           </motion.div>
 
           <RevealText
@@ -662,7 +653,7 @@ function HeroSection() {
               textShadow: "0 2px 18px rgba(10,26,51,0.75), 0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
-            ××¡××× ×××©× ×××××¨×× ×©×¨××¦×× ×××××, ×××ª×××§ ×××××× ××ª ×××××
+            ÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂÃÂ©ÃÂ ÃÂÃÂÃÂÃÂÃÂ¨ÃÂÃÂ ÃÂ©ÃÂ¨ÃÂÃÂ¦ÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ, ÃÂÃÂÃÂªÃÂÃÂÃÂ§ ÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂ
           </RevealText>
 
           <motion.p
@@ -672,8 +663,8 @@ function HeroSection() {
             className="mt-6 text-lg md:text-2xl text-white/90 max-w-2xl"
             style={{ textShadow: "0 1px 10px rgba(10,26,51,0.65)" }}
           >
-            ××××× ××¡×××, ×¢× ×××¨&apos;× ×××. ××©×××{" "}
-            <Typewriter /> ××× ××¨××©×××.
+            ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂ¡ÃÂÃÂÃÂ, ÃÂ¢ÃÂ ÃÂÃÂÃÂ¨&apos;ÃÂ ÃÂÃÂÃÂ. ÃÂÃÂ©ÃÂÃÂÃÂ{" "}
+            <Typewriter /> ÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ©ÃÂÃÂÃÂ.
           </motion.p>
 
           <motion.div
@@ -683,17 +674,17 @@ function HeroSection() {
             className="mt-10 flex flex-col sm:flex-row items-center gap-4"
           >
             <MagneticButton
-              ariaLabel="××¨×©× ×¢××©××"
+              ariaLabel="ÃÂÃÂ¨ÃÂ©ÃÂ ÃÂ¢ÃÂÃÂ©ÃÂÃÂ"
               className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold"
               style={{
                 background: "var(--color-gold)",
                 color: "var(--color-navy-deep)",
               }}
             >
-              [ ××¨×©× ×¢××©×× ]
+              [ ÃÂÃÂ¨ÃÂ©ÃÂ ÃÂ¢ÃÂÃÂ©ÃÂÃÂ ]
             </MagneticButton>
             <MagneticButton
-              ariaLabel="×× ××ª××× ××"
+              ariaLabel="ÃÂÃÂ ÃÂÃÂªÃÂÃÂÃÂ ÃÂÃÂ"
               className="px-8 py-3 rounded-xl text-base md:text-lg font-semibold border"
               style={{
                 borderColor: "rgba(255,255,255,0.6)",
@@ -701,7 +692,7 @@ function HeroSection() {
                 background: "transparent",
               }}
             >
-              [ ×× ××ª××× ××? ]
+              [ ÃÂÃÂ ÃÂÃÂªÃÂÃÂÃÂ ÃÂÃÂ? ]
             </MagneticButton>
           </motion.div>
         </motion.div>
@@ -712,7 +703,7 @@ function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          aria-label={isMuted ? "××¤×¢× ×§××" : "××©×ª×§ ×§××"}
+          aria-label={isMuted ? "ÃÂÃÂ¤ÃÂ¢ÃÂ ÃÂ§ÃÂÃÂ" : "ÃÂÃÂ©ÃÂªÃÂ§ ÃÂ§ÃÂÃÂ"}
           className="absolute bottom-8 right-6 z-20 min-hitbox rounded-full flex items-center justify-center"
           style={{
             background: "rgba(255,255,255,0.12)",
@@ -775,8 +766,8 @@ function UnmuteIcon() {
    MARQUEE SECTION
 --------------------------------------------- */
 function MarqueeSection() {
-  const line1 = "××××× ××× ××¨××©××× â ××××©×¤××¢ ×¢× ×× ××¨××©××× â¢ ×××××× ×××××¨×× â¢ ";
-  const line2 = "×ª××¨×, ××¡××××ª ××××× ××××× â ×¢× ×××§××ª ×××ª ××××× ××¡××× â¢ ×××ª×¢×××ª ××××ª×§×× â¢ ";
+  const line1 = "ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ©ÃÂÃÂÃÂ Ã¢ÂÂ ÃÂÃÂÃÂÃÂ©ÃÂ¤ÃÂÃÂ¢ ÃÂ¢ÃÂ ÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ©ÃÂÃÂÃÂ Ã¢ÂÂ¢ ÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ¨ÃÂÃÂ Ã¢ÂÂ¢ ";
+  const line2 = "ÃÂªÃÂÃÂ¨ÃÂ, ÃÂÃÂ¡ÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ Ã¢ÂÂ ÃÂ¢ÃÂ ÃÂÃÂÃÂ§ÃÂÃÂª ÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂ¡ÃÂÃÂÃÂ Ã¢ÂÂ¢ ÃÂÃÂÃÂªÃÂ¢ÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂªÃÂ§ÃÂÃÂ Ã¢ÂÂ¢ ";
 
   return (
     <section className="relative w-full py-10 overflow-hidden select-none-strict" style={{ background: "var(--color-navy)" }}>
@@ -851,23 +842,23 @@ const BentoGridSection = React.memo(function BentoGridSection() {
   const cards = [
     {
       number: 1,
-      title: "×××¡××× ××××××× ×××× â ×©× ×ª×××",
-      desc: "××××× ×ª××¨× ×××¡××××ª, ×¢××××ª ×', ×¡××¨ ××× ××©×××ª×, ××××× ×××©× ×××× × ××¢×©××ª ××¨××× ××ª ××××©× ×××××.",
+      title: "ÃÂÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ Ã¢ÂÂ ÃÂ©ÃÂ ÃÂªÃÂÃÂÃÂ",
+      desc: "ÃÂÃÂÃÂÃÂÃÂ ÃÂªÃÂÃÂ¨ÃÂ ÃÂÃÂÃÂ¡ÃÂÃÂÃÂÃÂª, ÃÂ¢ÃÂÃÂÃÂÃÂª ÃÂ', ÃÂ¡ÃÂÃÂ¨ ÃÂÃÂÃÂ ÃÂÃÂ©ÃÂÃÂÃÂªÃÂ, ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ©ÃÂ ÃÂÃÂÃÂÃÂ ÃÂ ÃÂÃÂ¢ÃÂ©ÃÂÃÂª ÃÂÃÂ¨ÃÂÃÂÃÂ ÃÂÃÂª ÃÂÃÂÃÂÃÂ©ÃÂ ÃÂÃÂÃÂÃÂÃÂ.",
     },
     {
       number: 2,
-      title: "××¦× ××× ××××× ×××¦× ××× ×¢×××× â 3 ×©× ××",
-      desc: "××©×× ××× ××¡××¨×ª ××©×××ª××ª ××©××¢××ª××ª ××××× ××¢×©×××. ×× ×××ª ×××¨×××ª ×××©××ª, ××¦××××ª ×××× × ×××× × ××©××××.",
+      title: "ÃÂÃÂ¦ÃÂ ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ¦ÃÂ ÃÂÃÂÃÂ ÃÂ¢ÃÂÃÂÃÂÃÂ Ã¢ÂÂ 3 ÃÂ©ÃÂ ÃÂÃÂ",
+      desc: "ÃÂÃÂ©ÃÂÃÂ ÃÂÃÂÃÂ ÃÂÃÂ¡ÃÂÃÂ¨ÃÂª ÃÂÃÂ©ÃÂÃÂÃÂªÃÂÃÂª ÃÂÃÂ©ÃÂÃÂ¢ÃÂÃÂªÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂ¢ÃÂ©ÃÂÃÂÃÂ. ÃÂÃÂ ÃÂÃÂÃÂª ÃÂÃÂÃÂ¨ÃÂÃÂÃÂª ÃÂÃÂÃÂ©ÃÂÃÂª, ÃÂÃÂ¦ÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂ ÃÂ ÃÂÃÂÃÂÃÂ ÃÂ ÃÂÃÂ©ÃÂÃÂÃÂÃÂ.",
     },
     {
       number: 3,
-      title: "×××¡××× ×××§×¡××¨× ×",
-      desc: "××××× ×××©××× ×××××©×× ×××ª×××¨×¨ ××××ª. ×××¨××ª××ª ×§×××¢××ª, ××©×ª×ª×¤××ª ×××ª×××¢×××××ª ××××× ××××¨× ×××¡××××ª.",
+      title: "ÃÂÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂÃÂ§ÃÂ¡ÃÂÃÂ¨ÃÂ ÃÂ",
+      desc: "ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ©ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ©ÃÂÃÂ ÃÂÃÂÃÂªÃÂÃÂÃÂ¨ÃÂ¨ ÃÂÃÂÃÂÃÂª. ÃÂÃÂÃÂ¨ÃÂÃÂªÃÂÃÂª ÃÂ§ÃÂÃÂÃÂ¢ÃÂÃÂª, ÃÂÃÂ©ÃÂªÃÂªÃÂ¤ÃÂÃÂª ÃÂÃÂÃÂªÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ¨ÃÂ ÃÂÃÂÃÂ¡ÃÂÃÂÃÂÃÂª.",
     },
     {
       number: 4,
-      title: "××¡××× ××©×××××",
-      desc: "××××× ×¤×¨×× × ×¢× ××××¨×× ×××× ×× ×©××××¢× ×-770. ××××× ×××©× ×©×¢×××¨ ×××©×ª××, ×××ª×§×× ×××× ××ª ××¨××× ×××××.",
+      title: "ÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂ©ÃÂÃÂÃÂÃÂÃÂ",
+      desc: "ÃÂÃÂÃÂÃÂÃÂ ÃÂ¤ÃÂ¨ÃÂÃÂ ÃÂ ÃÂ¢ÃÂ ÃÂÃÂÃÂÃÂ¨ÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ ÃÂ©ÃÂÃÂÃÂÃÂ¢ÃÂ ÃÂ-770. ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ©ÃÂ ÃÂ©ÃÂ¢ÃÂÃÂÃÂ¨ ÃÂÃÂÃÂ©ÃÂªÃÂÃÂ, ÃÂÃÂÃÂªÃÂ§ÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂª ÃÂÃÂ¨ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ.",
     },
   ];
 
@@ -879,8 +870,8 @@ const BentoGridSection = React.memo(function BentoGridSection() {
     >
       <motion.div style={{ y: bgParallaxY }} className="absolute inset-0 z-0 motion-optimized">
         <FloatingParticles count={12} />
-        <FloatingEmoji emoji="ð" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
-        <FloatingEmoji emoji="ð" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
+        <FloatingEmoji emoji="Ã°ÂÂÂ" top="12%" left="8%" size={54} duration={9} opacity={0.1} />
+        <FloatingEmoji emoji="Ã°ÂÂÂ" top="70%" left="88%" size={44} duration={11} opacity={0.09} />
       </motion.div>
 
       <div className="relative z-10 max-w-6xl mx-auto text-center mb-10">
@@ -889,7 +880,7 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ××¡××× ×©××ª××× ××¨××, ×××××××ª ×××××¨××ª ×©××.
+          ÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂ©ÃÂÃÂªÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ, ÃÂÃÂÃÂÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂ¨ÃÂÃÂª ÃÂ©ÃÂÃÂ.
         </RevealText>
 
         <motion.div
@@ -904,8 +895,8 @@ const BentoGridSection = React.memo(function BentoGridSection() {
             border: "1px solid rgba(201,162,75,0.35)",
           }}
         >
-          <span aria-hidden="true">â±ï¸</span>
-          <span>×§×¨××× ×©× ××§×</span>
+          <span aria-hidden="true">Ã¢ÂÂ±Ã¯Â¸Â</span>
+          <span>ÃÂ§ÃÂ¨ÃÂÃÂÃÂ ÃÂ©ÃÂ ÃÂÃÂ§ÃÂ</span>
         </motion.div>
 
         <motion.p
@@ -916,7 +907,7 @@ const BentoGridSection = React.memo(function BentoGridSection() {
           className="text-lg md:text-xl max-w-2xl mx-auto"
           style={{ color: "rgba(15, 37, 69, 0.75)" }}
         >
-          ×¦×××ª ××× ××× ×× ××¡× ×××××× ×××©× ××××¨× ×××¨×. ××××× ×¤×¨×× × ××× ×¢× ××× ×¢× ××××¨× ××©××××ª ×××´×.
+          ÃÂ¦ÃÂÃÂÃÂª ÃÂÃÂÃÂ ÃÂÃÂÃÂ ÃÂÃÂ ÃÂÃÂ¡ÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ©ÃÂ ÃÂÃÂÃÂÃÂ¨ÃÂ ÃÂÃÂÃÂ¨ÃÂ. ÃÂÃÂÃÂÃÂÃÂ ÃÂ¤ÃÂ¨ÃÂÃÂ ÃÂ ÃÂÃÂÃÂ ÃÂ¢ÃÂ ÃÂÃÂÃÂ ÃÂ¢ÃÂ ÃÂÃÂÃÂÃÂ¨ÃÂ ÃÂÃÂ©ÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂ´ÃÂ.
         </motion.p>
       </div>
 
@@ -1105,22 +1096,22 @@ const FaqSection = React.memo(function FaqSection() {
 
   const faqs = [
     {
-      q: "××× × ×¨×××ª ××¤× ×××××?",
-      a: "×¤× ××××× ××¨××××ª, ×××¨×× ×××××××, ×××× ×××¨×× ×××©× ××× ××××¨ ×××¦××¨×ª ××§×× × ×¢×× ××××ª×. ",
-      highlight: "××§××× ×××¨× ×××© ×××©××¤×¥",
-      rest: " × ××¦× ×××© ××ª×× ××§××¤××¡.",
+      q: "ÃÂÃÂÃÂ ÃÂ ÃÂ¨ÃÂÃÂÃÂª ÃÂÃÂ¤ÃÂ ÃÂÃÂÃÂÃÂÃÂ?",
+      a: "ÃÂ¤ÃÂ ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂª, ÃÂÃÂÃÂ¨ÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂÃÂ, ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ¨ÃÂÃÂ ÃÂÃÂÃÂ©ÃÂ ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ¨ ÃÂÃÂÃÂ¦ÃÂÃÂ¨ÃÂª ÃÂÃÂ§ÃÂÃÂ ÃÂ ÃÂ¢ÃÂÃÂ ÃÂÃÂÃÂÃÂªÃÂ. ",
+      highlight: "ÃÂÃÂ§ÃÂÃÂÃÂ ÃÂÃÂÃÂ¨ÃÂ ÃÂÃÂÃÂ© ÃÂÃÂÃÂ©ÃÂÃÂ¤ÃÂ¥",
+      rest: " ÃÂ ÃÂÃÂ¦ÃÂ ÃÂÃÂÃÂ© ÃÂÃÂªÃÂÃÂ ÃÂÃÂ§ÃÂÃÂ¤ÃÂÃÂ¡.",
     },
     {
-      q: "×× ×××× ××¨××××ª?",
-      a: "×©×××© ××¨××××ª ××¡×××¨××ª ××××. ××× ×¦××× ×××× ××¨×××ª ×××§×¨ ×¢×©××¨×, ×",
-      highlight: "××¨××××ª ×¦××¨××× ××¢×¨× ××××ª ×××××©×××ª",
-      rest: ", ××× ×©×ª××× ×¤× ×× ××××ª ××××××.",
+      q: "ÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂª?",
+      a: "ÃÂ©ÃÂÃÂÃÂ© ÃÂÃÂ¨ÃÂÃÂÃÂÃÂª ÃÂÃÂ¡ÃÂÃÂÃÂ¨ÃÂÃÂª ÃÂÃÂÃÂÃÂ. ÃÂÃÂÃÂ ÃÂ¦ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂÃÂª ÃÂÃÂÃÂ§ÃÂ¨ ÃÂ¢ÃÂ©ÃÂÃÂ¨ÃÂ, ÃÂ",
+      highlight: "ÃÂÃÂ¨ÃÂÃÂÃÂÃÂª ÃÂ¦ÃÂÃÂ¨ÃÂÃÂÃÂ ÃÂÃÂ¢ÃÂ¨ÃÂ ÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂ©ÃÂÃÂÃÂª",
+      rest: ", ÃÂÃÂÃÂ ÃÂ©ÃÂªÃÂÃÂÃÂ ÃÂ¤ÃÂ ÃÂÃÂ ÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂÃÂ.",
     },
     {
-      q: "×× ××××××¨× ××××¨×ª××ª ×××©×××?",
-      a: "×××××¨× ××¡××××ª, ××× ×× ××©××ª. ",
-      highlight: "××ª×××¢×××××ª, ×©××ª××ª ××©××ª×¤××ª, ××¦××× ××××¦×¢××",
-      rest: ", ××§×©×¨ ×××©× ××××× ××¢×× ××× ×¢× ××¦×××ª ×××©×××××.",
+      q: "ÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ¨ÃÂ ÃÂÃÂÃÂÃÂ¨ÃÂªÃÂÃÂª ÃÂÃÂÃÂ©ÃÂÃÂÃÂ?",
+      a: "ÃÂÃÂÃÂÃÂÃÂ¨ÃÂ ÃÂÃÂ¡ÃÂÃÂÃÂÃÂª, ÃÂÃÂÃÂ ÃÂÃÂ ÃÂÃÂ©ÃÂÃÂª. ",
+      highlight: "ÃÂÃÂªÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂª, ÃÂ©ÃÂÃÂªÃÂÃÂª ÃÂÃÂ©ÃÂÃÂªÃÂ¤ÃÂÃÂª, ÃÂÃÂ¦ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ¦ÃÂ¢ÃÂÃÂ",
+      rest: ", ÃÂÃÂ§ÃÂ©ÃÂ¨ ÃÂÃÂÃÂ©ÃÂ ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂ¢ÃÂÃÂ ÃÂÃÂÃÂ ÃÂ¢ÃÂ ÃÂÃÂ¦ÃÂÃÂÃÂª ÃÂÃÂÃÂ©ÃÂÃÂÃÂÃÂÃÂ.",
     },
   ];
 
@@ -1136,8 +1127,8 @@ const FaqSection = React.memo(function FaqSection() {
 
       <div className="absolute inset-0 z-0">
         <FloatingParticles count={10} />
-        <FloatingEmoji emoji="â" top="15%" left="85%" size={46} duration={8} opacity={0.1} />
-        <FloatingEmoji emoji="ð§­" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
+        <FloatingEmoji emoji="Ã¢ÂÂ" top="15%" left="85%" size={46} duration={8} opacity={0.1} />
+        <FloatingEmoji emoji="Ã°ÂÂ§Â­" top="75%" left="6%" size={50} duration={10} opacity={0.09} />
       </div>
 
       <motion.div style={{ y: containerParallaxY }} className="relative z-10 max-w-3xl mx-auto motion-optimized">
@@ -1146,7 +1137,7 @@ const FaqSection = React.memo(function FaqSection() {
           className="fluid-h2 font-bold text-center mb-16 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ×× ×©××©×× ×××¢×ª
+          ÃÂÃÂ ÃÂ©ÃÂÃÂ©ÃÂÃÂ ÃÂÃÂÃÂ¢ÃÂª
         </RevealText>
 
         <motion.div
@@ -1190,7 +1181,7 @@ function FaqItem({
       <motion.button
         onClick={onClick}
         whileTap={{ scale: 0.98 }}
-        aria-label={"×©×××: " + item.q}
+        aria-label={"ÃÂ©ÃÂÃÂÃÂ: " + item.q}
         aria-expanded={isOpen}
         className="w-full min-hitbox flex items-center justify-between gap-4 px-6 md:px-8 py-6 text-right"
         style={{ background: "var(--color-navy)" }}
@@ -1343,10 +1334,10 @@ function ThankYouState() {
         className="text-2xl md:text-3xl font-bold mb-3 tracking-tight"
         style={{ color: "var(--color-navy)", fontFamily: "Bona Nova S, serif" }}
       >
-        ×ª××× ×¨××!
+        ÃÂªÃÂÃÂÃÂ ÃÂ¨ÃÂÃÂ!
       </h3>
       <p className="text-base md:text-lg" style={{ color: "rgba(15, 37, 69, 0.75)" }}>
-        ××¤×¨××× ×©×× ××ª×§××× ×××¦×××. × ×¦×× ×××©××× ×××××¨ ×××× ×××§×× ×××¤×©×¨×.
+        ÃÂÃÂ¤ÃÂ¨ÃÂÃÂÃÂ ÃÂ©ÃÂÃÂ ÃÂÃÂªÃÂ§ÃÂÃÂÃÂ ÃÂÃÂÃÂ¦ÃÂÃÂÃÂ. ÃÂ ÃÂ¦ÃÂÃÂ ÃÂÃÂÃÂ©ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ¨ ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ§ÃÂÃÂ ÃÂÃÂÃÂ¤ÃÂ©ÃÂ¨ÃÂ.
       </p>
     </motion.div>
   );
@@ -1374,10 +1365,10 @@ function RegistrationSection() {
   const hasLoadedDraft = useRef(false);
 
   const tracks = [
-    "×××¡××× ××××××× ×××× â ×©× ×ª×××",
-    "××¦× ××× ××××× ×××¦× ××× ×¢×××× â 3 ×©× ××",
-    "×××¡××× ×××§×¡××¨× ×",
-    "××¡××× ××©×××××",
+    "ÃÂÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ Ã¢ÂÂ ÃÂ©ÃÂ ÃÂªÃÂÃÂÃÂ",
+    "ÃÂÃÂ¦ÃÂ ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ¦ÃÂ ÃÂÃÂÃÂ ÃÂ¢ÃÂÃÂÃÂÃÂ Ã¢ÂÂ 3 ÃÂ©ÃÂ ÃÂÃÂ",
+    "ÃÂÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂÃÂ§ÃÂ¡ÃÂÃÂ¨ÃÂ ÃÂ",
+    "ÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂ©ÃÂÃÂÃÂÃÂÃÂ",
   ];
 
   useEffect(() => {
@@ -1467,7 +1458,7 @@ function RegistrationSection() {
           className="fluid-h2 font-bold mb-6 tracking-tight"
           style={{ color: "var(--color-navy)" }}
         >
-          ×××§×× ×©×× ××¤×¨××¥, ×××ª×§×× ×××× ××ª ××ª ××¢×ª×× ×©××.
+          ÃÂÃÂÃÂ§ÃÂÃÂ ÃÂ©ÃÂÃÂ ÃÂÃÂ¤ÃÂ¨ÃÂÃÂ¥, ÃÂÃÂÃÂªÃÂ§ÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂª ÃÂÃÂª ÃÂÃÂ¢ÃÂªÃÂÃÂ ÃÂ©ÃÂÃÂ.
         </RevealText>
         <motion.p
           initial={{ opacity: 0, y: 30 }}
@@ -1477,7 +1468,7 @@ function RegistrationSection() {
           className="text-lg md:text-xl"
           style={{ color: "rgba(15, 37, 69, 0.8)" }}
         >
-          ××©××¨ ×¤×¨××× ×× ××××§ ××× ×××× ××¡××× ××ª××× ×××××§ ×¢×××¨×.
+          ÃÂÃÂ©ÃÂÃÂ¨ ÃÂ¤ÃÂ¨ÃÂÃÂÃÂ ÃÂÃÂ ÃÂÃÂÃÂÃÂ§ ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂªÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ§ ÃÂ¢ÃÂÃÂÃÂ¨ÃÂ.
         </motion.p>
       </div>
 
@@ -1512,7 +1503,7 @@ function RegistrationSection() {
             />
 
             <FloatingField
-              label="×©× ×××"
+              label="ÃÂ©ÃÂ ÃÂÃÂÃÂ"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
@@ -1520,7 +1511,7 @@ function RegistrationSection() {
               required
             />
             <FloatingField
-              label="×××"
+              label="ÃÂÃÂÃÂ"
               name="age"
               value={formData.age}
               onChange={handleChange}
@@ -1528,7 +1519,7 @@ function RegistrationSection() {
               required
             />
             <FloatingField
-              label="××¡×¤×¨ ×××¤××"
+              label="ÃÂÃÂ¡ÃÂ¤ÃÂ¨ ÃÂÃÂÃÂ¤ÃÂÃÂ"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
@@ -1543,7 +1534,7 @@ function RegistrationSection() {
                 className="text-sm md:text-base font-semibold"
                 style={{ color: "var(--color-navy)" }}
               >
-                ×××¡××× ×©××¢× ××× ×××ª×
+                ÃÂÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂ©ÃÂÃÂ¢ÃÂ ÃÂÃÂÃÂ ÃÂÃÂÃÂªÃÂ
               </label>
               <select
                 id="track-select"
@@ -1552,7 +1543,7 @@ function RegistrationSection() {
                 value={formData.track}
                 onChange={handleChange}
                 required
-                aria-label="×××¨ ××¡××× ×××××"
+                aria-label="ÃÂÃÂÃÂ¨ ÃÂÃÂ¡ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂ"
                 className="w-full min-hitbox px-4 py-3 rounded-lg text-[16px] outline-none transition-colors"
                 style={{
                   border: "2px solid var(--color-gold)",
@@ -1561,7 +1552,7 @@ function RegistrationSection() {
                 }}
               >
                 <option value="" disabled>
-                  ×××¨ ××¡×××
+                  ÃÂÃÂÃÂ¨ ÃÂÃÂ¡ÃÂÃÂÃÂ
                 </option>
                 {tracks.map((t) => (
                   <option key={t} value={t}>
@@ -1575,7 +1566,7 @@ function RegistrationSection() {
               type="submit"
               disabled={isSubmitting}
               whileTap={{ scale: 0.95 }}
-              aria-label="×©×× ×¤×¨×× ××¨×©××"
+              aria-label="ÃÂ©ÃÂÃÂ ÃÂ¤ÃÂ¨ÃÂÃÂ ÃÂÃÂ¨ÃÂ©ÃÂÃÂ"
               className="mt-4 w-full min-hitbox py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-3 transition-transform hover:scale-[1.02] disabled:opacity-80"
               style={{
                 background: "var(--color-navy)",
@@ -1588,10 +1579,10 @@ function RegistrationSection() {
                     className="inline-block w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
                     style={{ borderColor: "var(--color-gold)", borderTopColor: "transparent" }}
                   />
-                  ×©×××...
+                  ÃÂ©ÃÂÃÂÃÂ...
                 </>
               ) : (
-                "[ ×©×× ×¤×¨××× ]"
+                "[ ÃÂ©ÃÂÃÂ ÃÂ¤ÃÂ¨ÃÂÃÂÃÂ ]"
               )}
             </motion.button>
           </motion.form>
@@ -1685,13 +1676,13 @@ function Footer() {
         className="text-base md:text-lg font-semibold tracking-tight"
         style={{ color: "#ffffff", fontFamily: "Bona Nova S, serif" }}
       >
-        ××©×××ª ×××× ×××©×× â ××¨××©××× Â© 2026
+        ÃÂÃÂ©ÃÂÃÂÃÂª ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ©ÃÂÃÂ Ã¢ÂÂ ÃÂÃÂ¨ÃÂÃÂ©ÃÂÃÂÃÂ ÃÂ© 2026
       </p>
       <p
         className="text-sm md:text-base"
         style={{ color: "rgba(201, 162, 75, 0.65)" }}
       >
-        ××× ×××× ×× × ×××¨×× × ××¨××× × ××× ×××©×× ××¢××× ××¢×!
+        ÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ ÃÂ ÃÂÃÂÃÂ¨ÃÂÃÂ ÃÂ ÃÂÃÂ¨ÃÂÃÂÃÂ ÃÂ ÃÂÃÂÃÂ ÃÂÃÂÃÂ©ÃÂÃÂ ÃÂÃÂ¢ÃÂÃÂÃÂ ÃÂÃÂ¢ÃÂ!
       </p>
     </motion.footer>
   );
@@ -1715,7 +1706,7 @@ function WhatsAppFloatingButton({ isAtBottom }: { isAtBottom: boolean }) {
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
           draggable="false"
-          aria-label="×¦××¨ ×§×©×¨ ××××××¡××¤"
+          aria-label="ÃÂ¦ÃÂÃÂ¨ ÃÂ§ÃÂ©ÃÂ¨ ÃÂÃÂÃÂÃÂÃÂÃÂ¡ÃÂÃÂ¤"
           className="fixed z-[90] min-hitbox flex items-center justify-center rounded-full no-select-card select-none-strict"
           style={{
             bottom: "6rem",
@@ -1768,7 +1759,7 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
       className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-4 px-4"
-      aria-label="× ×××× ×ª××ª××"
+      aria-label="ÃÂ ÃÂÃÂÃÂÃÂ ÃÂªÃÂÃÂªÃÂÃÂ"
     >
       <div
         className="flex items-center gap-1 md:gap-2 px-4 py-3 rounded-3xl w-full max-w-md justify-between no-select-card select-none-strict"
@@ -1780,7 +1771,7 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
           boxShadow: "0 8px 32px rgba(15, 37, 69, 0.3)",
         }}
       >
-        <DockItem label="×××¢××¥" ariaLabel="×××¢××¥ ×××©× ××××××¡××¤">
+        <DockItem label="ÃÂÃÂÃÂ¢ÃÂÃÂ¥" ariaLabel="ÃÂÃÂÃÂ¢ÃÂÃÂ¥ ÃÂÃÂÃÂ©ÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ¡ÃÂÃÂ¤">
           <AnimatePresence>
             {isAtBottom && (
               <motion.div
@@ -1799,26 +1790,26 @@ function BottomDock({ isAtBottom }: { isAtBottom: boolean }) {
           )}
         </DockItem>
 
-        <DockItem label="×××××ª ×¢××" ariaLabel="×××××ª ×¢×× ×ª×××">
+        <DockItem label="ÃÂÃÂÃÂÃÂÃÂª ÃÂ¢ÃÂÃÂ" ariaLabel="ÃÂÃÂÃÂÃÂÃÂª ÃÂ¢ÃÂÃÂ ÃÂªÃÂÃÂÃÂ">
           <motion.div
             animate={bounce ? { y: [0, -8, 0, -4, 0] } : { y: 0 }}
             transition={{ duration: 0.7, ease: "easeInOut" }}
             className="w-9 h-9 flex items-center justify-center text-2xl"
             aria-hidden="true"
           >
-            ð§­
+            Ã°ÂÂ§Â­
           </motion.div>
         </DockItem>
 
         <DockCenterItem />
 
-        <DockItem label="×××¤×¢××××ª" ariaLabel="×¤×¢××××××ª ×××©×××">
+        <DockItem label="ÃÂÃÂÃÂ¤ÃÂ¢ÃÂÃÂÃÂÃÂª" ariaLabel="ÃÂ¤ÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂª ÃÂÃÂÃÂ©ÃÂÃÂÃÂ">
           <div className="w-9 h-9 flex items-center justify-center">
             <ActivityIcon />
           </div>
         </DockItem>
 
-        <DockItem label="×× ××ª" ariaLabel="×× ××ª ×××©×××">
+        <DockItem label="ÃÂÃÂ ÃÂÃÂª" ariaLabel="ÃÂÃÂ ÃÂÃÂª ÃÂÃÂÃÂ©ÃÂÃÂÃÂ">
           <div className="w-9 h-9 flex items-center justify-center">
             <ShopIcon />
           </div>
@@ -1911,7 +1902,7 @@ function DockCenterItem() {
           },
         }}
         role="button"
-        aria-label="××£ ××××ª"
+        aria-label="ÃÂÃÂ£ ÃÂÃÂÃÂÃÂª"
         tabIndex={0}
         className="relative w-14 h-14 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer overflow-hidden motion-optimized"
         style={{
@@ -1940,7 +1931,7 @@ function DockCenterItem() {
         <HomeIcon color="var(--color-navy-deep)" />
       </motion.div>
       <span className="text-[11px] font-semibold" style={{ color: "var(--color-gold-light)" }}>
-        ×××ª
+        ÃÂÃÂÃÂª
       </span>
     </div>
   );
