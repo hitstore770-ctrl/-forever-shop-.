@@ -6,7 +6,7 @@
 //     /learning (kuntresim) online, they stay available with no signal.
 //   â¢ static assets (_next/static, icons, fonts, images): cache-first.
 //   â¢ /api/* and cross-origin (Firebase): always network (never cached).
-const CACHE = "ymm-cache-v2";
+const CACHE = "ymm-cache-v3";
 const OFFLINE_URL = "/offline";
 const PRECACHE = ["/offline", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png"];
 
@@ -36,19 +36,12 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return; // Firebase, external images, etc.
   if (url.pathname.startsWith("/api/")) return; // live data (zmanim, sessions) â always network.
 
-  // Page navigations: network-first, then cache, then the offline page.
+  // Page navigations: always network. HTML is NEVER cached — a cached page
+  // references build-hashed /_next/static chunks that disappear on the next
+  // deployment, which produced a blank white screen for returning visitors.
+  // Offline visitors get the precached offline page instead.
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL))),
-    );
+    event.respondWith(fetch(request).catch(() => caches.match(OFFLINE_URL)));
     return;
   }
 
