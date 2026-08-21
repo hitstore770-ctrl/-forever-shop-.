@@ -10,6 +10,7 @@ import {
   useMotionTemplate,
   AnimatePresence,
 } from "framer-motion";
+import Image from "next/image";
 import Lenis from "lenis";
 
 export default function Home() {
@@ -403,20 +404,14 @@ function FloatingLogo() {
         boxShadow: "0 4px 24px rgba(15, 37, 69, 0.15)",
       }}
     >
-      <div
-        className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{
-          background: "var(--color-navy)",
-          border: "1.5px solid var(--color-gold)",
-        }}
+      {/* The real yeshiva logo, on the white plate its artwork expects, so the
+          homepage carries the same mark as the header, footer and app icon. */}
+      <span
+        className="relative block w-9 h-9 rounded-full overflow-hidden flex-shrink-0"
+        style={{ background: "#ffffff", border: "1.5px solid var(--color-gold)" }}
       >
-        <span
-          className="text-sm"
-          style={{ color: "var(--color-gold-light)", fontFamily: "Bona Nova SC, Bona Nova S, serif" }}
-        >
-          מ
-        </span>
-      </div>
+        <Image src="/logo.jpeg" alt="הלוגו של ישיבת המלך המשיח" fill sizes="36px" className="object-contain p-0.5" priority />
+      </span>
       <div className="logo-text text-xs" style={{ color: "var(--color-navy)" }}>
         <div style={{ lineHeight: 1 }}>ישיבת</div>
         <div style={{ lineHeight: 1 }}>המלך</div>
