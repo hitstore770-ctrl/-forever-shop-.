@@ -7,6 +7,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import GlobalDoodleField from "@/components/GlobalDoodleField";
 import BrandToaster from "@/components/ui/BrandToaster";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import BottomNav from "@/components/BottomNav";
 import { SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site-config";
 
 // Assistant is a clean, modern Hebrew/Latin sans-serif — lighter and more
@@ -65,8 +66,10 @@ export default function RootLayout({
     <html lang="he" dir="rtl" className={`${assistant.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         <GlobalDoodleField />
-        <main className="flex-1">{children}</main>
+        {/* pb-28 keeps page content clear of the fixed bottom navigation. */}
+        <main className="flex-1 pb-28">{children}</main>
         <BrandToaster />
+        <BottomNav />
         <ServiceWorkerRegister />
       </body>
     </html>

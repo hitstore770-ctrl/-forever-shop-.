@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import StaffTeamGridLoader from "@/components/contact/StaffTeamGridLoader";
 import StaffTeamGridSkeleton from "@/components/contact/StaffTeamGridSkeleton";
 import ContactForm from "@/components/contact/ContactForm";
+import NeighborhoodMapSection from "@/components/map/NeighborhoodMapSection";
 import WhatsAppUrgentNote from "@/components/contact/WhatsAppUrgentNote";
 import {
   SquigglyUnderline,
@@ -62,6 +63,8 @@ export default function ContactPage() {
           <StaffTeamGridLoader />
         </Suspense>
       </div>
+
+      <NeighborhoodMapSection />
 
       {/* Contact form */}
       <div className="relative mt-24 grid gap-10 lg:grid-cols-12">
