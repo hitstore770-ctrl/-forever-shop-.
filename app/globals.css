@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bona+Nova+SC:wght@400;700&family=Assistant:wght@200;300;400;500;600;700;800&display=swap");
 
 @font-face {
   font-family: "Bona Nova S";
@@ -274,3 +274,127 @@ a:focus-visible {
   height: 14px;
   pointer-events: none;
   }
+
+
+/* ============================================================
+   Design refresh (Base44) — visual layer only.
+   Overrides brand tokens and adds shared UI primitives.
+   No page, route, data or logic changes.
+   ============================================================ */
+:root {
+  --color-cream: #fafafa;
+  --color-cream-blue: #f5f7fb;
+  --color-navy: #0f2545;
+  --color-navy-deep: #0a1729;
+  --color-gold: #d4af37;
+  --color-gold-light: #e8d18a;
+  --color-hairline: rgba(15, 37, 69, 0.1);
+  --radius-soft: 1.25rem;
+  --radius-editorial: 2rem;
+  --shadow-soft: 0 18px 50px -30px rgba(15, 37, 69, 0.35);
+}
+
+h1, h2, h3, h4, h5,
+.font-heading {
+  font-family: "Bona Nova SC", "Bona Nova S", serif;
+}
+
+/* Buttons */
+.btn-gold,
+.btn-navy,
+.btn-ghost-navy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.75rem 1.75rem;
+  border-radius: 9999px;
+  font-family: "Assistant", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+.btn-gold {
+  background: var(--color-gold);
+  color: var(--color-navy-deep);
+  box-shadow: 0 12px 30px -18px rgba(212, 175, 55, 0.9);
+}
+.btn-navy {
+  background: var(--color-navy);
+  color: var(--color-cream);
+}
+.btn-ghost-navy {
+  background: transparent;
+  color: var(--color-navy);
+  border-color: var(--color-hairline);
+}
+.btn-gold:hover,
+.btn-navy:hover,
+.btn-ghost-navy:hover {
+  transform: translateY(-2px);
+}
+.btn-ghost-navy:hover {
+  border-color: var(--color-gold);
+}
+
+/* Cards / editorial surfaces */
+.card-editorial {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-editorial);
+  box-shadow: var(--shadow-soft);
+  padding: 1.75rem;
+}
+.card-quiet {
+  background: transparent;
+  border-top: 1px solid var(--color-hairline);
+  padding: 1.5rem 0;
+}
+.surface-blue {
+  background: var(--color-navy);
+  color: var(--color-cream);
+}
+.surface-blue h1,
+.surface-blue h2,
+.surface-blue h3 {
+  color: var(--color-cream);
+}
+
+/* Hero typography rhythm */
+.hero-eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  font-weight: 600;
+  color: var(--color-gold);
+}
+.hero-title {
+  font-family: "Bona Nova SC", "Bona Nova S", serif;
+  font-size: clamp(2.25rem, 6vw + 0.5rem, 4.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+}
+.hero-lede {
+  font-size: clamp(1rem, 0.6vw + 0.9rem, 1.25rem);
+  line-height: 1.9;
+  color: rgba(15, 37, 69, 0.72);
+  max-width: 42ch;
+}
+
+/* Hairline dividers & section rhythm */
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-hairline), transparent);
+}
+.gold-rule {
+  width: 3.5rem;
+  height: 2px;
+  background: var(--color-gold);
+}
+.section-editorial {
+  padding-block: clamp(4rem, 9vw, 8rem);
+}
