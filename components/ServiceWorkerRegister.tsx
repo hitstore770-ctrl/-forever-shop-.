@@ -18,6 +18,32 @@ export default function ServiceWorkerRegister() {
 
     if (document.readyState === "complete") register();
     else window.addEventListener("load", register, { once: true });
+
+    // Safety net: if a stale shell ever asks for a JS chunk that no longer
+    // exists, the page renders blank. Detect the failed chunk load, drop all
+    // caches + the service worker, and reload once (guarded so it can never loop).
+    const onResourceError = (event: Event) => {
+      const target = event.target as HTMLScriptElement | null;
+      if (!target || target.tagName !== "SCRIPT") return;
+      if (!target.src || !target.src.includes("/_next/static/")) return;
+      if (sessionStorage.getItem("sw-chunk-recovered")) return;
+      sessionStorage.setItem("sw-chunk-recovered", "1");
+
+      const purge = async () => {
+        try {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((key) => caches.delete(key)));
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((reg) => reg.unregister()));
+        } finally {
+          window.location.reload();
+        }
+      };
+      void purge();
+    };
+
+    window.addEventListener("error", onResourceError, true);
+    return () => window.removeEventListener("error", onResourceError, true);
   }, []);
 
   return null;
