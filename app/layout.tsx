@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Assistant } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import GlobalDoodleField from "@/components/GlobalDoodleField";
 import BrandToaster from "@/components/ui/BrandToaster";
-import ServiceWorkerCleanup from "@/components/ServiceWorkerCleanup";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site-config";
 
 // Assistant is a clean, modern Hebrew/Latin sans-serif — lighter and more
@@ -64,7 +67,7 @@ export default function RootLayout({
         <GlobalDoodleField />
         <main className="flex-1">{children}</main>
         <BrandToaster />
-        <ServiceWorkerCleanup />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
